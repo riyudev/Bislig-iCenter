@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-laptop: 870px;
+  --breakpoint-tablet: 500px;
+
+  --font-robotoBold: roboto-bold;
+  --font-productSansLight: productsans-light;
+  --font-productSansReg: productsans-regular;
+  --font-productSansBold: productsans-bold;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-green-700);
+  }
+
+  h1 {
+    @apply laptop:text-7xl font-robotoBold text-5xl;
+  }
+
+  h2 {
+    @apply laptop:text-5xl font-robotoBold text-4xl;
+  }
+
+  h3 {
+    @apply laptop:text-4xl font-robotoBold text-3xl;
+  }
+
+  h4 {
+    @apply laptop:text-2xl font-robotoBold text-xl;
+  }
+
+  h5 {
+    @apply font-productSansReg text-xl tracking-wider;
+  }
+
+  li,
+  button,
+  input,
+  p {
+    @apply font-productSansLight laptop:leading-6 text-lg;
+  }
+}
