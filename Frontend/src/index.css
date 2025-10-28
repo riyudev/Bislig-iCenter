@@ -5,6 +5,9 @@
   --breakpoint-laptop: 870px;
   --breakpoint-tablet: 500px;
 
+  --color-myblack: #2b2a28;
+  --color-creamyWhite: #f5f1ea;
+
   --font-robotoBold: roboto-bold;
   --font-productSansLight: productsans-light;
   --font-productSansReg: productsans-regular;
@@ -17,7 +20,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-green-700);
+    border-color: var(--color-myblack);
   }
 
   h1 {
@@ -33,7 +36,7 @@
   }
 
   h4 {
-    @apply laptop:text-2xl font-robotoBold text-xl;
+    @apply laptop:text-2xl font-robotoBold text-xl text-myblack;
   }
 
   h5 {
@@ -44,6 +47,6 @@
   button,
   input,
   p {
-    @apply font-productSansLight laptop:leading-6 text-lg;
+    @apply font-productSansLight laptop:leading-6;
   }
 }
