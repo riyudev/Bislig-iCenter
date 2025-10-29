@@ -24,23 +24,23 @@
   }
 
   h1 {
-    @apply laptop:text-7xl font-robotoBold text-5xl;
+    @apply laptop:text-7xl font-robotoBold text-myblack text-5xl;
   }
 
   h2 {
-    @apply laptop:text-5xl font-robotoBold text-4xl;
+    @apply laptop:text-5xl font-robotoBold text-myblack text-4xl;
   }
 
   h3 {
-    @apply laptop:text-4xl font-robotoBold text-3xl;
+    @apply laptop:text-4xl font-robotoBold text-myblack text-3xl;
   }
 
   h4 {
-    @apply laptop:text-2xl font-robotoBold text-xl text-myblack;
+    @apply laptop:text-2xl font-robotoBold text-myblack text-xl;
   }
 
   h5 {
-    @apply font-productSansReg text-xl tracking-wider;
+    @apply font-productSansReg text-myblack text-xl tracking-wider;
   }
 
   li,

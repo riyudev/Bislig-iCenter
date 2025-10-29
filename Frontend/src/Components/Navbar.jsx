@@ -39,10 +39,10 @@ function Navbar() {
 
         <div className="flex items-center justify-center gap-x-3.5">
           <NavLink to="/login">
-            <FaRegUser className="text-myblack text-2xl hover:text-amber-500" />
+            <FaRegUser className="text-myblack text-2xl hover:text-blue-600" />
           </NavLink>
           <NavLink to="/cart" className="relative cursor-pointer p-2">
-            <BsCart className="text-myblack text-2xl hover:text-amber-500" />
+            <BsCart className="text-myblack text-2xl hover:text-blue-600" />
             <p className="absolute top-0 ml-3 rounded-full bg-red-500/90 px-2 text-[12px] text-white">
               {" "}
             </p>
@@ -57,8 +57,8 @@ function Navbar() {
             to={link.path}
             className={({ isActive }) =>
               isActive
-                ? "text-amber-500 underline underline-offset-8"
-                : "hover:text-amber-500"
+                ? "text-blue-500 underline underline-offset-8"
+                : "hover:text-blue-500"
             }
           >
             <li>{link.label}</li>
