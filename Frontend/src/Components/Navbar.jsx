@@ -8,12 +8,11 @@ import { Button } from "flowbite-react";
 
 function Navbar() {
   const navLinks = [
-    { path: "/", label: "All" },
+    { path: "/", label: "All Category" },
     { path: "/laptop", label: "Laptop" },
     { path: "/iphone", label: "iPhone" },
     { path: "/ipad", label: "iPad" },
     { path: "/android", label: "Android" },
-    { path: "/pc-build", label: "PC Set" },
   ];
 
   return (
