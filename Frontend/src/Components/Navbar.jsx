@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 
 function Navbar() {
   const navLinks = [
+    { path: "/", label: "All" },
     { path: "/laptop", label: "Laptop" },
     { path: "/iphone", label: "iPhone" },
     { path: "/ipad", label: "iPad" },
