@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
 
 @theme {
   --breakpoint-*: initial;
@@ -40,7 +42,7 @@
   }
 
   h5 {
-    @apply font-productSansReg text-myblack text-xl tracking-wider;
+    @apply font-robotoBold text-myblack text-xl tracking-wider;
   }
 
   li,

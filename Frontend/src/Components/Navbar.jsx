@@ -4,6 +4,7 @@ import { CiSearch } from "react-icons/ci";
 import { BsCart } from "react-icons/bs";
 import { FaRegUser } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
+import { Button } from "flowbite-react";
 
 function Navbar() {
   const navLinks = [
@@ -12,12 +13,12 @@ function Navbar() {
     { path: "/iphone", label: "iPhone" },
     { path: "/ipad", label: "iPad" },
     { path: "/android", label: "Android" },
-    { path: "/pc-build", label: "PC Build" },
+    { path: "/pc-build", label: "PC Set" },
   ];
 
   return (
-    <nav className="fixed flex w-full flex-col items-center justify-center border-b p-2">
-      <div className="flex w-7xl items-center justify-between p-2">
+    <nav className="bg-creamyWhite fixed z-50 flex w-full flex-col items-center justify-center border-b py-2">
+      <div className="flex w-7xl items-center justify-between py-2">
         <div className="flex items-center space-x-56">
           <a href="/">
             <div className="flex items-center gap-x-2">

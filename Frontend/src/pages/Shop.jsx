@@ -1,9 +1,10 @@
 import React from "react";
+import Hero from "../Components/Hero";
 
 function Shop() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h4>Shop</h4>
+    <div className="h-[200vh]">
+      <Hero />
     </div>
   );
 }
