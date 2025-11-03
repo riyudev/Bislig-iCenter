@@ -1,12 +1,12 @@
 import React from "react";
-import Wavehand from "../assets/images/wavehand.png";
+import Wavehand from "../assets/hero/wavehand.png";
 import Carousel from "./Carousel.jsx";
 import { Button } from "flowbite-react";
 
 function Hero() {
   return (
     <div className="to-creamyWhite flex min-h-screen w-full justify-center bg-gradient-to-b from-sky-200/50 via-sky-100/50">
-      <div className="flex w-7xl items-center justify-between pl-20">
+      <div className="flex w-7xl items-center justify-between pt-20 pl-20">
         <figure>
           <h5 className="mb-6">New Arrivals Only</h5>
           <div className="flex flex-col space-y-3">
@@ -17,9 +17,11 @@ function Hero() {
               <img src={Wavehand} alt="Wave" className="w-16" />
             </span>
 
-            <button className="mt-8 cursor-pointer place-self-start rounded-full bg-gradient-to-br from-blue-400 via-blue-600 to-blue-700 px-7 py-3 text-white hover:bg-gradient-to-t">
-              View Latest iPhones →
-            </button>
+            <a href="#bestSeller">
+              <button className="mt-8 cursor-pointer place-self-start rounded-full bg-gradient-to-t from-blue-400 via-blue-600 to-blue-700 px-7 py-3 text-white transition-all duration-150 hover:opacity-80 active:scale-85">
+                View Best Seller →
+              </button>
+            </a>
           </div>
         </figure>
 

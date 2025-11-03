@@ -1,23 +1,30 @@
 @font-face {
   font-family: "roboto-bold";
-  src: local("Roboto_SemiCondensed-SemiBold"),
+  src:
+    local("Roboto_SemiCondensed-SemiBold"),
     url("./assets/fonts/Roboto_SemiCondensed-SemiBold.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "productsans-regular";
-  src: local("ProductSans-Regular"),
+  src:
+    local("ProductSans-Regular"),
     url("./assets/fonts/ProductSans-Regular.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "productsans-light";
-  src: local("ProductSans-Light"),
+  src:
+    local("ProductSans-Light"),
     url("./assets/fonts/ProductSans-Light.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "productsans-bold";
-  src: local("ProductSans-Bold"),
+  src:
+    local("ProductSans-Bold"),
     url("./assets/fonts/ProductSans-Bold.ttf") format("truetype");
+}
+html {
+  scroll-behavior: smooth;
 }

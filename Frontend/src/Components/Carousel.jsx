@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Banner1 from "../assets/images/ip17po.png";
-import Banner2 from "../assets/images/ipadpro.png";
-import Banner3 from "../assets/images/mcbkair.png";
-import Banner4 from "../assets/images/samsungs25ultra.png";
+import Banner1 from "../assets/hero/ip17po.png";
+import Banner2 from "../assets/hero/ipadpro.png";
+import Banner3 from "../assets/hero/mcbkair.png";
+import Banner4 from "../assets/hero/samsungs25ultra.png";
 
 const Carousel = () => {
   const slides = [Banner1, Banner2, Banner3, Banner4];
@@ -59,7 +59,7 @@ const Carousel = () => {
           <img
             src={Banner4}
             alt="Samsung Galaxy S25 Ultra"
-            className="w-64 object-contain"
+            className="w-80 object-contain"
           />
         </div>
       </div>
