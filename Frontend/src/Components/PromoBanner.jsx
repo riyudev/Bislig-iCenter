@@ -19,7 +19,7 @@ function PromoBanner() {
           for a limited time when you purchase at Bislig iCenter.
         </p>
 
-        <button className="font-productSansReg mt-4 rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 px-8 py-3 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl">
+        <button className="btn-blue laptop:w-fit w-full cursor-pointer px-8 py-3">
           Shop Now
         </button>
       </motion.div>

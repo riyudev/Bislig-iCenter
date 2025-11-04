@@ -16,6 +16,12 @@
   --font-productSansBold: productsans-bold;
 }
 
+@layer components {
+  .btn-blue {
+    @apply font-productSansReg rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl;
+  }
+}
+
 @layer base {
   *,
   ::after,

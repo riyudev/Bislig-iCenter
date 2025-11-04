@@ -18,7 +18,7 @@ function Hero() {
             </span>
 
             <a href="#bestSeller">
-              <button className="mt-8 cursor-pointer place-self-start rounded-full bg-gradient-to-t from-blue-400 via-blue-600 to-blue-700 px-7 py-3 text-white transition-all duration-150 hover:opacity-80 active:scale-85">
+              <button className="btn-blue laptop:w-fit mt-8 w-full cursor-pointer place-self-start px-8 py-3">
                 View Best Seller →
               </button>
             </a>

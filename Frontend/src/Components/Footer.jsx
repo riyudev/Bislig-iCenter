@@ -23,14 +23,16 @@ function Footer() {
         <div className="laptop:items-start flex flex-col items-center space-y-2">
           <h5 className="text-creamyWhite mb-1">Quick Links</h5>
           <ul className="text-creamyWhite/80 laptop:text-base space-y-1 text-sm">
-            <li className="cursor-pointer transition hover:text-white">Shop</li>
             <li className="cursor-pointer transition hover:text-white">
-              About
+              Laptop
             </li>
             <li className="cursor-pointer transition hover:text-white">
-              Contact
+              iPhone
             </li>
-            <li className="cursor-pointer transition hover:text-white">FAQs</li>
+            <li className="cursor-pointer transition hover:text-white">iPad</li>
+            <li className="cursor-pointer transition hover:text-white">
+              Android
+            </li>
           </ul>
         </div>
 
