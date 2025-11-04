@@ -4,6 +4,7 @@ import BestSeller from "../Components/BestSeller";
 import LatestProduct from "../Components/LatestProduct";
 import PromoBanner from "../Components/PromoBanner";
 import NewsletterSignup from "../Components/NewsLetter";
+import AboutStore from "../Components/AboutStore";
 
 function Shop() {
   return (
@@ -12,6 +13,7 @@ function Shop() {
       <LatestProduct />
       <PromoBanner />
       <BestSeller />
+      <AboutStore />
       <NewsletterSignup />
     </div>
   );
