@@ -1,4 +1,4 @@
-import ip11 from "../assets/iphones/ip11.png";
+import iphone11white from "../assets/iphones/iphone11white.png";
 import macbookair from "../assets/laptops/mcbkair.png";
 import ipadpro from "../assets/ipads/ipadpro.png";
 
@@ -6,7 +6,7 @@ export const bestSeller = [
   {
     id: "ip11",
     category: "iphone",
-    image: ip11,
+    image: iphone11white,
     name: "iPhone 11 - 128GB",
     newPrice: "11,499",
     oldPrice: "14,999",
