@@ -1,6 +1,6 @@
-import iphone11white from "./iphones/iphone11white.png";
-import macbookair from "./laptops/mcbkair.png";
-import ipadpro from "./ipads/ipadpro.png";
+import iphone11white from "../iphones/iphone11white.png";
+import macbookair from "../laptops/mcbkair.png";
+import ipadpro from "../ipads/ipadpro.png";
 
 export const bestSeller = [
   {

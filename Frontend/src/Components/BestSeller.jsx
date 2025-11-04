@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "./Items";
-import { bestSeller } from "../assets/BestSellerData";
+import { bestSeller } from "../assets/data/BestSellerData";
 
 function BestSeller() {
   return (

@@ -1,7 +1,7 @@
-import iphone17 from "./iphones/iphone17porange.png";
-import ipadpro from "../assets/hero/ipadpro.png";
-import macbookair from "../assets/hero/mcbkair.png";
-import samsungs25ultra from "../assets/hero/samsungs25ultra.png";
+import iphone17 from "../iphones/iphone17porange.png";
+import ipadpro from "../hero/ipadpro.png";
+import macbookair from "../hero/mcbkair.png";
+import samsungs25ultra from "../hero/samsungs25ultra.png";
 
 export const latestItem = [
   {

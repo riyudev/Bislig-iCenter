@@ -1,5 +1,5 @@
 import React from "react";
-import { latestItem } from "../assets/LatestItem";
+import { latestItem } from "../assets/data/LatestItem";
 import Item from "./Items";
 
 function LatestProduct() {
