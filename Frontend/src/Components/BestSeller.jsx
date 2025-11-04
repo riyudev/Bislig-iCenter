@@ -4,11 +4,8 @@ import { bestSeller } from "../assets/BestSellerData";
 
 function BestSeller() {
   return (
-    <section
-      id="bestSeller"
-      className="min-h-screen scroll-mt-20 place-items-center pt-20"
-    >
-      <div className="w-7xl space-y-10 px-5 pb-20">
+    <section id="bestSeller" className="scroll-mt-20 place-items-center py-20">
+      <div className="w-7xl space-y-10 px-5">
         <header className="place-items-center space-y-3.5">
           <h2>Our Best Seller Products</h2>
           <hr className="w-40 border-[3px]" />
