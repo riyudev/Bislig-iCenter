@@ -15,7 +15,7 @@ const Items = (props) => {
           className="size-60 object-contain"
         />
       </div>
-      <p className="laptop:text-lg px-2 text-sm text-wrap">{props.name}</p>
+      <p className="laptop:text-lg truncate px-2 text-sm">{props.name}</p>
       <div className="flex items-center justify-between px-2">
         <div>
           <p className="line-through">₱{props.oldPrice}</p>

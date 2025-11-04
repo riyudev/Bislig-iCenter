@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Banner1 from "../assets/hero/iphone17po.png";
+import Banner1 from "../assets/hero/iphone17porange.png";
 import Banner2 from "../assets/hero/ipadpro.png";
 import Banner3 from "../assets/hero/mcbkair.png";
 import Banner4 from "../assets/hero/samsungs25ultra.png";

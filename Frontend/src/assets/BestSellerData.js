@@ -1,10 +1,10 @@
-import iphone11white from "../assets/iphones/iphone11white.png";
-import macbookair from "../assets/laptops/mcbkair.png";
-import ipadpro from "../assets/ipads/ipadpro.png";
+import iphone11white from "./iphones/iphone11white.png";
+import macbookair from "./laptops/mcbkair.png";
+import ipadpro from "./ipads/ipadpro.png";
 
 export const bestSeller = [
   {
-    id: "ip11",
+    id: "iphone11",
     category: "iphone",
     image: iphone11white,
     name: "iPhone 11 - 128GB",
