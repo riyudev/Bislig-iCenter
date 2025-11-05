@@ -1,7 +1,7 @@
 import React, { createContext, useState, useRef } from "react";
 import iPhoneData from "../assets/data/iPhoneData";
 import laptopData from "../assets/data/LaptopData";
-import iPadData from "../assets/data/";
+import iPadData from "../assets/data/iPadData";
 import androidData from "../assets/data/AndroidData";
 
 export const ShopContext = createContext(null);

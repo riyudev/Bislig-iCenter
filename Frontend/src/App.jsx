@@ -2,29 +2,37 @@ import React from "react";
 import "./App.css";
 import Navbar from "./Components/Navbar";
 import Shop from "./pages/Shop";
-import Laptop from "./pages/Laptop";
-import Iphone from "./pages/Iphone";
-import Ipad from "./pages/Ipad";
-import Android from "./pages/Android";
+import ShopCategory from "./pages/ShopCategory";
 import LoginSignup from "./pages/LoginSignup";
 import Cart from "./pages/Cart";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Footer from "./Components/Footer";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
     <div className="bg-creamyWhite min-h-screen">
       <Router>
         <Navbar />
+
         <Routes>
+          {/* Main Shop Page */}
           <Route path="/" element={<Shop />} />
-          <Route path="/laptop" element={<Laptop />} />
-          <Route path="/iphone" element={<Iphone />} />
-          <Route path="/ipad" element={<Ipad />} />
-          <Route path="/android" element={<Android />} />
+
+          {/* Dynamic Category Page */}
+          {/* e.g. /category/iphone, /category/laptop, etc. */}
+          <Route path="/laptop" element={<ShopCategory category="laptop" />} />
+          <Route path="/iphone" element={<ShopCategory category="iphone" />} />
+          <Route path="/ipad" element={<ShopCategory category="ipad" />} />
+          <Route
+            path="/android"
+            element={<ShopCategory category="android" />}
+          />
+
+          {/* Other Pages */}
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<LoginSignup />} />
         </Routes>
+
         <Footer />
       </Router>
     </div>

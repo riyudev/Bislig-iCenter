@@ -8,11 +8,11 @@ const Items = (props) => {
 
   return (
     <div className="tablet:w-40 laptop:max-w-[300px] laptop:w-full to-creamyWhite w-fit cursor-pointer space-y-3 border border-gray-800/20 bg-gradient-to-b from-sky-200/50 via-sky-50 p-2 pt-5 hover:border-blue-500">
-      <div className="">
+      <div className="place-items-center">
         <img
           src={props.image}
           alt={props.name}
-          className="size-60 object-contain"
+          className="size-52 object-contain"
         />
       </div>
       <p className="laptop:text-lg truncate px-2 text-sm">{props.name}</p>
