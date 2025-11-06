@@ -1,6 +1,6 @@
 import React from "react";
 import { latestItem } from "../assets/data/LatestItem";
-import Item from "./Items";
+import Items from "./Items";
 
 function LatestProduct() {
   return (
@@ -14,7 +14,7 @@ function LatestProduct() {
         <div className="laptop:grid-cols-4 tablet:gap-x-6 grid w-fit grid-cols-2 gap-x-3 place-self-center">
           {latestItem.map((item, i) => {
             return (
-              <Item
+              <Items
                 key={i}
                 id={item.id}
                 name={item.name}

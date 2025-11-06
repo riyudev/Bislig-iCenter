@@ -7,6 +7,7 @@ import LoginSignup from "./pages/LoginSignup";
 import Cart from "./pages/Cart";
 import Footer from "./Components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Product from "./pages/Product";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           />
 
           {/* Other Pages */}
+          <Route path="/:category/:productId" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<LoginSignup />} />
         </Routes>

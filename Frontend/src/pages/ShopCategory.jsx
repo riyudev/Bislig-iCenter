@@ -12,7 +12,7 @@ const ShopCategory = (props) => {
     <div className="mb-20 flex flex-col items-center">
       <div className="mb-10 pt-24"></div>
 
-      <div className="laptop:mb-24 mb-16 px-3">
+      <div className="laptop:mb-24 mb-16 w-full max-w-7xl px-5">
         <div className="mb-6 flex items-center justify-between">
           <p className="laptop:text-lg text-sm">
             <span className="font-sfproSemiBold">Showing 1-12</span> out of 36

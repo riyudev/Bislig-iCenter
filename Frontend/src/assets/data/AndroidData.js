@@ -5,7 +5,7 @@ let androidData = [
     id: "samsungs25ultra",
     category: "android",
     image: samsungs25ultra,
-    name: "Samsung Galaxy S25 Ultra - 128GB",
+    name: "Samsung Galaxy S25 Ultra",
     newPrice: "70,499",
     oldPrice: "80,999",
     variants: ["128GB", "256GB", "512GB", "1TB"],
