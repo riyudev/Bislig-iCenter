@@ -1,24 +1,26 @@
-import React from "react";
+import React, { useContext } from "react";
 import Logo from "../assets/bislig-iCenter-Logo.png";
 import { CiSearch } from "react-icons/ci";
 import { BsCart } from "react-icons/bs";
 import { FaRegUser } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
-import { Button } from "flowbite-react";
+import { ShopContext } from "../context/ShopContext";
 
 function Navbar() {
   const navLinks = [
-    { path: "/", label: "All Category" },
+    { path: "/", label: "Shop" },
     { path: "/laptop", label: "Laptop" },
     { path: "/iphone", label: "iPhone" },
     { path: "/ipad", label: "iPad" },
     { path: "/android", label: "Android" },
   ];
 
+  const { getTotalCartItems } = useContext(ShopContext);
+
   return (
     <nav className="bg-creamyWhite fixed z-50 flex w-full flex-col items-center justify-center border-b pb-2">
       <div className="flex w-7xl items-center justify-between py-2">
-        <div className="flex items-center space-x-56">
+        <div className="flex items-center space-x-60">
           <a href="/">
             <div className="flex items-center gap-x-2">
               <img src={Logo} alt="" className="w-16" />
@@ -26,7 +28,7 @@ function Navbar() {
             </div>
           </a>
 
-          <div className="border-myblack flex w-[400px] justify-between rounded-full border">
+          <div className="border-myblack flex w-[385px] justify-between rounded-full border">
             <input
               type="text"
               placeholder="Search..."
@@ -45,7 +47,7 @@ function Navbar() {
           <NavLink to="/cart" className="relative cursor-pointer p-2">
             <BsCart className="text-myblack text-2xl hover:text-blue-600" />
             <p className="absolute top-0 ml-3 rounded-full bg-red-500/90 px-2 text-[12px] text-white">
-              {" "}
+              {getTotalCartItems()}
             </p>
           </NavLink>
         </div>

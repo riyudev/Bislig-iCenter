@@ -4,7 +4,7 @@ import ipadpro from "../ipads/ipadpro.png";
 
 export const bestSeller = [
   {
-    id: "iphone11",
+    id: "iphone11white",
     category: "iphone",
     image: iphone11white,
     name: "iPhone 11",

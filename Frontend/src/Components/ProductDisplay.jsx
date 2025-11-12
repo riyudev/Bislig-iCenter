@@ -29,11 +29,7 @@ const ProductDisplay = (props) => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product.id, {
-      variant: selectedVariant,
-      color: selectedColor,
-      quantity: quantity,
-    });
+    addToCart(product.id, selectedVariant || "Default", selectedColor || "Default", quantity);
   };
 
   return (

@@ -32,7 +32,7 @@ const ShopContextProvider = (props) => {
     return `${productId}-${storage}-${color}`;
   };
 
-  const addToCart = (productId, storage = "64GB", color = "Default") => {
+  const addToCart = (productId, storage = "64GB", color = "Default", quantityToAdd = 1) => {
     const cartItemId = generateCartItemId(productId, storage, color);
 
     if (actionLockRef.current[cartItemId]) return;
@@ -51,10 +51,10 @@ const ShopContextProvider = (props) => {
         };
       }
 
-      updatedCart[cartItemId].quantity++;
+      updatedCart[cartItemId].quantity += quantityToAdd;
 
       if (isNewItem) {
-        setCartOrder((prevOrder) => [...prevOrder, cartItemId]);
+        setCartOrder((prevOrder) => [cartItemId, ...prevOrder]);
       }
 
       return updatedCart;
