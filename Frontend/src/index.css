@@ -8,7 +8,7 @@
   --breakpoint-tablet: 500px;
 
   --color-myblack: #2b2a28;
-  --color-creamyWhite: #f5f1ea;
+  --color-ghostWhite: #f8f8ff;
 
   --font-robotoBold: roboto-bold;
   --font-productSansLight: productsans-light;
@@ -17,8 +17,8 @@
 }
 
 @layer components {
-  .btn-blue {
-    @apply font-productSansReg rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl;
+  .btn-black {
+    @apply font-productSansReg cursor-pointer rounded-full bg-gradient-to-r from-[#2b2a28] via-[#3a3937] to-[#222220] text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl;
   }
 }
 
@@ -28,7 +28,11 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-myblack);
+    border-color: #d1d5db;
+  }
+
+  hr {
+    @apply h-[5px] w-40 rounded-full border-0 bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400;
   }
 
   h1 {

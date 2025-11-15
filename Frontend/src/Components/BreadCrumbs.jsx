@@ -7,11 +7,11 @@ const Breadcrumbs = ({ product }) => {
   if (!product) return null;
 
   return (
-    <div className="mb-6 flex w-full items-center text-sm text-gray-600">
+    <div className="mb-1.5 flex w-full items-center text-sm text-gray-600">
       {/* Home */}
       <Link to="/" className="flex items-center transition hover:text-black">
         <FaHome className="mr-1 text-gray-500" />
-        Home
+        Shop
       </Link>
 
       {/* Divider */}

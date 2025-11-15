@@ -4,7 +4,7 @@ import Store from "../assets/bisligiCenterStore.jpg";
 
 function AboutStore() {
   return (
-    <section className="bg-creamyWhite laptop:py-20 laptop:px-24 px-6 py-16">
+    <section className="bg-ghostWhite laptop:py-20 laptop:px-24 px-6 py-16">
       <div className="laptop:flex-row flex flex-col items-center justify-between gap-12">
         {/* Left Side — Image */}
         <motion.div
@@ -43,7 +43,7 @@ function AboutStore() {
             everyone in Bislig and beyond, blending affordability with
             authenticity.
           </p>
-          <button className="btn-blue px-8 py-3">Learn More</button>
+          <button className="btn-black px-8 py-3">Learn More</button>
         </motion.div>
       </div>
     </section>

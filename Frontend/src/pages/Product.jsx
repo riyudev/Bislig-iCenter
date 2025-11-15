@@ -10,7 +10,7 @@ function Product() {
   const product = allProducts.find((e) => String(e.id) === productId);
 
   return (
-    <div className="flex w-full flex-col items-center justify-center px-[5%] pt-36">
+    <div className="flex w-full flex-col items-center justify-center px-[9%] pt-36">
       <Breadcrumbs product={product} />
       <ProductDisplay product={product} />
     </div>

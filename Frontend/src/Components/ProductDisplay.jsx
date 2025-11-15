@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
+import { FaCartPlus } from "react-icons/fa";
 
 const ProductDisplay = (props) => {
   const { product } = props;
@@ -11,6 +12,30 @@ const ProductDisplay = (props) => {
     product.colors?.[0] || null,
   );
   const [quantity, setQuantity] = useState(1);
+
+  const parsePrice = (val) => {
+    if (val === null || val === undefined) return null;
+    const num =
+      typeof val === "number"
+        ? val
+        : Number(String(val).replace(/[^0-9.-]+/g, ""));
+    return Number.isFinite(num) ? num : null;
+  };
+  const oldP = parsePrice(product.oldPrice);
+  const newP = parsePrice(product.newPrice);
+  const hasDiscount =
+    Number.isFinite(oldP) && Number.isFinite(newP) && oldP > newP;
+  const discountPercent = hasDiscount
+    ? Math.round(((oldP - newP) / oldP) * 100)
+    : null;
+  const formatPHP = (value, fallback) =>
+    Number.isFinite(value)
+      ? new Intl.NumberFormat("en-PH", {
+          style: "currency",
+          currency: "PHP",
+          maximumFractionDigits: 0,
+        }).format(value)
+      : (fallback ?? "");
 
   const handleVariantSelect = (variant) => {
     setSelectedVariant(variant);
@@ -29,34 +54,57 @@ const ProductDisplay = (props) => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product.id, selectedVariant || "Default", selectedColor || "Default", quantity);
+    addToCart(
+      product.id,
+      selectedVariant || "Default",
+      selectedColor || "Default",
+      quantity,
+    );
   };
 
   return (
-    <div className="laptop:flex-row laptop:space-x-10 laptop:space-y-0 flex flex-col items-center justify-center space-y-8 px-5 py-8">
+    <div className="laptop:flex-row laptop:items-start laptop:gap-10 mb-5 flex w-full flex-col gap-8 border px-5 py-8 shadow-sm">
       {/* Image Gallery */}
-      <div className="laptop:h-fit w-fit gap-4">
-        <div className="border-myblack/20 col-span-4 row-span-4 overflow-hidden rounded-lg border-2 p-5">
+      <div className="laptop:max-w-lg w-full max-w-md">
+        <div className="group relative overflow-hidden rounded-2xl bg-linear-to-b from-slate-50 to-slate-100 p-6 ring-1 ring-slate-200/60 ring-inset">
           <img
             src={product.image}
             alt={product.name}
-            className="size-96 object-contain"
+            className="mx-auto h-[400px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+            loading="lazy"
           />
+          {hasDiscount && (
+            <span className="absolute top-0 left-0 rounded-tl-xl rounded-br-xl bg-rose-600 px-3 py-1 text-sm font-semibold text-white shadow-sm">
+              -{discountPercent}%
+            </span>
+          )}
+          {product.isNew && (
+            <span className="absolute top-4 right-4 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+              New
+            </span>
+          )}
         </div>
       </div>
 
       {/* Product Details */}
-      <div className="laptop:max-w-lg max-w-full space-y-6">
+      <div className="max-w-full space-y-6">
         <h3 className="leading-tight">{product.name}</h3>
 
         {/* Price */}
-        <div className="flex items-center space-x-4">
-          {product.oldPrice && (
-            <p className="text-myblack/50 text-xl line-through">
-              ₱{product.oldPrice}
-            </p>
+        <div className="flex items-baseline gap-3">
+          <span className="font-productSansBold text-3xl text-slate-900">
+            {formatPHP(newP, product.newPrice)}
+          </span>
+          {hasDiscount && (
+            <>
+              <span className="font-productSansLight text-base text-slate-400 line-through">
+                {formatPHP(oldP, product.oldPrice)}
+              </span>
+              <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-600 ring-1 ring-rose-200 ring-inset">
+                Save {discountPercent}%
+              </span>
+            </>
           )}
-          <h4 className="font-robotoBold text-blue-600">₱{product.newPrice}</h4>
         </div>
 
         {/* Description */}
@@ -76,9 +124,9 @@ const ProductDisplay = (props) => {
                 <div
                   key={index}
                   onClick={() => handleVariantSelect(variant)}
-                  className={`cursor-pointer rounded-lg border-2 p-3 px-4 transition-all duration-200 ${
+                  className={`cursor-pointer rounded-xl border-2 p-3 px-4 transition-all duration-200 ${
                     selectedVariant === variant
-                      ? "border-blue-600 bg-blue-50 text-blue-600"
+                      ? "border-blue-600 bg-blue-50 text-blue-700"
                       : "border-myblack/20 hover:border-blue-400"
                   }`}
                 >
@@ -98,9 +146,9 @@ const ProductDisplay = (props) => {
                 <div
                   key={index}
                   onClick={() => handleColorSelect(color)}
-                  className={`cursor-pointer rounded-lg border-2 p-3 px-5 transition-all duration-200 ${
+                  className={`cursor-pointer rounded-xl border-2 p-3 px-5 transition-all duration-200 ${
                     selectedColor === color
-                      ? "border-blue-600 bg-blue-50 text-blue-600"
+                      ? "border-blue-600 bg-blue-50 text-blue-700"
                       : "border-myblack/20 hover:border-blue-400"
                   }`}
                 >
@@ -114,10 +162,10 @@ const ProductDisplay = (props) => {
         {/* Quantity Selector */}
         <div className="space-y-3">
           <h5>Quantity</h5>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => handleQuantityChange("decrement")}
-              className="border-myblack/20 font-robotoBold h-10 w-10 rounded-lg border-2 transition-all duration-200 hover:border-blue-500 hover:text-blue-600"
+              className="border-myblack/20 font-robotoBold h-10 w-10 rounded-full border-2 transition-all duration-200 hover:border-blue-500 hover:text-blue-600"
             >
               -
             </button>
@@ -126,7 +174,7 @@ const ProductDisplay = (props) => {
             </span>
             <button
               onClick={() => handleQuantityChange("increment")}
-              className="border-myblack/20 font-robotoBold h-10 w-10 rounded-lg border-2 transition-all duration-200 hover:border-blue-500 hover:text-blue-600"
+              className="border-myblack/20 font-robotoBold h-10 w-10 rounded-full border-2 transition-all duration-200 hover:border-blue-500 hover:text-blue-600"
             >
               +
             </button>
@@ -136,9 +184,10 @@ const ProductDisplay = (props) => {
         {/* Add to Cart Button */}
         <button
           onClick={handleAddToCart}
-          className="btn-blue font-productSansBold px-10 py-4 text-lg tracking-wide uppercase"
+          className="btn-black inline-flex items-center gap-3 px-6 py-3"
         >
-          Add to Cart
+          <FaCartPlus className="h-5 w-5" />
+          ADD TO CART
         </button>
 
         {/* Product Info */}

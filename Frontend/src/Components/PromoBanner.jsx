@@ -4,7 +4,7 @@ import iphone17 from "../assets/iphones/iphone17porange.png";
 
 function PromoBanner() {
   return (
-    <section className="to-creamyWhite laptop:flex-row laptop:justify-between laptop:py-20 laptop:px-24 flex flex-col items-center justify-center bg-gradient-to-b from-sky-200/50 via-sky-100/50 py-16 text-center">
+    <section className="to-ghostWhite laptop:flex-row laptop:justify-between laptop:py-20 laptop:px-24 flex flex-col items-center justify-center bg-gradient-to-b from-sky-200/50 via-sky-100/50 py-16 text-center">
       {/* Text Side */}
       <motion.div
         className="laptop:max-w-[45%] space-y-6 px-4"
@@ -19,7 +19,7 @@ function PromoBanner() {
           for a limited time when you purchase at Bislig iCenter.
         </p>
 
-        <button className="btn-blue laptop:w-fit w-full cursor-pointer px-8 py-3">
+        <button className="btn-black laptop:w-fit w-full cursor-pointer px-8 py-3">
           Shop Now
         </button>
       </motion.div>

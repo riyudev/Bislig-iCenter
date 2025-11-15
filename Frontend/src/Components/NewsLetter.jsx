@@ -2,7 +2,7 @@ import React from "react";
 
 function NewsletterSignup() {
   return (
-    <section className="to-creamyWhite laptop:py-20 laptop:px-24 bg-gradient-to-b from-sky-100 via-sky-50 px-6 py-16 text-center">
+    <section className="to-ghostWhite laptop:py-20 laptop:px-24 bg-gradient-to-b from-sky-100 via-sky-50 px-6 py-16 text-center">
       <div className="mx-auto max-w-2xl space-y-6">
         <h2 className="text-myblack">Stay Updated with Bislig iCenter</h2>
         <p className="text-myblack/80 laptop:text-lg">
@@ -23,7 +23,7 @@ function NewsletterSignup() {
           />
           <button
             type="submit"
-            className="btn-blue laptop:w-fit w-full cursor-pointer px-8 py-3"
+            className="btn-black laptop:w-fit w-full cursor-pointer px-8 py-3"
           >
             Subscribe
           </button>

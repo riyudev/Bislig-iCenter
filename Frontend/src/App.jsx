@@ -11,7 +11,7 @@ import Product from "./pages/Product";
 
 function App() {
   return (
-    <div className="bg-creamyWhite min-h-screen">
+    <div className="bg-ghostWhite min-h-screen">
       <Router>
         <Navbar />
 

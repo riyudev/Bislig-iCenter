@@ -45,7 +45,7 @@ const ShopCategory = (props) => {
         </div>
       </div>
 
-      <button className="btn-blue cursor-pointer place-self-center px-8 py-3">
+      <button className="btn-black cursor-pointer place-self-center px-8 py-3">
         Explore More
       </button>
     </div>

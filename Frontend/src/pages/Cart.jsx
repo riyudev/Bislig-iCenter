@@ -22,27 +22,45 @@ function Cart() {
   const totalAmount = getTotalCartAmount();
   const allChecked = areAllItemsChecked();
 
+  const parsePrice = (val) => {
+    if (val === null || val === undefined) return null;
+    const num =
+      typeof val === "number"
+        ? val
+        : Number(String(val).replace(/[^0-9.-]+/g, ""));
+    return Number.isFinite(num) ? num : null;
+  };
   // Format price with commas
-  const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const formatPrice = (value) => {
+    const num = parsePrice(value);
+    return Number.isFinite(num)
+      ? new Intl.NumberFormat("en-PH", {
+          style: "currency",
+          currency: "PHP",
+          maximumFractionDigits: 0,
+        }).format(num)
+      : value;
   };
 
   if (cartProducts.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-4 py-16">
-        <div className="text-center space-y-6">
+        <div className="space-y-6 text-center">
           <div className="flex justify-center">
-            <div className="rounded-full bg-creamyWhite p-6">
-              <ShoppingCart className="h-16 w-16 text-blue-600" />
+            <div className="bg-ghostWhite rounded-full p-6">
+              <ShoppingCart className="text-myblack h-16 w-16" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-800">Your Cart is Empty</h3>
-          <p className="text-gray-600 max-w-md">
-            Looks like you haven't added any items to your cart yet. Start shopping to find amazing gadgets!
+          <h3 className="text-3xl font-bold text-gray-800">
+            Your Cart is Empty
+          </h3>
+          <p className="max-w-md text-gray-600">
+            Looks like you haven't added any items to your cart yet. Start
+            shopping to find amazing gadgets!
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-8 py-3 text-white font-semibold transition-all duration-200 hover:bg-blue-700 hover:scale-105"
+            className="btn-black inline-flex items-center gap-2 px-8 py-3"
           >
             Start Shopping
             <ArrowRight className="h-5 w-5" />
@@ -53,13 +71,14 @@ function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-creamyWhite px-4 py-8 laptop:px-8 laptop:py-12">
+    <div className="bg-ghostWhite laptop:px-8 laptop:py-40 min-h-screen px-4 py-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 space-y-2">
-          <h2 className="text-4xl font-bold text-myblack">Shopping Cart</h2>
+          <h2 className="text-myblack text-4xl font-bold">Shopping Cart</h2>
           <p className="text-myblack/70">
-            {cartProducts.length} {cartProducts.length === 1 ? "item" : "items"} in your cart
+            {cartProducts.length} {cartProducts.length === 1 ? "item" : "items"}{" "}
+            in your cart
           </p>
         </div>
 
@@ -67,15 +86,17 @@ function Cart() {
           {/* Cart Items Section */}
           <div className="laptop:flex-1 space-y-4">
             {/* Select All */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <label className="flex items-center gap-3 cursor-pointer">
+            <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm ring-1 ring-slate-200/60 ring-inset">
+              <label className="flex cursor-pointer items-center gap-3">
                 <input
                   type="checkbox"
                   checked={allChecked}
                   onChange={(e) => toggleAllChecks(e.target.checked)}
-                  className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  className="h-5 w-5 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                 />
-                <span className="font-semibold text-gray-800">Select All Items</span>
+                <span className="font-semibold text-gray-800">
+                  Select All Items
+                </span>
               </label>
             </div>
 
@@ -87,13 +108,13 @@ function Cart() {
               return (
                 <div
                   key={cartItemId}
-                  className={`bg-white rounded-xl shadow-sm border-2 transition-all duration-200 overflow-hidden ${
+                  className={`group overflow-hidden rounded-2xl border bg-white/80 shadow-sm transition-all duration-300 ${
                     isChecked
-                      ? "border-blue-500 shadow-blue-100"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-2 border-blue-400 shadow-blue-100 ring-blue-200"
+                      : "ring-slate-300 ring-inset hover:ring-1"
                   }`}
                 >
-                  <div className="p-4 laptop:p-6">
+                  <div className="laptop:p-6 p-4">
                     <div className="flex gap-4">
                       {/* Checkbox */}
                       <div className="flex items-start pt-2">
@@ -101,13 +122,13 @@ function Cart() {
                           type="checkbox"
                           checked={isChecked || false}
                           onChange={() => toggleItemCheck(cartItemId)}
-                          className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                          className="h-5 w-5 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
 
                       {/* Product Image */}
                       <div className="shrink-0">
-                        <div className="h-24 w-24 laptop:h-32 laptop:w-32 rounded-lg border-2 border-gray-100 bg-white p-2 overflow-hidden">
+                        <div className="laptop:h-32 laptop:w-32 h-24 w-24 overflow-hidden rounded-xl bg-linear-to-b from-slate-50 to-slate-100 p-2 ring-1 ring-slate-200/60 ring-inset">
                           <img
                             src={product.image}
                             alt={product.name}
@@ -117,20 +138,22 @@ function Cart() {
                       </div>
 
                       {/* Product Details */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-lg laptop:text-xl font-bold text-gray-900 mb-2 truncate">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="laptop:text-xl mb-2 truncate text-lg font-bold text-gray-900">
                           {product.name}
                         </h4>
-                        
-                        <div className="space-y-1 mb-3">
+
+                        <div className="mb-3 space-y-1">
                           {product.storage && product.storage !== "Default" && (
                             <p className="text-sm text-gray-600">
-                              <span className="font-semibold">Storage:</span> {product.storage}
+                              <span className="font-semibold">Storage:</span>{" "}
+                              {product.storage}
                             </p>
                           )}
                           {product.color && product.color !== "Default" && (
                             <p className="text-sm text-gray-600">
-                              <span className="font-semibold">Color:</span> {product.color}
+                              <span className="font-semibold">Color:</span>{" "}
+                              {product.color}
                             </p>
                           )}
                         </div>
@@ -138,30 +161,36 @@ function Cart() {
                         <div className="flex flex-wrap items-center gap-4">
                           {/* Price */}
                           <div className="space-y-1">
-                            <p className="text-2xl font-bold text-blue-600">
-                              ₱{formatPrice(product.newPrice)}
+                            <p className="font-productSansBold text-2xl text-slate-900">
+                              {formatPrice(product.newPrice)}
                             </p>
                             {product.oldPrice && (
-                              <p className="text-sm text-gray-500 line-through">
-                                ₱{formatPrice(product.oldPrice)}
+                              <p className="font-productSansLight text-sm text-slate-400 line-through">
+                                {formatPrice(product.oldPrice)}
                               </p>
                             )}
                           </div>
 
                           {/* Quantity Controls */}
-                          <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-2">
+                          <div className="flex items-center gap-3 rounded-full bg-slate-50 p-2">
                             <button
                               onClick={() => removeOneFromCart(cartItemId)}
-                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-300 text-gray-700 transition-all hover:bg-gray-100 hover:border-gray-400 active:scale-95"
+                              className="border-myblack/20 text-myblack/80 flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white transition-all hover:border-blue-500 hover:text-blue-600 active:scale-95"
                             >
                               <Minus className="h-4 w-4" />
                             </button>
-                            <span className="font-bold text-lg w-8 text-center">
+                            <span className="font-robotoBold w-8 text-center text-lg">
                               {product.quantity}
                             </span>
                             <button
-                              onClick={() => addToCart(product.id, product.storage, product.color)}
-                              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-gray-300 text-gray-700 transition-all hover:bg-gray-100 hover:border-gray-400 active:scale-95"
+                              onClick={() =>
+                                addToCart(
+                                  product.id,
+                                  product.storage,
+                                  product.color,
+                                )
+                              }
+                              className="border-myblack/20 text-myblack/80 flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white transition-all hover:border-blue-500 hover:text-blue-600 active:scale-95"
                             >
                               <Plus className="h-4 w-4" />
                             </button>
@@ -170,10 +199,10 @@ function Cart() {
                           {/* Remove Button */}
                           <button
                             onClick={() => removeFromCart(cartItemId)}
-                            className="flex items-center gap-2 text-red-600 hover:text-red-700 font-semibold transition-colors ml-auto"
+                            className="ml-auto flex items-center gap-2 font-semibold text-red-600 transition-colors hover:text-red-700"
                           >
                             <Trash2 className="h-5 w-5" />
-                            <span className="hidden laptop:inline">Remove</span>
+                            <span className="laptop:inline hidden">Remove</span>
                           </button>
                         </div>
                       </div>
@@ -185,24 +214,30 @@ function Cart() {
           </div>
 
           {/* Order Summary */}
-          <div className="laptop:w-96 mt-6 laptop:mt-0">
-            <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-24">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h3>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between text-gray-600">
+          <div className="laptop:w-96 laptop:mt-0 mt-6">
+            <div className="sticky top-24 rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-lg ring-1 ring-slate-200/60 ring-inset">
+              <h3 className="mb-6 text-2xl font-bold text-gray-900">
+                Order Summary
+              </h3>
+
+              <div className="mb-6 space-y-4">
+                <div className="flex justify-between text-slate-600">
                   <span>Subtotal</span>
-                  <span className="font-semibold">₱{formatPrice(totalAmount)}</span>
+                  <span className="font-productSansBold text-slate-900">
+                    {formatPrice(totalAmount)}
+                  </span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-slate-600">
                   <span>Shipping</span>
                   <span className="font-semibold text-green-600">FREE</span>
                 </div>
                 <div className="border-t-2 border-gray-200 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-gray-900">Total</span>
-                    <span className="text-2xl font-bold text-blue-600">
-                      ₱{formatPrice(totalAmount)}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-bold text-gray-900">
+                      Total
+                    </span>
+                    <span className="font-productSansBold text-2xl text-slate-900">
+                      {formatPrice(totalAmount)}
                     </span>
                   </div>
                 </div>
@@ -210,26 +245,22 @@ function Cart() {
 
               <button
                 disabled={totalAmount === 0}
-                className={`w-full rounded-lg px-6 py-4 text-white font-bold text-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                  totalAmount === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 hover:scale-105 active:scale-100"
-                }`}
+                className="btn-black flex w-full items-center justify-center gap-2 px-6 py-4 text-lg disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Proceed to Checkout
                 <ArrowRight className="h-5 w-5" />
               </button>
 
               {totalAmount === 0 && (
-                <p className="text-sm text-gray-500 text-center mt-3">
+                <p className="mt-3 text-center text-sm text-gray-500">
                   Select items to checkout
                 </p>
               )}
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 border-t border-gray-200 pt-6">
                 <Link
                   to="/"
-                  className="text-blue-600 hover:text-blue-700 font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="text-myblack hover:text-myblack/80 flex items-center justify-center gap-2 font-semibold transition-colors"
                 >
                   ← Continue Shopping
                 </Link>
