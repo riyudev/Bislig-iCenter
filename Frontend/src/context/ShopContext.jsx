@@ -83,6 +83,12 @@ const ShopContextProvider = (props) => {
         updated[cartItemId].quantity--;
         if (updated[cartItemId].quantity <= 0) {
           delete updated[cartItemId];
+          setCartOrder((prevOrder) => prevOrder.filter((id) => id !== cartItemId));
+          setCheckedItems((prevChecks) => {
+            const next = { ...prevChecks };
+            delete next[cartItemId];
+            return next;
+          });
         }
       }
       return updated;
@@ -159,6 +165,14 @@ const ShopContextProvider = (props) => {
     return cartOrder.length;
   };
 
+  const getTotalCartQuantity = () => {
+    let total = 0;
+    Object.values(cartItems).forEach((item) => {
+      total += item.quantity;
+    });
+    return total;
+  };
+
   const getCartItemsWithOptions = () => {
     return cartOrder
       .filter((id) => cartItems[id])
@@ -187,6 +201,7 @@ const ShopContextProvider = (props) => {
     getCartProducts,
     getTotalCartAmount,
     getTotalCartItems,
+    getTotalCartQuantity,
     getCartItemsWithOptions,
     generateCartItemId,
   };

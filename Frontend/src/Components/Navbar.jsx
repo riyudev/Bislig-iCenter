@@ -15,7 +15,7 @@ function Navbar() {
     { path: "/android", label: "Android" },
   ];
 
-  const { getTotalCartItems } = useContext(ShopContext);
+  const { getTotalCartQuantity } = useContext(ShopContext);
 
   return (
     <nav className="bg-ghostWhite/80 fixed top-0 z-50 w-full border-b backdrop-blur-md">
@@ -64,7 +64,7 @@ function Navbar() {
                 `inline-flex items-center rounded-full px-4 py-2 text-sm tracking-wide transition ${
                   isActive
                     ? "bg-myblack text-white shadow"
-                    : "hover:text-myblack text-slate-700 hover:bg-slate-100"
+                    : "hover:text-myblack text-slate-700 hover:bg-slate-200"
                 }`
               }
             >
@@ -86,7 +86,7 @@ function Navbar() {
           >
             <BsCart className="text-myblack text-2xl" />
             <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1.5 text-[11px] text-white shadow">
-              {getTotalCartItems()}
+              {getTotalCartQuantity()}
             </span>
           </NavLink>
         </div>
