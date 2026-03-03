@@ -8,6 +8,7 @@ import Cart from "./pages/Cart";
 import Footer from "./Components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Product from "./pages/Product";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -36,8 +37,9 @@ function App() {
         </Routes>
 
         <Footer />
-      </Router>
-    </div>
+        </Router>
+        <Toaster position="top-center" />
+      </div>
   );
 }
 

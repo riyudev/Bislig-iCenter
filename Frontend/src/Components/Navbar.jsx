@@ -1,12 +1,17 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import Logo from "../assets/bislig-iCenter-Logo.png";
 import { FaFacebookF, FaInstagram, FaRegUser, FaTiktok } from "react-icons/fa6";
 import { CiSearch } from "react-icons/ci";
 import { BsCart } from "react-icons/bs";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
   const navLinks = [
     { path: "/", label: "Shop" },
     { path: "/laptop", label: "Laptop" },
@@ -16,6 +21,32 @@ function Navbar() {
   ];
 
   const { getTotalCartQuantity } = useContext(ShopContext);
+
+  const handleUserClick = () => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      setIsDropdownOpen(!isDropdownOpen);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsDropdownOpen(false);
+    navigate("/login");
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.relative')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
 
   return (
     <nav className="bg-ghostWhite/80 fixed top-0 z-50 w-full border-b backdrop-blur-md">
@@ -74,12 +105,34 @@ function Navbar() {
         </p>
 
         <div className="flex items-center gap-2">
-          <NavLink
-            to="/login"
-            className="rounded-full p-2 transition hover:bg-slate-100"
-          >
-            <FaRegUser className="text-myblack text-2xl" />
-          </NavLink>
+          <div className="relative">
+            <button
+              onClick={handleUserClick}
+              className="flex rounded-full p-2 transition hover:bg-slate-100"
+            >
+              <p className="mr-2 text-sm">
+                {user ? user.name : "Login"}
+              </p>
+              <FaRegUser className="text-myblack text-2xl" />
+            </button>
+            
+            {user && isDropdownOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="py-1">
+                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-gray-500">{user.email}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
           <NavLink
             to="/cart"
             className="relative rounded-full p-2 transition hover:bg-slate-100"
