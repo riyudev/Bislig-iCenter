@@ -355,11 +355,7 @@ const ShopContextProvider = (props) => {
   };
 
   const getTotalCartQuantity = () => {
-    let total = 0;
-    Object.values(cartItems).forEach((item) => {
-      total += item.quantity;
-    });
-    return total;
+    return cartOrder.filter((id) => cartItems[id]).length;
   };
 
   const getCartItemsWithOptions = () => {

@@ -21,6 +21,8 @@ function Navbar() {
   ];
 
   const { getTotalCartQuantity } = useContext(ShopContext);
+  const cartCount = getTotalCartQuantity();
+  const cartCountLabel = cartCount >= 100 ? "99+" : String(cartCount);
 
   const handleUserClick = () => {
     if (!user) {
@@ -139,7 +141,7 @@ function Navbar() {
           >
             <BsCart className="text-myblack text-2xl" />
             <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1.5 text-[11px] text-white shadow">
-              {getTotalCartQuantity()}
+              {cartCountLabel}
             </span>
           </NavLink>
         </div>
