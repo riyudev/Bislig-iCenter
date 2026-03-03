@@ -21,12 +21,47 @@ const ProductDisplay = (props) => {
         : Number(String(val).replace(/[^0-9.-]+/g, ""));
     return Number.isFinite(num) ? num : null;
   };
+
+  const getDerivedVariantPrice = (variant, basePrice) => {
+    if (!variant || !Number.isFinite(basePrice)) return basePrice;
+    const v = String(variant).trim().toUpperCase();
+
+    const gbMatch = v.match(/(\d+)\s*GB/);
+    const tbMatch = v.match(/(\d+(?:\.\d+)?)\s*TB/);
+    const sizeGb = gbMatch
+      ? Number(gbMatch[1])
+      : tbMatch
+        ? Number(tbMatch[1]) * 1024
+        : null;
+
+    // If we can't parse sizes, just step prices by index.
+    const variants = Array.isArray(product?.variants) ? product.variants : [];
+    const idx = Math.max(0, variants.findIndex((x) => x === variant));
+
+    if (!Number.isFinite(sizeGb)) {
+      const step = 3000;
+      return basePrice + idx * step;
+    }
+
+    // Common storage tiers. Increase price as storage increases.
+    // This is a fallback when the product doesn't define explicit variantPrices.
+    // Assumption: the product.newPrice is the 128GB (or similar) base.
+    if (sizeGb <= 64) return basePrice - 3000;
+    if (sizeGb <= 128) return basePrice;
+    if (sizeGb <= 256) return basePrice + 7000;
+    if (sizeGb <= 512) return basePrice + 14000;
+    if (sizeGb <= 1024) return basePrice + 22000;
+    return basePrice + 30000;
+  };
   const oldP = parsePrice(product.oldPrice);
-  const newP = parsePrice(product.newPrice);
+  const baseNewP = parsePrice(product.newPrice);
+  const selectedNewP = parsePrice(product?.variantPrices?.[selectedVariant]);
+  const effectiveNewP =
+    selectedNewP ?? getDerivedVariantPrice(selectedVariant, baseNewP);
   const hasDiscount =
-    Number.isFinite(oldP) && Number.isFinite(newP) && oldP > newP;
+    Number.isFinite(oldP) && Number.isFinite(effectiveNewP) && oldP > effectiveNewP;
   const discountPercent = hasDiscount
-    ? Math.round(((oldP - newP) / oldP) * 100)
+    ? Math.round(((oldP - effectiveNewP) / oldP) * 100)
     : null;
   const formatPHP = (value, fallback) =>
     Number.isFinite(value)
@@ -59,6 +94,7 @@ const ProductDisplay = (props) => {
       selectedVariant || "Default",
       selectedColor || "Default",
       quantity,
+      effectiveNewP,
     );
   };
 
@@ -93,7 +129,7 @@ const ProductDisplay = (props) => {
         {/* Price */}
         <div className="flex items-baseline gap-3">
           <span className="font-productSansBold text-3xl text-slate-900">
-            {formatPHP(newP, product.newPrice)}
+            {formatPHP(effectiveNewP, product.newPrice)}
           </span>
           {hasDiscount && (
             <>

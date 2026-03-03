@@ -45,6 +45,11 @@ let iPhoneData = [
     oldPrice: "45,999",
     newPrice: "40,499",
     variants: ["128GB", "256GB", "512GB"],
+    variantPrices: {
+      "128GB": "40,499",
+      "256GB": "45,499",
+      "512GB": "50,499",
+    },
     colors: ["Black", "Blue", "Green", "Yellow", "Pink"],
     description:
       "iPhone 15 brings Dynamic Island to the standard model. Powered by A16 Bionic chip with improved camera capabilities and USB-C charging for seamless connectivity.",
