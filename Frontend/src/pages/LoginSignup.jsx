@@ -36,7 +36,14 @@ function LoginSignup() {
         : "http://localhost:5000/api/auth/login";
 
     const payload =
-      signState === "Sign Up" ? { name, email, password } : { email, password };
+      signState === "Sign Up"
+        ? {
+            name: name.trim(),
+            username: name.trim(),
+            email: email.trim(),
+            password,
+          }
+        : { email: email.trim(), password };
 
     try {
       const res = await fetch(url, {
@@ -48,10 +55,15 @@ function LoginSignup() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = null;
+      }
 
       if (!res.ok) {
-        toast.error(data.message || "Something went wrong");
+        toast.error(data?.message || `Request failed (${res.status})`);
         return;
       }
 
@@ -60,6 +72,7 @@ function LoginSignup() {
       // ✅ If Sign Up → Clear form + Success Toast
       if (signState === "Sign Up") {
         toast.success("Account created successfully 🎉");
+        clearForm();
         login(data.user);
         navigate("/");
       } else {

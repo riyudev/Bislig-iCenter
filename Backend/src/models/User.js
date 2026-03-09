@@ -8,6 +8,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -20,6 +27,18 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
       select: false,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
+    lastSeenAt: {
+      type: Date,
     },
   },
   { timestamps: true }
