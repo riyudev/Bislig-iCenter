@@ -87,6 +87,10 @@ export const getDashboardStats = async (req, res, next) => {
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
 
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const nextYearStart = new Date(now.getFullYear() + 1, 0, 1);
+    const revenueStatuses = ["shipped", "completed"];
+
     const [
       totalOrders,
       todayOrders,
@@ -94,6 +98,10 @@ export const getDashboardStats = async (req, res, next) => {
       monthOrders,
       pendingOrders,
       revenueAgg,
+      revenueTodayAgg,
+      revenueWeekAgg,
+      revenueMonthAgg,
+      revenueByMonthAgg,
       lowStockProducts,
     ] = await Promise.all([
       Order.countDocuments(),
@@ -102,11 +110,44 @@ export const getDashboardStats = async (req, res, next) => {
       Order.countDocuments({ orderDate: { $gte: monthAgo } }),
       Order.countDocuments({ status: "pending" }),
       Order.aggregate([
-        { $match: { status: { $in: ["shipped", "completed"] } } },
+        { $match: { status: { $in: revenueStatuses } } },
         { $group: { _id: null, total: { $sum: "$total" } } },
+      ]),
+      Order.aggregate([
+        { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: today } } },
+        { $group: { _id: null, total: { $sum: "$total" } } },
+      ]),
+      Order.aggregate([
+        { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: weekAgo } } },
+        { $group: { _id: null, total: { $sum: "$total" } } },
+      ]),
+      Order.aggregate([
+        { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: monthAgo } } },
+        { $group: { _id: null, total: { $sum: "$total" } } },
+      ]),
+      Order.aggregate([
+        {
+          $match: {
+            status: { $in: revenueStatuses },
+            orderDate: { $gte: yearStart, $lt: nextYearStart },
+          },
+        },
+        {
+          $group: {
+            _id: { month: { $month: "$orderDate" } },
+            total: { $sum: "$total" },
+          },
+        },
+        { $sort: { "_id.month": 1 } },
       ]),
       Product.countDocuments({ isActive: true }),
     ]);
+
+    const revenueByMonth = Array.from({ length: 12 }, (_, idx) => {
+      const month = idx + 1;
+      const found = revenueByMonthAgg.find((r) => r?._id?.month === month);
+      return { month, total: found?.total || 0 };
+    });
 
     res.json({
       totalOrders,
@@ -116,6 +157,10 @@ export const getDashboardStats = async (req, res, next) => {
       pendingOrders,
       lowStockProducts,
       totalRevenue: revenueAgg[0]?.total || 0,
+      revenueToday: revenueTodayAgg[0]?.total || 0,
+      revenueWeek: revenueWeekAgg[0]?.total || 0,
+      revenueMonth: revenueMonthAgg[0]?.total || 0,
+      revenueByMonth,
     });
   } catch (err) {
     next(err);
