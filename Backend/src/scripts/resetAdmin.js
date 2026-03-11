@@ -4,9 +4,9 @@ import User from "../models/User.js";
 
 dotenv.config();
 
-const DEFAULT_EMAIL = "admin@bisligicenter.com";
-const DEFAULT_USERNAME = "admin";
-const DEFAULT_PASSWORD = "admin123";
+const DEFAULT_EMAIL = "bisligicenteradmin@gmail.com";
+const DEFAULT_USERNAME = "adminbislig";
+const DEFAULT_PASSWORD = "bisligicenteradmin123";
 
 const run = async () => {
   try {
