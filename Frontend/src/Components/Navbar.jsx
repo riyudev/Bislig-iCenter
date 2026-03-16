@@ -6,11 +6,13 @@ import { BsCart } from "react-icons/bs";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
+import AccountSidebar from "./AccountSidebar";
 
 function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isAccountSidebarOpen, setIsAccountSidebarOpen] = useState(false);
   
   const navLinks = [
     { path: "/", label: "Shop" },
@@ -36,6 +38,11 @@ function Navbar() {
     logout();
     setIsDropdownOpen(false);
     navigate("/login");
+  };
+
+  const handleAccountClick = () => {
+    setIsDropdownOpen(false);
+    setIsAccountSidebarOpen(true);
   };
 
   // Close dropdown when clicking outside
@@ -126,6 +133,12 @@ function Navbar() {
                     <p className="text-gray-500">{user.email}</p>
                   </div>
                   <button
+                    onClick={handleAccountClick}
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Account
+                  </button>
+                  <button
                     onClick={handleLogout}
                     className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
                   >
@@ -146,6 +159,11 @@ function Navbar() {
           </NavLink>
         </div>
       </div>
+      
+      <AccountSidebar 
+        isOpen={isAccountSidebarOpen} 
+        onClose={() => setIsAccountSidebarOpen(false)} 
+      />
     </nav>
   );
 }

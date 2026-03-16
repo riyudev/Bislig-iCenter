@@ -112,3 +112,54 @@ export const getMe = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, email, mobileNumber, address, currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    // Find the user
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if email is being changed and if it's already in use
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+      user.email = email;
+    }
+
+    // Update basic fields
+    if (name) user.name = name;
+    if (mobileNumber !== undefined) user.mobileNumber = mobileNumber;
+    if (address !== undefined) user.address = address;
+
+    // Handle password change if requested
+    if (currentPassword || newPassword) {
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Both current and new passwords are required" });
+      }
+
+      // Verify current password
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      // Update password
+      user.password = newPassword;
+    }
+
+    await user.save();
+
+    // Return user without password
+    const safeUser = await User.findById(userId);
+    res.json({ message: "Profile updated successfully", user: safeUser });
+  } catch (err) {
+    next(err);
+  }
+};

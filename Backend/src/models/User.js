@@ -40,6 +40,14 @@ const userSchema = new mongoose.Schema(
     lastSeenAt: {
       type: Date,
     },
+    mobileNumber: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );
