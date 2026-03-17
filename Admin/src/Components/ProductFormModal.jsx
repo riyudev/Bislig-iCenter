@@ -110,7 +110,7 @@ const ProductFormModal = ({
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div>
               <label className="text-xs text-myblack/70">New price (₱)</label>
               <input
@@ -130,6 +130,17 @@ const ProductFormModal = ({
                 type="number"
                 min="0"
                 value={form.oldPrice}
+                onChange={onChange}
+                className="mt-1 w-full rounded-xl border border-myblack/10 bg-white px-4 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-myblack/70">Stocks</label>
+              <input
+                name="stocks"
+                type="number"
+                min="0"
+                value={form.stocks}
                 onChange={onChange}
                 className="mt-1 w-full rounded-xl border border-myblack/10 bg-white px-4 py-2 text-sm"
               />

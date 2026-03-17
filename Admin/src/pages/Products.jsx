@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProductFormModal from "../Components/ProductFormModal";
+import ProductTable from "../Components/ProductTable";
 
 const emptyForm = {
   name: "",
@@ -15,7 +16,9 @@ const emptyForm = {
   isBestSeller: false,
   isFeatured: false,
   lowStockThreshold: 5,
+  stocks: 0,
 };
+
 
 const Products = () => {
   const [state, setState] = useState({
@@ -88,6 +91,7 @@ const Products = () => {
       isBestSeller: p.isBestSeller ?? false,
       isFeatured: p.isFeatured ?? false,
       lowStockThreshold: p.lowStockThreshold ?? 5,
+      stocks: p.stocks ?? 0,
     });
     setFormOpen(true);
   };
@@ -165,6 +169,7 @@ const Products = () => {
       isBestSeller: form.isBestSeller,
       isFeatured: form.isFeatured,
       lowStockThreshold: Number(form.lowStockThreshold || 5),
+      stocks: Number(form.stocks || 0),
     };
 
     try {
@@ -196,10 +201,6 @@ const Products = () => {
 
   const toggleActive = async (p) => {
     const adminToken = localStorage.getItem("admin_token");
-    const confirmMessage = p.isActive
-      ? "Deactivate this product?"
-      : "Reactivate this product?";
-    if (!confirm(confirmMessage)) return;
     await fetch(`/api/admin/products/${p._id}`, {
       method: "PUT",
       headers: {
@@ -212,7 +213,6 @@ const Products = () => {
   };
 
   const hardDeactivate = async (id) => {
-    if (!confirm("Deactivate this product?")) return;
     const adminToken = localStorage.getItem("admin_token");
     await fetch(`/api/admin/products/${id}`, {
       method: "DELETE",
@@ -249,7 +249,9 @@ const Products = () => {
         <select
           className="rounded-xl border border-myblack/10 bg-white px-4 py-3"
           value={filter.category}
-          onChange={(e) => setFilter((p) => ({ ...p, category: e.target.value }))}
+          onChange={(e) =>
+            setFilter((p) => ({ ...p, category: e.target.value }))
+          }
         >
           <option value="">All Categories</option>
           <option value="iphone">iPhone</option>
@@ -268,105 +270,13 @@ const Products = () => {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Product
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Active
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {state.loading ? (
-              <tr>
-                <td className="px-6 py-6" colSpan={5}>
-                  Loading...
-                </td>
-              </tr>
-            ) : state.products.length === 0 ? (
-              <tr>
-                <td className="px-6 py-6" colSpan={5}>
-                  No products found.
-                </td>
-              </tr>
-            ) : (
-              state.products.map((p) => (
-                <tr key={p._id}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        className="h-10 w-10 rounded-xl object-cover"
-                        src={
-                          p.image?.startsWith("http")
-                            ? p.image
-                            : `http://localhost:5000${p.image || ""}`
-                        }
-                        alt={p.name}
-                      />
-                      <div>
-                        <p className="font-productSansReg text-myblack">
-                          {p.name}
-                        </p>
-                        <p className="text-xs text-myblack/60">{p._id}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-myblack/70">
-                    {p.category}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-myblack">
-                    ₱{Number(p.newPrice || 0).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        p.isActive
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-rose-50 text-rose-700"
-                      }`}
-                    >
-                      {p.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 space-x-2">
-                    <button
-                      onClick={() => openEdit(p)}
-                      className="rounded-full border border-myblack/10 bg-white px-4 py-2 text-sm hover:border-blue-500"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => toggleActive(p)}
-                      className="rounded-full border border-myblack/10 bg-white px-4 py-2 text-sm hover:border-emerald-500"
-                    >
-                      {p.isActive ? "Deactivate" : "Activate"}
-                    </button>
-                    <button
-                      onClick={() => hardDeactivate(p._id)}
-                      className="rounded-full border border-rose-200 bg-white px-4 py-2 text-sm text-rose-600 hover:border-rose-500"
-                    >
-                      Remove
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ProductTable
+        loading={state.loading}
+        products={state.products}
+        onEdit={openEdit}
+        onToggle={toggleActive}
+        onRemove={hardDeactivate}
+      />
 
       <div className="flex flex-wrap gap-2">
         {Array.from({ length: state.pages }, (_, i) => (
