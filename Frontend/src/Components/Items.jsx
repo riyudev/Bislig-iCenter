@@ -34,7 +34,11 @@ const Items = (props) => {
       <div className="group tablet:w-40 laptop:max-w-[300px] laptop:w-full relative cursor-pointer rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm ring-1 ring-transparent transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-sky-200">
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-b from-slate-50 to-slate-100 py-2 ring-1 ring-slate-200/60 ring-inset">
           <img
-            src={props.image}
+            src={
+              props.image?.startsWith("http")
+                ? props.image
+                : `http://localhost:5000${props.image || ""}`
+            }
             alt={props.name}
             loading="lazy"
             className="mx-auto h-52 w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"

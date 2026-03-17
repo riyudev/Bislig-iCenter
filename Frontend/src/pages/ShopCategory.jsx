@@ -26,11 +26,13 @@ const ShopCategory = (props) => {
 
         <div className="laptop:grid-cols-4 laptop:gap-x-6 grid grid-cols-2 gap-5">
           {allProducts.map((item, i) => {
-            if (props.category === item.category) {
+            if (
+              String(item.category || "").toLowerCase() === categoryLower
+            ) {
               return (
                 <Items
-                  key={i}
-                  id={item.id}
+                  key={item._id || i}
+                  id={item._id || item.id}
                   name={item.name}
                   image={item.image}
                   newPrice={item.newPrice}

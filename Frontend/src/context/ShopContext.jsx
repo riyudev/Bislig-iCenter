@@ -1,14 +1,7 @@
 import React, { createContext, useState, useRef, useEffect } from "react";
-import iPhoneData from "../assets/data/iPhoneData";
-import laptopData from "../assets/data/LaptopData";
-import iPadData from "../assets/data/iPadData";
-import androidData from "../assets/data/AndroidData";
 import { useAuth } from "./AuthContext";
 
 export const ShopContext = createContext(null);
-
-// Combine all categories into one master list
-const allProducts = [...iPhoneData, ...laptopData, ...iPadData, ...androidData];
 
 const getDefaultCart = () => {
   return {};
@@ -23,8 +16,33 @@ const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState(getDefaultCart());
   const [checkedItems, setCheckedItems] = useState(getDefaultCheckedItems());
   const [cartOrder, setCartOrder] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(null);
   const [loading, setLoading] = useState(false);
   const actionLockRef = useRef({});
+
+  // Load products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setProductsLoading(true);
+        const res = await fetch("http://localhost:5000/api/products");
+        if (!res.ok) {
+          throw new Error("Failed to load products");
+        }
+        const data = await res.json();
+        setAllProducts(data.products || []);
+      } catch (err) {
+        console.error("Failed to load products:", err);
+        setProductsError(err.message || "Failed to load products");
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Load cart from backend when user logs in
   useEffect(() => {
@@ -332,7 +350,7 @@ const ShopContextProvider = (props) => {
       .filter((id) => cartItems[id])
       .map((id) => {
         const { productId, storage, color, quantity } = cartItems[id];
-        const product = allProducts.find((p) => p.id === productId);
+        const product = allProducts.find((p) => p._id === productId);
         return { ...product, storage, color, quantity, cartItemId: id };
       });
   };
@@ -342,9 +360,10 @@ const ShopContextProvider = (props) => {
     cartOrder.forEach((id) => {
       if (cartItems[id] && checkedItems[id]) {
         const { productId, quantity } = cartItems[id];
-        const product = allProducts.find((p) => p.id === productId);
-        if (product)
-          total += quantity * Number(product.newPrice.replace(/,/g, ""));
+        const product = allProducts.find((p) => p._id === productId);
+        if (product) {
+          total += quantity * Number(product.newPrice || 0);
+        }
       }
     });
     return total;
@@ -363,7 +382,7 @@ const ShopContextProvider = (props) => {
       .filter((id) => cartItems[id])
       .map((id) => {
         const { productId, storage, color, quantity } = cartItems[id];
-        const product = allProducts.find((p) => p.id === productId);
+        const product = allProducts.find((p) => p._id === productId);
         if (product) {
           return { ...product, storage, color, quantity, cartItemId: id };
         }
@@ -374,6 +393,8 @@ const ShopContextProvider = (props) => {
 
   const contextValue = {
     allProducts,
+    productsLoading,
+    productsError,
     cartItems,
     checkedItems,
     loading,

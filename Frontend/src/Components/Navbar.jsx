@@ -13,7 +13,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAccountSidebarOpen, setIsAccountSidebarOpen] = useState(false);
-  
+
   const navLinks = [
     { path: "/", label: "Shop" },
     { path: "/laptop", label: "Laptop" },
@@ -48,13 +48,13 @@ function Navbar() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isDropdownOpen && !event.target.closest('.relative')) {
+      if (isDropdownOpen && !event.target.closest(".relative")) {
         setIsDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen]);
 
   return (
@@ -119,16 +119,14 @@ function Navbar() {
               onClick={handleUserClick}
               className="flex rounded-full p-2 transition hover:bg-slate-100"
             >
-              <p className="mr-2 text-sm">
-                {user ? user.name : "Login"}
-              </p>
+              <p className="mr-2 text-sm">{user ? user.name : "Login"}</p>
               <FaRegUser className="text-myblack text-2xl" />
             </button>
-            
+
             {user && isDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+              <div className="ring-opacity-5 absolute top-full right-0 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black">
                 <div className="py-1">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                  <div className="border-b px-4 py-2 text-sm text-gray-700">
                     <p className="font-medium">{user.name}</p>
                     <p className="text-gray-500">{user.email}</p>
                   </div>
@@ -159,10 +157,10 @@ function Navbar() {
           </NavLink>
         </div>
       </div>
-      
-      <AccountSidebar 
-        isOpen={isAccountSidebarOpen} 
-        onClose={() => setIsAccountSidebarOpen(false)} 
+
+      <AccountSidebar
+        isOpen={isAccountSidebarOpen}
+        onClose={() => setIsAccountSidebarOpen(false)}
       />
     </nav>
   );

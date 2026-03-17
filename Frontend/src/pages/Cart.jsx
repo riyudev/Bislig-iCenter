@@ -141,7 +141,11 @@ function Cart() {
                         <div className="shrink-0">
                           <div className="laptop:h-24 laptop:w-24 h-20 w-20 overflow-hidden rounded-xl bg-linear-to-b from-slate-50 to-slate-100 p-2 ring-1 ring-slate-200/60 ring-inset">
                             <img
-                              src={product.image}
+                              src={
+                                product.image?.startsWith("http")
+                                  ? product.image
+                                  : `http://localhost:5000${product.image || ""}`
+                              }
                               alt={product.name}
                               className="h-full w-full object-contain"
                             />
@@ -193,14 +197,14 @@ function Cart() {
                           <span className="font-robotoBold w-8 text-center text-lg">
                             {product.quantity}
                           </span>
-                          <button
-                            onClick={() =>
-                              addToCart(
-                                product.id,
-                                product.storage,
-                                product.color,
-                              )
-                            }
+                            <button
+                              onClick={() =>
+                                addToCart(
+                                  product._id || product.id,
+                                  product.storage,
+                                  product.color,
+                                )
+                              }
                             className="border-myblack/20 text-myblack/80 flex h-8 w-8 items-center justify-center rounded-full border-2 bg-white transition-all hover:border-blue-500 hover:text-blue-600 active:scale-95"
                           >
                             <Plus className="h-4 w-4" />

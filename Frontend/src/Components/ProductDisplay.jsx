@@ -90,7 +90,7 @@ const ProductDisplay = (props) => {
 
   const handleAddToCart = () => {
     addToCart(
-      product.id,
+      product._id || product.id,
       selectedVariant || "Default",
       selectedColor || "Default",
       quantity,
@@ -104,7 +104,11 @@ const ProductDisplay = (props) => {
       <div className="laptop:max-w-lg w-full max-w-md">
         <div className="group relative overflow-hidden rounded-2xl bg-linear-to-b from-slate-50 to-slate-100 p-6 ring-1 ring-slate-200/60 ring-inset">
           <img
-            src={product.image}
+            src={
+              product.image?.startsWith("http")
+                ? product.image
+                : `http://localhost:5000${product.image || ""}`
+            }
             alt={product.name}
             className="mx-auto h-[400px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
             loading="lazy"
