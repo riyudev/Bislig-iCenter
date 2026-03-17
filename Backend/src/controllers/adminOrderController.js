@@ -86,66 +86,104 @@ export const getDashboardStats = async (req, res, next) => {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-
     const yearStart = new Date(now.getFullYear(), 0, 1);
     const nextYearStart = new Date(now.getFullYear() + 1, 0, 1);
     const revenueStatuses = ["shipped", "completed"];
 
-    const [
-      totalOrders,
-      todayOrders,
-      weekOrders,
-      monthOrders,
-      pendingOrders,
-      revenueAgg,
-      revenueTodayAgg,
-      revenueWeekAgg,
-      revenueMonthAgg,
-      revenueByMonthAgg,
-      lowStockProducts,
-    ] = await Promise.all([
-      Order.countDocuments(),
-      Order.countDocuments({ orderDate: { $gte: today } }),
-      Order.countDocuments({ orderDate: { $gte: weekAgo } }),
-      Order.countDocuments({ orderDate: { $gte: monthAgo } }),
-      Order.countDocuments({ status: "pending" }),
-      Order.aggregate([
-        { $match: { status: { $in: revenueStatuses } } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]),
-      Order.aggregate([
-        { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: today } } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]),
-      Order.aggregate([
-        { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: weekAgo } } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]),
-      Order.aggregate([
-        { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: monthAgo } } },
-        { $group: { _id: null, total: { $sum: "$total" } } },
-      ]),
+    // Optimized queries using aggregation facets
+    const [orderStats, revenueStats, lowStockCount] = await Promise.all([
+      // Order counts using facet
       Order.aggregate([
         {
-          $match: {
-            status: { $in: revenueStatuses },
-            orderDate: { $gte: yearStart, $lt: nextYearStart },
-          },
-        },
-        {
-          $group: {
-            _id: { month: { $month: "$orderDate" } },
-            total: { $sum: "$total" },
-          },
-        },
-        { $sort: { "_id.month": 1 } },
+          $facet: {
+            total: [{ $count: "count" }],
+            today: [
+              { $match: { orderDate: { $gte: today } } },
+              { $count: "count" }
+            ],
+            week: [
+              { $match: { orderDate: { $gte: weekAgo } } },
+              { $count: "count" }
+            ],
+            month: [
+              { $match: { orderDate: { $gte: monthAgo } } },
+              { $count: "count" }
+            ],
+            pending: [
+              { $match: { status: "pending" } },
+              { $count: "count" }
+            ]
+          }
+        }
       ]),
-      Product.countDocuments({ isActive: true }),
+      
+      // Revenue calculations using facet
+      Order.aggregate([
+        {
+          $facet: {
+            total: [
+              { $match: { status: { $in: revenueStatuses } } },
+              { $group: { _id: null, total: { $sum: "$total" } } }
+            ],
+            today: [
+              { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: today } } },
+              { $group: { _id: null, total: { $sum: "$total" } } }
+            ],
+            week: [
+              { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: weekAgo } } },
+              { $group: { _id: null, total: { $sum: "$total" } } }
+            ],
+            month: [
+              { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: monthAgo } } },
+              { $group: { _id: null, total: { $sum: "$total" } } }
+            ],
+            byMonth: [
+              {
+                $match: {
+                  status: { $in: revenueStatuses },
+                  orderDate: { $gte: yearStart, $lt: nextYearStart }
+                }
+              },
+              {
+                $group: {
+                  _id: { month: { $month: "$orderDate" } },
+                  total: { $sum: "$total" }
+                }
+              },
+              { $sort: { "_id.month": 1 } }
+            ]
+          }
+        }
+      ]),
+      
+      // Low stock products - query directly in DB instead of loading all products
+      Product.countDocuments({
+        isActive: true,
+        $or: [
+          { stocks: { $lte: 5 } },
+          { "stockItems.stock": { $lte: 5 } }
+        ]
+      })
     ]);
+
+    // Extract results from facet queries
+    const stats = orderStats[0];
+    const revenue = revenueStats[0];
+
+    const totalOrders = stats.total[0]?.count || 0;
+    const todayOrders = stats.today[0]?.count || 0;
+    const weekOrders = stats.week[0]?.count || 0;
+    const monthOrders = stats.month[0]?.count || 0;
+    const pendingOrders = stats.pending[0]?.count || 0;
+
+    const totalRevenue = revenue.total[0]?.total || 0;
+    const revenueToday = revenue.today[0]?.total || 0;
+    const revenueWeek = revenue.week[0]?.total || 0;
+    const revenueMonth = revenue.month[0]?.total || 0;
 
     const revenueByMonth = Array.from({ length: 12 }, (_, idx) => {
       const month = idx + 1;
-      const found = revenueByMonthAgg.find((r) => r?._id?.month === month);
+      const found = revenue.byMonth.find((r) => r?._id?.month === month);
       return { month, total: found?.total || 0 };
     });
 
@@ -155,11 +193,11 @@ export const getDashboardStats = async (req, res, next) => {
       weekOrders,
       monthOrders,
       pendingOrders,
-      lowStockProducts,
-      totalRevenue: revenueAgg[0]?.total || 0,
-      revenueToday: revenueTodayAgg[0]?.total || 0,
-      revenueWeek: revenueWeekAgg[0]?.total || 0,
-      revenueMonth: revenueMonthAgg[0]?.total || 0,
+      lowStockProducts: lowStockCount,
+      totalRevenue,
+      revenueToday,
+      revenueWeek,
+      revenueMonth,
       revenueByMonth,
     });
   } catch (err) {

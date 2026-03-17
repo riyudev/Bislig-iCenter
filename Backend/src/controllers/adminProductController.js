@@ -88,9 +88,12 @@ export const adjustStock = async (req, res, next) => {
 export const getLowStockProducts = async (req, res, next) => {
   try {
     const products = await Product.find({ isActive: true }).lean();
-    const lowStock = products.filter((p) =>
-      (p.stockItems || []).some((s) => s.stock <= (p.lowStockThreshold ?? 5))
-    );
+    const lowStock = products.filter((p) => {
+      const threshold = p.lowStockThreshold ?? 5;
+      const mainStockLow = (p.stocks ?? 0) <= threshold;
+      const variantStockLow = (p.stockItems || []).some((s) => s.stock <= threshold);
+      return mainStockLow || variantStockLow;
+    });
     res.json(lowStock);
   } catch (err) {
     next(err);

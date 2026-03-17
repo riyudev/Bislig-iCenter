@@ -63,7 +63,82 @@ const Dashboard = () => {
       { month: "short" }
     );
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex flex-col gap-6">
+        {/* HEADER SKELETON */}
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 bg-gray-200 rounded w-48 mb-2 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
+          </div>
+          <div className="flex gap-3">
+            <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* REVENUE CARDS SKELETON */}
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl p-4 bg-white shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="h-3 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                  <div className="h-6 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </div>
+                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* MAIN CONTENT SKELETON */}
+        <div className="grid grid-cols-3 gap-6 flex-1">
+          {/* CHART SKELETON */}
+          <div className="col-span-2 bg-white rounded-xl shadow-sm p-5 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <div>
+                <div className="h-5 bg-gray-200 rounded w-40 mb-2 animate-pulse"></div>
+                <div className="h-3 bg-gray-200 rounded w-48 animate-pulse"></div>
+              </div>
+              <div className="h-6 bg-gray-200 rounded w-24 animate-pulse"></div>
+            </div>
+            <div className="flex-1 bg-gray-100 rounded animate-pulse"></div>
+          </div>
+
+          {/* SIDE STATS SKELETON */}
+          <div className="flex flex-col gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="rounded-xl p-4 bg-white shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="h-3 bg-gray-200 rounded w-20 mb-2 animate-pulse"></div>
+                    <div className="h-5 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  </div>
+                  <div className="h-6 w-6 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+            
+            <div className="bg-white rounded-xl shadow-sm p-4">
+              <div className="h-4 bg-gray-200 rounded w-32 mb-3 animate-pulse"></div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <div className="h-3 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                </div>
+                <div className="flex justify-between">
+                  <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+                  <div className="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const s = stats || {
     totalOrders: 0,

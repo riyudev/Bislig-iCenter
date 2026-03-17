@@ -26,6 +26,8 @@ const productSchema = new mongoose.Schema(
     variants: [{ type: String }],
     colors: [{ type: String }],
     stockItems: [variantStockSchema],
+    stocks: { type: Number, default: 0, min: 0 },
+    totalSales: { type: Number, default: 0, min: 0 },
     description: { type: String },
     isActive: { type: Boolean, default: true },
     isNew: { type: Boolean, default: false },
@@ -36,6 +38,12 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Performance indexes
+productSchema.index({ isActive: 1 });
+productSchema.index({ stocks: 1 });
+productSchema.index({ "stockItems.stock": 1 });
+productSchema.index({ category: 1 });
 
 productSchema.methods.getStock = function (variant, color) {
   const item = this.stockItems.find((s) => s.variant === variant && s.color === color);

@@ -50,6 +50,11 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Performance indexes
+orderSchema.index({ orderDate: -1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ orderDate: -1, status: 1 });
+
 orderSchema.pre("save", async function (next) {
   if (!this.orderNumber) {
     const count = await this.constructor.countDocuments();
