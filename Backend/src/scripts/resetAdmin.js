@@ -4,9 +4,9 @@ import User from "../models/User.js";
 
 dotenv.config();
 
-const DEFAULT_EMAIL = "bisligicenteradmin@gmail.com";
-const DEFAULT_USERNAME = "adminbislig";
-const DEFAULT_PASSWORD = "bisligicenteradmin123";
+const DEFAULT_EMAIL = process.env.ADMIN_EMAIL;
+const DEFAULT_USERNAME = process.env.ADMIN_USERNAME;
+const DEFAULT_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const run = async () => {
   try {
@@ -30,7 +30,13 @@ const run = async () => {
     }
 
     if (!admin) {
-      admin = new User({ name: "Admin", username, email, password, role: "admin" });
+      admin = new User({
+        name: "Admin",
+        username,
+        email,
+        password,
+        role: "admin",
+      });
       await admin.save();
       console.log(`Created admin: ${username} / ${password}`);
     } else {
