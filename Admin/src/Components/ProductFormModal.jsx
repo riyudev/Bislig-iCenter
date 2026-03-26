@@ -11,6 +11,8 @@ const ProductFormModal = ({
   onSubmit,
   onChange,
   onImageUpload,
+  disableBestSeller,
+  disableNew,
 }) => {
   if (!open) return null;
 
@@ -209,25 +211,27 @@ const ProductFormModal = ({
               />
               Active
             </label>
-            <label className="flex items-center gap-2 text-xs text-myblack/80">
+            <label className={`flex items-center gap-2 text-xs ${disableNew ? 'text-myblack/40 cursor-not-allowed' : 'text-myblack/80'}`}>
               <input
                 type="checkbox"
                 name="isNew"
                 checked={form.isNew}
                 onChange={onChange}
-                className="h-4 w-4 rounded border-myblack/20"
+                disabled={disableNew}
+                className="h-4 w-4 rounded border-myblack/20 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              Mark as new
+              Mark as new {disableNew && <span className="text-[10px] ml-1">(Limit Reached)</span>}
             </label>
-            <label className="flex items-center gap-2 text-xs text-myblack/80">
+            <label className={`flex items-center gap-2 text-xs ${disableBestSeller ? 'text-myblack/40 cursor-not-allowed' : 'text-myblack/80'}`}>
               <input
                 type="checkbox"
                 name="isBestSeller"
                 checked={form.isBestSeller}
                 onChange={onChange}
-                className="h-4 w-4 rounded border-myblack/20"
+                disabled={disableBestSeller}
+                className="h-4 w-4 rounded border-myblack/20 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              Best seller
+              Best seller {disableBestSeller && <span className="text-[10px] ml-1">(Limit Reached)</span>}
             </label>
             <label className="flex items-center gap-2 text-xs text-myblack/80">
               <input

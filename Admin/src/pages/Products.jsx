@@ -104,8 +104,35 @@ const Products = () => {
     setError("");
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "isBestSeller" && checked) {
+      try {
+        const adminToken = localStorage.getItem("admin_token");
+        const res = await fetch("/api/admin/products?limit=1000", {
+          headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+        });
+        const data = await res.json().catch(() => ({}));
+
+        let currentBestSellers = 0;
+        if (data && data.products) {
+          currentBestSellers = data.products.filter(
+            (p) => p.isBestSeller && p._id !== editing?._id
+          ).length;
+        }
+
+        if (currentBestSellers >= 3) {
+          setError(
+            "Maximum of 3 Best Sellers are allowed. Please uncheck another product first."
+          );
+          return; // Stop and don't update state
+        }
+      } catch (err) {
+        console.error("Failed to check best seller limit", err);
+      }
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,

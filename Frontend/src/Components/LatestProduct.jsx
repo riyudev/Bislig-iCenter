@@ -1,8 +1,11 @@
-import React from "react";
-import { latestItem } from "../assets/data/LatestItem";
+import React, { useContext } from "react";
+import { ShopContext } from "../context/ShopContext";
 import Items from "./Items";
 
 function LatestProduct() {
+  const { allProducts } = useContext(ShopContext);
+  const latestItem = allProducts.filter((item) => item.isNew);
+
   return (
     <section className="place-items-center py-20">
       <div className="w-7xl space-y-10 px-5">
@@ -16,7 +19,7 @@ function LatestProduct() {
             return (
               <Items
                 key={i}
-                id={item.id}
+                id={item._id}
                 name={item.name}
                 image={item.image}
                 newPrice={item.newPrice}

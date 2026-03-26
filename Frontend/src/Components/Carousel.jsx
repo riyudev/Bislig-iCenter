@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Banner1 from "../assets/hero/iphone17porange.png";
-import Banner2 from "../assets/hero/ipadpro.png";
-import Banner3 from "../assets/hero/mcbkair.png";
-import Banner4 from "../assets/hero/samsungs25ultra.png";
+import { ShopContext } from "../context/ShopContext";
 
 const Carousel = () => {
-  const slides = [Banner1, Banner2, Banner3, Banner4];
+  const { allProducts } = useContext(ShopContext);
+  const slides = allProducts.filter((item) => item.isFeatured);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Auto slide every 5 seconds
@@ -34,34 +32,28 @@ const Carousel = () => {
           transform: `translateX(-${currentIndex * 100}%)`,
         }}
       >
-        <div className="flex w-full flex-shrink-0 items-center justify-center">
-          <img
-            src={Banner1}
-            alt="iPhone 17 Pro"
-            className="w-80 object-contain"
-          />
-        </div>
-        <div className="flex w-full flex-shrink-0 items-center justify-center">
-          <img
-            src={Banner2}
-            alt="iPad Pro 2024"
-            className="w-80 object-contain"
-          />
-        </div>
-        <div className="flex w-full flex-shrink-0 items-center justify-center">
-          <img
-            src={Banner3}
-            alt="MacBook Air"
-            className="w-96 object-contain"
-          />
-        </div>
-        <div className="flex w-full flex-shrink-0 items-center justify-center">
-          <img
-            src={Banner4}
-            alt="Samsung Galaxy S25 Ultra"
-            className="w-80 object-contain"
-          />
-        </div>
+        {slides.length > 0 ? (
+          slides.map((product, idx) => (
+            <div
+              key={idx}
+              className="flex w-full flex-shrink-0 items-center justify-center"
+            >
+              <img
+                src={
+                  product.image?.startsWith("http")
+                    ? product.image
+                    : `http://localhost:5000${product.image || ""}`
+                }
+                alt={product.name}
+                className="w-80 object-contain"
+              />
+            </div>
+          ))
+        ) : (
+          <div className="flex w-full flex-shrink-0 items-center justify-center">
+            <p className="py-20 text-slate-500">No featured products.</p>
+          </div>
+        )}
       </div>
 
       {/* Left Arrow */}
