@@ -7,20 +7,24 @@ const Carousel = () => {
   const slides = allProducts.filter((item) => item.isFeatured);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto slide every 5 seconds
+  // ✅ Auto slide (fixed)
   useEffect(() => {
+    if (slides.length === 0) return;
+
     const timer = setInterval(() => {
-      nextSlide();
+      setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
     }, 3000);
+
     return () => clearInterval(timer);
-  }, []); // ✅ added dependency array
+  }, [slides.length]); // ✅ important dependency
 
-  // const prevSlide = () => {
-  //   setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  // };
-
+  // ✅ Manual controls (optional)
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
   };
 
   return (
@@ -56,16 +60,14 @@ const Carousel = () => {
         )}
       </div>
 
-      {/* Left Arrow */}
       {/* <button
         onClick={prevSlide}
         className="absolute top-1/2 left-4 -translate-y-1/2 transform rounded-full bg-black/40 p-3 text-white transition hover:bg-black/60"
       >
         <FaChevronLeft size={20} />
-      </button> */}
+      </button>
 
-      {/* Right Arrow */}
-      {/* <button
+      <button
         onClick={nextSlide}
         className="absolute top-1/2 right-4 -translate-y-1/2 transform rounded-full bg-black/40 p-3 text-white transition hover:bg-black/60"
       >

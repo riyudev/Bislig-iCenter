@@ -36,7 +36,10 @@ const ProductDisplay = (props) => {
 
     // If we can't parse sizes, just step prices by index.
     const variants = Array.isArray(product?.variants) ? product.variants : [];
-    const idx = Math.max(0, variants.findIndex((x) => x === variant));
+    const idx = Math.max(
+      0,
+      variants.findIndex((x) => x === variant),
+    );
 
     if (!Number.isFinite(sizeGb)) {
       const step = 3000;
@@ -59,7 +62,9 @@ const ProductDisplay = (props) => {
   const effectiveNewP =
     selectedNewP ?? getDerivedVariantPrice(selectedVariant, baseNewP);
   const hasDiscount =
-    Number.isFinite(oldP) && Number.isFinite(effectiveNewP) && oldP > effectiveNewP;
+    Number.isFinite(oldP) &&
+    Number.isFinite(effectiveNewP) &&
+    oldP > effectiveNewP;
   const discountPercent = hasDiscount
     ? Math.round(((oldP - effectiveNewP) / oldP) * 100)
     : null;
@@ -102,7 +107,7 @@ const ProductDisplay = (props) => {
     <div className="laptop:flex-row laptop:items-start laptop:gap-10 mb-5 flex w-full flex-col gap-8 border px-5 py-8 shadow-sm">
       {/* Image Gallery */}
       <div className="laptop:max-w-lg w-full max-w-md">
-        <div className="group relative overflow-hidden rounded-2xl bg-linear-to-b from-slate-50 to-slate-100 p-6 ring-1 ring-slate-200/60 ring-inset">
+        <div className="group relative overflow-hidden rounded-2xl bg-linear-to-b from-slate-50 to-slate-100 py-6 ring-1 ring-slate-200/60 ring-inset">
           <img
             src={
               product.image?.startsWith("http")
