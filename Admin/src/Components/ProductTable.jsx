@@ -1,13 +1,7 @@
 import React from "react";
 import ActionMenu from "./ActionMenu";
 
-const ProductTable = ({ 
-  loading, 
-  products, 
-  onEdit, 
-  onToggle, 
-  onRemove 
-}) => {
+const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
       <table className="min-w-full divide-y divide-slate-200">
@@ -16,17 +10,17 @@ const ProductTable = ({
             <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
               Product
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Category
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Price
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-              Total Sales
+            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
+              Total Sold
             </th>
           </tr>
         </thead>
@@ -67,17 +61,19 @@ const ProductTable = ({
                       <p className="font-productSansReg text-myblack">
                         {p.name}
                       </p>
-                      <p className="text-xs text-myblack/60">stocks: {p.stocks || 0}</p>
+                      <p className="text-xs text-myblack/60">
+                        stocks: {p.stocks || 0}
+                      </p>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-myblack/70">
+                <td className="px-6 py-4 text-center text-sm text-myblack/70">
                   {p.category}
                 </td>
-                <td className="px-6 py-4 text-sm text-myblack">
+                <td className="px-6 py-4 text-center text-sm text-myblack">
                   ₱{Number(p.newPrice || 0).toLocaleString()}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-center">
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
                       p.isActive
@@ -88,8 +84,8 @@ const ProductTable = ({
                     {p.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-myblack">
-                  ₱{Number(p.totalSales || 0).toLocaleString()}
+                <td className="px-6 py-4 text-center text-sm text-myblack">
+                  {Number(p.totalSales || 0).toLocaleString()}
                 </td>
               </tr>
             ))
