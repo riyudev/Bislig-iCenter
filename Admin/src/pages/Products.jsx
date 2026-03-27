@@ -38,6 +38,7 @@ const Products = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [flagCounts, setFlagCounts] = useState({ bestSeller: 0, featured: 0 });
 
   const fetchProducts = async (page = 1) => {
     const token = localStorage.getItem("admin_token");
@@ -104,35 +105,27 @@ const Products = () => {
     setError("");
   };
 
-  const handleChange = async (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (name === "isBestSeller" && checked) {
-      try {
-        const adminToken = localStorage.getItem("admin_token");
-        const res = await fetch("/api/admin/products?limit=1000", {
-          headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
-        });
-        const data = await res.json().catch(() => ({}));
-
-        let currentBestSellers = 0;
+  useEffect(() => {
+    if (formOpen) {
+      const adminToken = localStorage.getItem("admin_token");
+      fetch("/api/admin/products?limit=1000", {
+        headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+      })
+      .then(res => res.json())
+      .then(data => {
         if (data && data.products) {
-          currentBestSellers = data.products.filter(
-            (p) => p.isBestSeller && p._id !== editing?._id
-          ).length;
+          setFlagCounts({
+            bestSeller: data.products.filter(p => p.isBestSeller && p._id !== editing?._id).length,
+            featured: data.products.filter(p => p.isFeatured && p._id !== editing?._id).length,
+          });
         }
-
-        if (currentBestSellers >= 3) {
-          setError(
-            "Maximum of 3 Best Sellers are allowed. Please uncheck another product first."
-          );
-          return; // Stop and don't update state
-        }
-      } catch (err) {
-        console.error("Failed to check best seller limit", err);
-      }
+      })
+      .catch(() => {});
     }
+  }, [formOpen, editing]);
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -332,6 +325,8 @@ const Products = () => {
         onSubmit={submitForm}
         onChange={handleChange}
         onImageUpload={handleImageUpload}
+        disableBestSeller={!form.isBestSeller && flagCounts.bestSeller >= 3}
+        disableFeatured={!form.isFeatured && flagCounts.featured >= 4}
       />
     </div>
   );

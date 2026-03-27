@@ -12,6 +12,7 @@ const ProductFormModal = ({
   onChange,
   onImageUpload,
   disableBestSeller,
+  disableFeatured,
   disableNew,
 }) => {
   if (!open) return null;
@@ -233,15 +234,16 @@ const ProductFormModal = ({
               />
               Best seller {disableBestSeller && <span className="text-[10px] ml-1">(Limit Reached)</span>}
             </label>
-            <label className="flex items-center gap-2 text-xs text-myblack/80">
+            <label className={`flex items-center gap-2 text-xs ${disableFeatured ? 'text-myblack/40 cursor-not-allowed' : 'text-myblack/80'}`}>
               <input
                 type="checkbox"
                 name="isFeatured"
                 checked={form.isFeatured}
                 onChange={onChange}
-                className="h-4 w-4 rounded border-myblack/20"
+                disabled={disableFeatured}
+                className="h-4 w-4 rounded border-myblack/20 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              Featured
+              Featured {disableFeatured && <span className="text-[10px] ml-1">(Limit Reached)</span>}
             </label>
           </div>
 
