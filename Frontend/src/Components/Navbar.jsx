@@ -1,8 +1,18 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import Logo from "../assets/bislig-iCenter-Logo.png";
-import { FaFacebookF, FaInstagram, FaRegUser, FaTiktok } from "react-icons/fa6";
-import { CiSearch } from "react-icons/ci";
-import { BsCart } from "react-icons/bs";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaRegUser,
+  FaTiktok,
+  FaChevronDown,
+  FaSignOutAlt,
+  FaUserCircle,
+} from "react-icons/fa";
+import { IoSearch, IoClose } from "react-icons/io5";
+import { BsCart3, BsBagCheck } from "react-icons/bs";
+import { HiSparkles } from "react-icons/hi2";
+import { MdLocalShipping, MdSecurity, MdStar } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
@@ -13,6 +23,28 @@ function Navbar() {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAccountSidebarOpen, setIsAccountSidebarOpen] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+  const [promoBanner, setPromoBanner] = useState(true);
+  const [promoIndex, setPromoIndex] = useState(0);
+  const dropdownRef = useRef(null);
+
+  const promoMessages = [
+    {
+      icon: <MdLocalShipping />,
+      text: "Free Shipping on orders over ₱2,000 nationwide",
+    },
+    {
+      icon: <MdStar />,
+      text: "Authentic Apple products — Authorized Retailer",
+    },
+    {
+      icon: <BsBagCheck />,
+      text: "Buy Now, Pay Later — 0% interest installment available",
+    },
+    { icon: <MdSecurity />, text: "1-Year Official Warranty on all devices" },
+  ];
 
   const navLinks = [
     { path: "/", label: "Shop" },
@@ -26,12 +58,35 @@ function Navbar() {
   const cartCount = getTotalCartQuantity();
   const cartCountLabel = cartCount >= 100 ? "99+" : String(cartCount);
 
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Rotate promo messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPromoIndex((prev) => (prev + 1) % promoMessages.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Close dropdown outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleUserClick = () => {
-    if (!user) {
-      navigate("/login");
-    } else {
-      setIsDropdownOpen(!isDropdownOpen);
-    }
+    if (!user) navigate("/login");
+    else setIsDropdownOpen((prev) => !prev);
   };
 
   const handleLogout = () => {
@@ -45,124 +100,293 @@ function Navbar() {
     setIsAccountSidebarOpen(true);
   };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isDropdownOpen && !event.target.closest(".relative")) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isDropdownOpen]);
-
   return (
-    <nav className="bg-ghostWhite/80 fixed top-0 z-50 w-full border-b backdrop-blur-md">
-      <div className="mx-auto flex w-7xl items-center justify-between py-3">
-        <div className="flex items-center gap-8">
-          <a href="/" className="inline-flex items-center gap-2">
-            <img src={Logo} alt="Bislig iCenter Logo" className="w-16" />
-            <h4>BiSLIG iCENTER</h4>
+    <>
+      {/* ── Promo Announcement Bar ── */}
+      {promoBanner && (
+        <div
+          className="fixed top-0 right-0 left-0 z-[60] flex items-center justify-center gap-3 px-4 py-[7px] text-white"
+          style={{
+            background:
+              "linear-gradient(90deg, #1a1a2e 0%, #16213e 40%, #0f3460 80%, #1a1a2e 100%)",
+          }}
+        >
+          <div className="flex flex-1 items-center justify-center gap-2">
+            <span className="shrink-0 text-base text-[#60c8ff]">
+              {promoMessages[promoIndex].icon}
+            </span>
+            <span className="text-[12.5px] font-medium tracking-[0.04em] text-[#e8f4ff]">
+              {promoMessages[promoIndex].text}
+            </span>
+          </div>
+          <button
+            onClick={() => setPromoBanner(false)}
+            aria-label="Close promo"
+            className="shrink-0 cursor-pointer border-none bg-transparent p-1 text-base text-white/50 transition-colors hover:text-white/80"
+          >
+            <IoClose />
+          </button>
+        </div>
+      )}
+
+      {/* ── Main Navbar ── */}
+      <nav
+        className={`fixed right-0 left-0 z-50 border-b border-gray-200/50 backdrop-blur-xl transition-all duration-300 ${
+          promoBanner ? "top-[30px]" : "top-0"
+        } ${
+          scrolled
+            ? "bg-[rgba(248,248,255,0.97)] shadow-[0_4px_32px_rgba(0,0,0,0.10)]"
+            : "bg-[rgba(248,248,255,0.82)] shadow-[0_2px_24px_rgba(0,0,0,0.06)]"
+        }`}
+      >
+        {/* Top Row */}
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-5 px-6 py-[10px]">
+          {/* Brand */}
+          <a
+            href="/"
+            className="flex shrink-0 items-center gap-2.5 no-underline"
+          >
+            <div
+              className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] p-1 shadow-[0_2px_12px_rgba(59,130,246,0.15)]"
+              style={{
+                background: "linear-gradient(135deg, #f0f4ff, #dbeafe)",
+              }}
+            >
+              <img
+                src={Logo}
+                alt="Bislig iCenter Logo"
+                className="w-11 object-contain"
+              />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[18px] font-extrabold tracking-[0.06em] text-[#1a1a2e]">
+                BiSLIG
+              </span>
+              <span className="text-[11px] font-semibold tracking-[0.18em] text-blue-500">
+                iCENTER
+              </span>
+            </div>
           </a>
 
-          <div className="group relative flex w-[420px] max-w-md items-center overflow-hidden rounded-full border bg-white/70 ring-1 ring-slate-200/70 ring-inset focus-within:ring-sky-300">
+          {/* Search Bar */}
+          <div
+            className={`flex max-w-[500px] flex-1 items-center overflow-hidden rounded-full border transition-all duration-200 ${
+              isSearchFocused
+                ? "border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.15),0_2px_12px_rgba(0,0,0,0.07)]"
+                : "border-gray-200 shadow-[0_1px_6px_rgba(0,0,0,0.05)]"
+            } bg-white/85`}
+          >
+            <IoSearch className="ml-3.5 shrink-0 text-lg text-gray-400" />
             <input
               type="text"
-              placeholder="Search products..."
-              className="w-full bg-transparent px-5 text-sm outline-none placeholder:text-slate-400"
+              placeholder="Search products, brands, categories…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+              className="flex-1 bg-transparent px-2.5 py-[9px] text-[13.5px] text-[#1a1a2e] outline-none placeholder:text-gray-400"
             />
-            <button className="btn-black rounded-full px-5 py-2.5">
-              <CiSearch className="text-xl" />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="flex cursor-pointer items-center border-none bg-transparent p-1.5 text-base text-gray-400"
+              >
+                <IoClose />
+              </button>
+            )}
+            <button className="btn-black m-1 px-[18px] py-[7px] text-[13px] font-semibold tracking-[0.03em]">
+              Search
             </button>
           </div>
-        </div>
 
-        <div className="flex items-center space-x-1.5">
-          <p className="tracking-wider">Follow us on</p>
-          <a href="#" className="bg-myblack/70 rounded-full p-1">
-            <FaFacebookF className="text-sm text-white" />
-          </a>
+          {/* Right Actions */}
+          <div className="flex shrink-0 items-center gap-3.5">
+            {/* Social */}
+            <div className="flex items-center gap-1.5">
+              <span className="mr-0.5 text-[11.5px] tracking-[0.04em] text-gray-500">
+                Follow us
+              </span>
+              <a
+                href="#"
+                aria-label="Facebook"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a1a2e] text-[12px] text-white no-underline transition-transform duration-200 hover:scale-110 hover:bg-blue-700"
+              >
+                <FaFacebookF />
+              </a>
+              <a
+                href="#"
+                aria-label="Instagram"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a1a2e] text-[12px] text-white no-underline transition-transform duration-200 hover:scale-110 hover:bg-pink-600"
+              >
+                <FaInstagram />
+              </a>
+              <a
+                href="#"
+                aria-label="TikTok"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a1a2e] text-[12px] text-white no-underline transition-transform duration-200 hover:scale-110 hover:bg-gray-700"
+              >
+                <FaTiktok />
+              </a>
+            </div>
 
-          <a href="#" className="bg-myblack/70 rounded-full p-1">
-            <FaInstagram className="text-sm text-white" />
-          </a>
+            {/* User */}
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={handleUserClick}
+                id="navbar-user-btn"
+                className="flex cursor-pointer items-center gap-2 rounded-full border border-gray-200 bg-white/80 py-1.5 pr-2.5 pl-1.5 transition-all duration-200 hover:border-blue-300 hover:shadow-md"
+              >
+                {/* Avatar */}
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-white"
+                  style={{
+                    background: "linear-gradient(135deg, #1a1a2e, #3b82f6)",
+                  }}
+                >
+                  {user ? (
+                    <span className="text-[14px] font-bold">
+                      {user.name?.[0]?.toUpperCase()}
+                    </span>
+                  ) : (
+                    <FaRegUser className="text-sm" />
+                  )}
+                </div>
+                {/* Info */}
+                <div className="flex flex-col text-left leading-[1.2]">
+                  <span className="text-[10px] text-gray-400">
+                    {user ? "Hello," : ""}
+                  </span>
+                  <span className="text-[13px] font-semibold text-[#1a1a2e]">
+                    {user ? user.name.split(" ")[0] : "Login"}
+                  </span>
+                </div>
+                {user && (
+                  <FaChevronDown
+                    className={`text-[10px] text-gray-500 transition-transform duration-200 ${
+                      isDropdownOpen ? "rotate-180" : "rotate-0"
+                    }`}
+                  />
+                )}
+              </button>
 
-          <a href="#" className="bg-myblack/70 rounded-full p-1">
-            <FaTiktok className="text-sm text-white" />
-          </a>
-        </div>
-      </div>
-
-      <div className="mx-auto flex w-7xl items-center justify-between gap-2 py-2">
-        <p className="ml-[280px] space-x-2.5">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.path}
-              to={link.path}
-              className={({ isActive }) =>
-                `inline-flex items-center rounded-full px-4 py-2 text-sm tracking-wide transition ${
-                  isActive
-                    ? "bg-myblack text-white shadow"
-                    : "hover:text-myblack text-slate-700 hover:bg-slate-200"
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </p>
-
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={handleUserClick}
-              className="flex rounded-full p-2 transition hover:bg-slate-100"
-            >
-              <p className="mr-2 text-sm">{user ? user.name : "Login"}</p>
-              <FaRegUser className="text-myblack text-2xl" />
-            </button>
-
-            {user && isDropdownOpen && (
-              <div className="ring-opacity-5 absolute top-full right-0 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black">
-                <div className="py-1">
-                  <div className="border-b px-4 py-2 text-sm text-gray-700">
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-gray-500">{user.email}</p>
+              {/* Dropdown */}
+              {user && isDropdownOpen && (
+                <div className="absolute top-[calc(100%+10px)] right-0 z-[100] w-[220px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+                  {/* Header */}
+                  <div
+                    className="flex items-center gap-2.5 px-4 py-3.5"
+                    style={{
+                      background: "linear-gradient(135deg, #f8faff, #eff6ff)",
+                    }}
+                  >
+                    <div
+                      className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full text-white"
+                      style={{
+                        background: "linear-gradient(135deg, #1a1a2e, #3b82f6)",
+                      }}
+                    >
+                      <span className="text-base font-bold">
+                        {user.name?.[0]?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-[13.5px] font-bold text-[#1a1a2e]">
+                        {user.name}
+                      </p>
+                      <p className="text-[11.5px] text-gray-500">
+                        {user.email}
+                      </p>
+                    </div>
                   </div>
+                  <div className="h-px bg-gray-100" />
                   <button
                     onClick={handleAccountClick}
-                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                    id="navbar-account-btn"
+                    className="flex w-full cursor-pointer items-center gap-2.5 border-none bg-transparent px-4 py-[11px] text-left text-[13.5px] text-gray-700 transition-colors hover:bg-gray-50"
                   >
-                    Account
+                    <FaUserCircle className="shrink-0 text-[15px]" />
+                    My Account
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                    id="navbar-logout-btn"
+                    className="flex w-full cursor-pointer items-center gap-2.5 border-none bg-transparent px-4 py-[11px] text-left text-[13.5px] text-red-500 transition-colors hover:bg-gray-50"
                   >
+                    <FaSignOutAlt className="shrink-0 text-[15px]" />
                     Logout
                   </button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Cart */}
+            <NavLink
+              to="/cart"
+              id="navbar-cart-btn"
+              className="relative flex h-[42px] w-[42px] items-center justify-center rounded-full border border-gray-200 bg-white/80 text-[#1a1a2e] no-underline transition-all duration-200 hover:border-blue-300 hover:shadow-md"
+            >
+              <BsCart3 className="text-xl" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-red-500 to-red-600 px-1 text-[10px] font-bold text-white shadow-[0_2px_6px_rgba(239,68,68,0.4)]">
+                  {cartCountLabel}
+                </span>
+              )}
+            </NavLink>
           </div>
-          <NavLink
-            to="/cart"
-            className="relative rounded-full p-2 transition hover:bg-slate-100"
-          >
-            <BsCart className="text-myblack text-2xl" />
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-600 px-1.5 text-[11px] text-white shadow">
-              {cartCountLabel}
-            </span>
-          </NavLink>
         </div>
-      </div>
+
+        {/* Bottom Row — Nav Links */}
+        <div className="mx-auto flex max-w-[1280px] items-center justify-between border-t border-gray-200/50 px-6 pt-1.5 pb-2">
+          {/* Nav links */}
+          <div className="flex items-center gap-1">
+            <HiSparkles className="mr-1.5 text-base text-amber-400" />
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.path}
+                to={link.path}
+                className={({ isActive }) =>
+                  `rounded-full px-3.5 py-[5px] text-[13.5px] font-semibold tracking-[0.02em] no-underline transition-all duration-200 ${
+                    isActive
+                      ? "text-white shadow-[0_2px_12px_rgba(26,26,46,0.25)]"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-[#1a1a2e]"
+                  }`
+                }
+                style={({ isActive }) =>
+                  isActive
+                    ? {
+                        background: "linear-gradient(135deg, #1a1a2e, #2b4a8c)",
+                      }
+                    : {}
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Trust Badges */}
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
+              <MdLocalShipping className="shrink-0 text-[13px] text-blue-500" />
+              Free Shipping
+            </span>
+            <span className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
+              <MdSecurity className="shrink-0 text-[13px] text-blue-500" />
+              Warranty
+            </span>
+            <span className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
+              <BsBagCheck className="shrink-0 text-[13px] text-blue-500" />
+              Cash on Delivery
+            </span>
+          </div>
+        </div>
+      </nav>
 
       <AccountSidebar
         isOpen={isAccountSidebarOpen}
         onClose={() => setIsAccountSidebarOpen(false)}
       />
-    </nav>
+    </>
   );
 }
 
