@@ -1,4 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
+
+const mobileTemplate = [
+  "Processor (Chipset)",
+  "Graphics (GPU)",
+  "Display",
+  "Rear Camera",
+  "Front Camera",
+  "Memory (RAM)",
+  "Storage",
+  "Operating System (OS)",
+  "Battery",
+  "Charging",
+  "Build & Design",
+  "Dimensions & Weight",
+  "Connectivity",
+  "SIM & Network",
+  "Sensors & Security",
+  "Audio",
+  "Other Features",
+];
+
+const laptopTemplate = [
+  "Processor (CPU)",
+  "Graphics (GPU)",
+  "Display",
+  "Memory (RAM)",
+  "Storage",
+  "Operating System (OS)",
+  "Battery",
+  "Build & Design",
+  "Ports & Connectivity",
+  "Camera & Audio",
+  "Keyboard & Input",
+  "Other Features",
+];
+
+const allTemplates = [...mobileTemplate, ...laptopTemplate];
 
 const ProductFormModal = ({
   open,
@@ -11,10 +48,42 @@ const ProductFormModal = ({
   onSubmit,
   onChange,
   onImageUpload,
+  onSpecChange,
+  addSpec,
+  removeSpec,
   disableBestSeller,
   disableFeatured,
   disableNew,
 }) => {
+  useEffect(() => {
+    if (!form.category) return;
+    const expectedTemplate =
+      form.category === "laptop"
+        ? laptopTemplate
+        : ["iphone", "ipad", "android"].includes(form.category)
+        ? mobileTemplate
+        : null;
+    if (!expectedTemplate) return;
+
+    const currentSpecs = form.specifications || [];
+    const currentKeys = currentSpecs.map((s) => s.key);
+
+    let hasChanges = false;
+    const newSpecs = [...currentSpecs];
+
+    expectedTemplate.forEach((key) => {
+      if (!currentKeys.includes(key)) {
+        newSpecs.push({ key, value: "" });
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges && onChange) {
+      onChange({ target: { name: "specifications", value: newSpecs } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.category]);
+
   if (!open) return null;
 
   return (
@@ -199,6 +268,63 @@ const ProductFormModal = ({
               rows={3}
               className="mt-1 w-full rounded-xl border border-myblack/10 bg-white px-4 py-2 text-sm"
             />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-myblack/80">Specifications (based on category)</label>
+              <button
+                type="button"
+                onClick={addSpec}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              >
+                + Add Custom Spec
+              </button>
+            </div>
+            
+            {(form.specifications || []).length === 0 ? (
+              <p className="text-xs text-myblack/50 italic">Select a category to load predefined specifications.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(form.specifications || []).map((spec, index) => {
+                  const isPredefined = allTemplates.includes(spec.key);
+                  return (
+                    <div key={index} className="flex gap-2 items-center">
+                      {isPredefined ? (
+                        <div className="w-1/3 truncate text-xs text-myblack/70 font-medium" title={spec.key}>
+                          {spec.key}
+                        </div>
+                      ) : (
+                        <input
+                          placeholder="Custom Spec"
+                          value={spec.key}
+                          onChange={(e) => onSpecChange(index, "key", e.target.value)}
+                          required
+                          className="w-1/3 rounded-xl border border-myblack/10 bg-white px-3 py-1.5 text-xs"
+                        />
+                      )}
+                      <input
+                        placeholder="Value"
+                        value={spec.value}
+                        onChange={(e) => onSpecChange(index, "value", e.target.value)}
+                        required
+                        className="w-full rounded-xl border border-myblack/10 bg-white px-3 py-1.5 text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeSpec(index)}
+                        className="text-rose-500 hover:text-rose-700 shrink-0 p-1"
+                        title="Remove Spec"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-4">

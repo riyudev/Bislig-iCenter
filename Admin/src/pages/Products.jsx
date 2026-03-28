@@ -17,6 +17,7 @@ const emptyForm = {
   isFeatured: false,
   lowStockThreshold: 5,
   stocks: 0,
+  specifications: [],
 };
 
 
@@ -93,6 +94,7 @@ const Products = () => {
       isFeatured: p.isFeatured ?? false,
       lowStockThreshold: p.lowStockThreshold ?? 5,
       stocks: p.stocks ?? 0,
+      specifications: p.specifications || [],
     });
     setFormOpen(true);
   };
@@ -132,6 +134,29 @@ const Products = () => {
     }));
   };
 
+  const handleSpecChange = (index, field, value) => {
+    setForm((prev) => {
+      const newSpecs = [...prev.specifications];
+      newSpecs[index][field] = value;
+      return { ...prev, specifications: newSpecs };
+    });
+  };
+
+  const addSpec = () => {
+    setForm((prev) => ({
+      ...prev,
+      specifications: [...(prev.specifications || []), { key: "", value: "" }],
+    }));
+  };
+
+  const removeSpec = (index) => {
+    setForm((prev) => {
+      const newSpecs = [...prev.specifications];
+      newSpecs.splice(index, 1);
+      return { ...prev, specifications: newSpecs };
+    });
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -161,6 +186,13 @@ const Products = () => {
 
   const submitForm = async (e) => {
     e.preventDefault();
+    
+    const hasEmptySpec = (form.specifications || []).some(s => !s.key.trim() || !s.value.trim());
+    if (hasEmptySpec) {
+      setError("Please fill in all specification fields before saving.");
+      return;
+    }
+
     setSaving(true);
     setError("");
     const adminToken = localStorage.getItem("admin_token");
@@ -190,6 +222,9 @@ const Products = () => {
       isFeatured: form.isFeatured,
       lowStockThreshold: Number(form.lowStockThreshold || 5),
       stocks: Number(form.stocks || 0),
+      specifications: (form.specifications || []).filter(
+        (s) => s.key.trim() !== "" && s.value.trim() !== ""
+      ),
     };
 
     try {
@@ -325,6 +360,9 @@ const Products = () => {
         onSubmit={submitForm}
         onChange={handleChange}
         onImageUpload={handleImageUpload}
+        onSpecChange={handleSpecChange}
+        addSpec={addSpec}
+        removeSpec={removeSpec}
         disableBestSeller={!form.isBestSeller && flagCounts.bestSeller >= 3}
         disableFeatured={!form.isFeatured && flagCounts.featured >= 4}
       />

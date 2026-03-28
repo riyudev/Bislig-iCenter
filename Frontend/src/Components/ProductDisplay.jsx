@@ -1,7 +1,209 @@
 import React, { useContext, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
-import { FaCartPlus } from "react-icons/fa";
+import {
+  FaCartPlus,
+  FaShieldAlt,
+  FaTruck,
+  FaUndo,
+  FaHeadset,
+  FaCheckCircle,
+  FaRegHeart,
+  FaHeart,
+  FaMedal,
+  FaLock,
+  FaMicrochip,
+  FaMemory,
+  FaHdd,
+  FaDesktop,
+  FaBatteryFull,
+  FaCamera,
+  FaWifi,
+  FaMobileAlt,
+  FaThLarge,
+  FaBolt,
+  FaVolumeUp,
+  FaKeyboard,
+  FaPaintBrush,
+  FaSlidersH,
+  FaRuler,
+  FaSimCard,
+  FaFingerprint,
+  FaLaptop,
+  FaUsb,
+  FaVideo,
+  FaList,
+  FaCog,
+} from "react-icons/fa";
+import { MdVerified } from "react-icons/md";
 
+/* ─── Perks ──────────────────────────────────────────────────────── */
+const PERKS = [
+  {
+    icon: <FaTruck className="h-4 w-4" />,
+    label: "Free Delivery",
+    sub: "Orders over ₱2,000",
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+  },
+  {
+    icon: <FaShieldAlt className="h-4 w-4" />,
+    label: "12-Month Warranty",
+    sub: "Official Apple Service",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
+  {
+    icon: <FaUndo className="h-4 w-4" />,
+    label: "7-Day Returns",
+    sub: "Hassle-free policy",
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    border: "border-violet-200",
+  },
+  {
+    icon: <FaHeadset className="h-4 w-4" />,
+    label: "24/7 Support",
+    sub: "Always here for you",
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+  },
+];
+
+/* ─── Spec key → icon map ────────────────────────────────────────── */
+const SPEC_ICONS = {
+  "Processor (Chipset)": <FaMicrochip />,
+  "Processor (CPU)": <FaMicrochip />,
+  "Graphics (GPU)": <FaThLarge />,
+  Display: <FaDesktop />,
+  "Memory (RAM)": <FaMemory />,
+  Storage: <FaHdd />,
+  "Operating System (OS)": <FaLaptop />,
+  Battery: <FaBatteryFull />,
+  Charging: <FaBolt />,
+  "Rear Camera": <FaCamera />,
+  "Front Camera": <FaVideo />,
+  "Camera & Audio": <FaCamera />,
+  Connectivity: <FaWifi />,
+  "Ports & Connectivity": <FaUsb />,
+  "SIM & Network": <FaSimCard />,
+  "Sensors & Security": <FaFingerprint />,
+  Audio: <FaVolumeUp />,
+  "Keyboard & Input": <FaKeyboard />,
+  "Build & Design": <FaPaintBrush />,
+  "Dimensions & Weight": <FaRuler />,
+  "Other Features": <FaSlidersH />,
+};
+
+const getSpecIcon = (key) =>
+  SPEC_ICONS[key] ?? <FaCog className="h-3.5 w-3.5" />;
+
+/* ─── Social-proof trust strip (replaces star rating) ───────────── */
+const TrustStrip = () => (
+  <div className="flex flex-wrap items-center gap-3">
+    {/* Sold count */}
+    <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 ring-1 ring-amber-200">
+      <span className="text-sm">🔥</span>
+      <span className="font-productSansBold text-xs text-amber-700">
+        500+ Sold
+      </span>
+    </div>
+    {/* Restock alert */}
+    <div className="flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 ring-1 ring-rose-200">
+      <span className="text-sm">⚡</span>
+      <span className="font-productSansBold text-xs text-rose-600">
+        Fast-Moving Item
+      </span>
+    </div>
+    {/* Bislig exclusive */}
+    <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 ring-1 ring-blue-200">
+      <FaMedal className="h-3 w-3 text-blue-500" />
+      <span className="font-productSansBold text-xs text-blue-700">
+        iCenter Exclusive
+      </span>
+    </div>
+  </div>
+);
+
+/* ─── Specifications Table ───────────────────────────────────────── */
+const SpecsTable = ({ specifications }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const filled = (specifications || []).filter(
+    (s) => s.value && s.value.trim() !== "",
+  );
+  if (filled.length === 0) return null;
+
+  const PREVIEW_COUNT = 6;
+  const visible = expanded ? filled : filled.slice(0, PREVIEW_COUNT);
+  const hasMore = filled.length > PREVIEW_COUNT;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+      {/* Header */}
+      <div className="flex items-center gap-2 border-b border-slate-100 bg-gradient-to-r from-slate-900 to-slate-700 px-4 py-3">
+        <FaList className="h-3.5 w-3.5 text-slate-300" />
+        <span className="font-productSansBold text-sm tracking-wide text-white">
+          Specifications
+        </span>
+        <span className="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-slate-300">
+          {filled.length} specs
+        </span>
+      </div>
+
+      {/* Rows */}
+      <div className="divide-y divide-slate-50">
+        {visible.map((spec, i) => (
+          <div
+            key={i}
+            className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50 ${
+              i % 2 === 0 ? "bg-white" : "bg-slate-50/40"
+            }`}
+          >
+            {/* Icon */}
+            <span className="mt-0.5 flex-shrink-0 text-blue-500">
+              {React.cloneElement(getSpecIcon(spec.key), {
+                className: "h-3.5 w-3.5",
+              })}
+            </span>
+            {/* Key */}
+            <span className="font-productSansBold w-[38%] flex-shrink-0 text-xs text-slate-500">
+              {spec.key}
+            </span>
+            {/* Value */}
+            <span className="font-productSansReg min-w-0 flex-1 text-xs leading-relaxed text-slate-800">
+              {spec.value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Expand / Collapse */}
+      {hasMore && (
+        <button
+          onClick={() => setExpanded((e) => !e)}
+          className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 bg-slate-50 py-2.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-50"
+        >
+          {expanded ? (
+            <>
+              <span>Show Less</span>
+              <span className="text-[10px]">▲</span>
+            </>
+          ) : (
+            <>
+              <span>Show All {filled.length} Specs</span>
+              <span className="text-[10px]">▼</span>
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* ─── Main Component ─────────────────────────────────────────────── */
 const ProductDisplay = (props) => {
   const { product } = props;
   const { addToCart } = useContext(ShopContext);
@@ -12,7 +214,11 @@ const ProductDisplay = (props) => {
     product.colors?.[0] || null,
   );
   const [quantity, setQuantity] = useState(1);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [addedPulse, setAddedPulse] = useState(false);
 
+
+  /* ─── Price Helpers ────────────────────────────────────────────── */
   const parsePrice = (val) => {
     if (val === null || val === undefined) return null;
     const num =
@@ -25,7 +231,6 @@ const ProductDisplay = (props) => {
   const getDerivedVariantPrice = (variant, basePrice) => {
     if (!variant || !Number.isFinite(basePrice)) return basePrice;
     const v = String(variant).trim().toUpperCase();
-
     const gbMatch = v.match(/(\d+)\s*GB/);
     const tbMatch = v.match(/(\d+(?:\.\d+)?)\s*TB/);
     const sizeGb = gbMatch
@@ -33,22 +238,12 @@ const ProductDisplay = (props) => {
       : tbMatch
         ? Number(tbMatch[1]) * 1024
         : null;
-
-    // If we can't parse sizes, just step prices by index.
     const variants = Array.isArray(product?.variants) ? product.variants : [];
     const idx = Math.max(
       0,
       variants.findIndex((x) => x === variant),
     );
-
-    if (!Number.isFinite(sizeGb)) {
-      const step = 3000;
-      return basePrice + idx * step;
-    }
-
-    // Common storage tiers. Increase price as storage increases.
-    // This is a fallback when the product doesn't define explicit variantPrices.
-    // Assumption: the product.newPrice is the 128GB (or similar) base.
+    if (!Number.isFinite(sizeGb)) return basePrice + idx * 3000;
     if (sizeGb <= 64) return basePrice - 3000;
     if (sizeGb <= 128) return basePrice;
     if (sizeGb <= 256) return basePrice + 7000;
@@ -56,18 +251,21 @@ const ProductDisplay = (props) => {
     if (sizeGb <= 1024) return basePrice + 22000;
     return basePrice + 30000;
   };
+
   const oldP = parsePrice(product.oldPrice);
   const baseNewP = parsePrice(product.newPrice);
   const selectedNewP = parsePrice(product?.variantPrices?.[selectedVariant]);
   const effectiveNewP =
     selectedNewP ?? getDerivedVariantPrice(selectedVariant, baseNewP);
+  const effectiveOldP = getDerivedVariantPrice(selectedVariant, oldP);
   const hasDiscount =
-    Number.isFinite(oldP) &&
+    Number.isFinite(effectiveOldP) &&
     Number.isFinite(effectiveNewP) &&
-    oldP > effectiveNewP;
+    effectiveOldP > effectiveNewP;
   const discountPercent = hasDiscount
-    ? Math.round(((oldP - effectiveNewP) / oldP) * 100)
+    ? Math.round(((effectiveOldP - effectiveNewP) / effectiveOldP) * 100)
     : null;
+
   const formatPHP = (value, fallback) =>
     Number.isFinite(value)
       ? new Intl.NumberFormat("en-PH", {
@@ -77,20 +275,10 @@ const ProductDisplay = (props) => {
         }).format(value)
       : (fallback ?? "");
 
-  const handleVariantSelect = (variant) => {
-    setSelectedVariant(variant);
-  };
-
-  const handleColorSelect = (color) => {
-    setSelectedColor(color);
-  };
-
+  /* ─── Handlers ─────────────────────────────────────────────────── */
   const handleQuantityChange = (type) => {
-    if (type === "increment") {
-      setQuantity((prev) => prev + 1);
-    } else if (type === "decrement" && quantity > 1) {
-      setQuantity((prev) => prev - 1);
-    }
+    if (type === "increment") setQuantity((p) => p + 1);
+    else if (type === "decrement" && quantity > 1) setQuantity((p) => p - 1);
   };
 
   const handleAddToCart = () => {
@@ -101,13 +289,20 @@ const ProductDisplay = (props) => {
       quantity,
       effectiveNewP,
     );
+    setAddedPulse(true);
+    setTimeout(() => setAddedPulse(false), 600);
   };
 
+  const hasSpecs =
+    (product.specifications || []).filter((s) => s.value?.trim()).length > 0;
+
+  /* ─── Render ────────────────────────────────────────────────────── */
   return (
-    <div className="laptop:flex-row laptop:items-start laptop:gap-10 mb-5 flex w-full flex-col gap-8 border px-5 py-8 shadow-sm">
-      {/* Image Gallery */}
-      <div className="laptop:max-w-lg w-full max-w-md">
-        <div className="group relative overflow-hidden rounded-2xl bg-linear-to-b from-slate-50 to-slate-100 py-6 ring-1 ring-slate-200/60 ring-inset">
+    <div className="laptop:flex-row laptop:items-start laptop:gap-12 mb-8 flex w-full flex-col gap-8 rounded-3xl border border-slate-100 bg-white px-6 py-8 shadow-xl shadow-slate-100">
+      {/* ══ Left: Image + Perks ════════════════════════════════════ */}
+      <div className="laptop:max-w-[460px] relative w-full flex-shrink-0">
+        {/* Image card */}
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-8 ring-1 ring-slate-200/80">
           <img
             src={
               product.image?.startsWith("http")
@@ -115,138 +310,247 @@ const ProductDisplay = (props) => {
                 : `http://localhost:5000${product.image || ""}`
             }
             alt={product.name}
-            className="mx-auto h-[400px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+            className="mx-auto h-[360px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]"
             loading="lazy"
           />
+
+          {/* Discount badge */}
           {hasDiscount && (
-            <span className="absolute top-0 left-0 rounded-tl-xl rounded-br-xl bg-rose-600 px-3 py-1 text-sm font-semibold text-white shadow-sm">
-              -{discountPercent}%
+            <span className="absolute top-4 left-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-rose-200">
+              🔥 -{discountPercent}% OFF
             </span>
           )}
+
+          {/* New badge */}
           {product.isNew && (
-            <span className="absolute top-4 right-4 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
-              New
+            <span className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-emerald-200">
+              ✨ NEW
             </span>
           )}
+
+          {/* Wishlist */}
+          <button
+            onClick={() => setWishlisted((w) => !w)}
+            className="absolute right-4 bottom-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white"
+            title="Add to Wishlist"
+          >
+            {wishlisted ? (
+              <FaHeart className="h-5 w-5 text-rose-500" />
+            ) : (
+              <FaRegHeart className="h-5 w-5 text-slate-400" />
+            )}
+          </button>
         </div>
+
+        {/* Perks 2×2 */}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {PERKS.map((perk, i) => (
+            <div
+              key={i}
+              className={`flex items-start gap-2 rounded-xl border ${perk.border} ${perk.bg} px-3 py-2.5`}
+            >
+              <span className={`mt-0.5 flex-shrink-0 ${perk.color}`}>
+                {perk.icon}
+              </span>
+              <div>
+                <p className={`font-productSansBold text-xs ${perk.color}`}>
+                  {perk.label}
+                </p>
+                <p className="font-productSansLight text-[10px] text-slate-500">
+                  {perk.sub}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Description below perks */}
+        {product.description && (
+          <div className="mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
+            <p className="font-productSansBold mb-1 text-[11px] uppercase tracking-wider text-slate-400">
+              About this product
+            </p>
+            <p className="font-productSansLight text-sm leading-relaxed text-slate-700">
+              {product.description}
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Product Details */}
-      <div className="max-w-full space-y-6">
+      {/* ══ Right: Details ═════════════════════════════════════════ */}
+      <div className="min-w-0 flex-1 space-y-5">
+        {/* Brand row */}
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+            <FaMedal className="h-3 w-3 text-amber-400" />
+            Bislig iCenter
+          </span>
+          <span className="flex items-center gap-1 text-xs text-blue-600">
+            <MdVerified className="h-4 w-4" />
+            Authorized Reseller
+          </span>
+        </div>
+
+        {/* Product name */}
         <h3 className="leading-tight">{product.name}</h3>
 
+        {/* Social-proof trust strip */}
+        <TrustStrip />
+
+        <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
+
         {/* Price */}
-        <div className="flex items-baseline gap-3">
-          <span className="font-productSansBold text-3xl text-slate-900">
+        <div className="flex flex-wrap items-baseline gap-3">
+          <span className="font-productSansBold text-4xl text-slate-900">
             {formatPHP(effectiveNewP, product.newPrice)}
           </span>
           {hasDiscount && (
             <>
-              <span className="font-productSansLight text-base text-slate-400 line-through">
-                {formatPHP(oldP, product.oldPrice)}
+              <span className="font-productSansLight text-lg text-slate-400 line-through">
+                {formatPHP(effectiveOldP, product.oldPrice)}
               </span>
-              <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-600 ring-1 ring-rose-200 ring-inset">
+              <span className="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-600 ring-1 ring-rose-200">
                 Save {discountPercent}%
               </span>
             </>
           )}
         </div>
 
-        {/* Description */}
-        {/* <div className="border-l-4 border-blue-500 pl-4">
-          <p className="text-myblack/80 leading-relaxed">
-            {product.description ||
-              "Experience cutting-edge technology with this premium gadget from Bislig iCenter. Featuring top-tier specifications and reliable performance for all your digital needs."}
-          </p>
-        </div> */}
+        {/* Savings callout */}
+        {hasDiscount && (
+          <div className="flex w-fit items-center gap-2 rounded-xl bg-amber-50 px-4 py-2.5 ring-1 ring-amber-200">
+            <span className="text-base">💰</span>
+            <p className="font-productSansBold text-sm text-amber-700">
+              You save{" "}
+              {formatPHP(
+                Number.isFinite(effectiveOldP) && Number.isFinite(effectiveNewP)
+                  ? effectiveOldP - effectiveNewP
+                  : null,
+                "",
+              )}{" "}
+              on this deal!
+            </p>
+          </div>
+        )}
 
-        {/* Specifications/Variants (Storage, RAM, etc.) */}
+        {/* Variants */}
         {product.variants && product.variants.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <h5>Select Configuration</h5>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5">
               {product.variants.map((variant, index) => (
-                <div
+                <button
                   key={index}
-                  onClick={() => handleVariantSelect(variant)}
-                  className={`cursor-pointer rounded-xl border-2 p-3 px-4 transition-all duration-200 ${
+                  onClick={() => setSelectedVariant(variant)}
+                  className={`cursor-pointer rounded-xl border-2 px-4 py-2.5 text-sm transition-all duration-200 ${
                     selectedVariant === variant
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
-                      : "border-myblack/20 hover:border-blue-400"
+                      ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
+                      : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
                   }`}
                 >
-                  <p className="font-productSansReg text-sm">{variant}</p>
-                </div>
+                  {variant}
+                </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Color Selection */}
+        {/* Colors */}
         {product.colors && product.colors.length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <h5>Select Color</h5>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5">
               {product.colors.map((color, index) => (
-                <div
+                <button
                   key={index}
-                  onClick={() => handleColorSelect(color)}
-                  className={`cursor-pointer rounded-xl border-2 p-3 px-5 transition-all duration-200 ${
+                  onClick={() => setSelectedColor(color)}
+                  className={`cursor-pointer rounded-xl border-2 px-5 py-2.5 text-sm transition-all duration-200 ${
                     selectedColor === color
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
-                      : "border-myblack/20 hover:border-blue-400"
+                      ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
+                      : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
                   }`}
                 >
-                  <p className="font-productSansReg text-sm">{color}</p>
-                </div>
+                  {color}
+                </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Quantity Selector */}
-        <div className="space-y-3">
-          <h5>Quantity</h5>
-          <div className="flex items-center gap-4">
+        {/* Quantity + Add to Cart */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-0 overflow-hidden rounded-full border-2 border-slate-200">
             <button
               onClick={() => handleQuantityChange("decrement")}
-              className="border-myblack/20 font-robotoBold h-10 w-10 rounded-full border-2 transition-all duration-200 hover:border-blue-500 hover:text-blue-600"
+              className="font-robotoBold h-11 w-11 text-lg text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-40"
+              disabled={quantity <= 1}
             >
-              -
+              −
             </button>
-            <span className="font-robotoBold w-12 text-center text-xl">
+            <span className="font-robotoBold w-10 text-center text-lg text-slate-900 select-none">
               {quantity}
             </span>
             <button
               onClick={() => handleQuantityChange("increment")}
-              className="border-myblack/20 font-robotoBold h-10 w-10 rounded-full border-2 transition-all duration-200 hover:border-blue-500 hover:text-blue-600"
+              className="font-robotoBold h-11 w-11 text-lg text-slate-600 transition-colors hover:bg-slate-100"
             >
               +
             </button>
           </div>
+
+          <button
+            onClick={handleAddToCart}
+            className={`btn-black inline-flex flex-1 items-center justify-center gap-2.5 px-8 py-3.5 text-base transition-all duration-300 ${addedPulse ? "scale-95 opacity-80" : ""}`}
+          >
+            <FaCartPlus className="h-5 w-5" />
+            ADD TO CART
+          </button>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          className="btn-black inline-flex items-center gap-3 px-6 py-3"
-        >
-          <FaCartPlus className="h-5 w-5" />
-          ADD TO CART
-        </button>
+        {/* Trust badges row */}
+        <div className="flex flex-wrap items-center gap-3 pt-1">
+          <span className="flex items-center gap-1.5 text-xs text-slate-500">
+            <FaLock className="h-3.5 w-3.5 text-slate-400" />
+            Secure Checkout
+          </span>
+          <span className="text-slate-200">|</span>
+          <span className="flex items-center gap-1.5 text-xs text-slate-500">
+            <FaCheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+            Genuine Product Guaranteed
+          </span>
+          <span className="text-slate-200">|</span>
+          <span className="flex items-center gap-1.5 text-xs text-slate-500">
+            <FaShieldAlt className="h-3.5 w-3.5 text-blue-400" />
+            Buyer Protection
+          </span>
+        </div>
 
-        {/* Product Info */}
-        <div className="border-myblack/10 space-y-2 border-t-2 pt-4">
-          <p className="text-base">
-            <span className="font-productSansBold">Category:</span>{" "}
-            <span className="text-myblack/70">{product.category}</span>
-          </p>
-          <p className="text-base">
-            <span className="font-productSansBold">Availability:</span>{" "}
-            <span className="font-productSansReg text-green-600">
-              In Stock at Bislig iCenter
+        <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
+
+        {/* ── Specifications ───────────────────────────────────────── */}
+        {hasSpecs && (
+          <SpecsTable specifications={product.specifications} />
+        )}
+
+        {/* Product meta (category / availability) */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="font-productSansBold text-sm text-slate-700">
+              Category:
             </span>
-          </p>
+            <span className="rounded-full bg-slate-100 px-3 py-0.5 text-xs text-slate-600 capitalize">
+              {product.category}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-productSansBold text-sm text-slate-700">
+              Availability:
+            </span>
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+              In Stock — Bislig iCenter
+            </span>
+          </div>
         </div>
       </div>
     </div>

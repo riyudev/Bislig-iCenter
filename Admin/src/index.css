@@ -56,6 +56,7 @@
   li,
   button,
   input,
+  label,
   p {
     @apply font-productSansLight laptop:leading-6;
   }

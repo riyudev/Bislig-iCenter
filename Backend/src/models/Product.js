@@ -29,6 +29,13 @@ const productSchema = new mongoose.Schema(
     stocks: { type: Number, default: 0, min: 0 },
     totalSales: { type: Number, default: 0, min: 0 },
     description: { type: String },
+    specifications: [
+      {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+        _id: false
+      }
+    ],
     isActive: { type: Boolean, default: true },
     isNew: { type: Boolean, default: false },
     isBestSeller: { type: Boolean, default: false },
