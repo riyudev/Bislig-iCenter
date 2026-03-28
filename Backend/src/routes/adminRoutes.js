@@ -7,6 +7,7 @@ import { requireAdmin } from "../middleware/adminMiddleware.js";
 import * as productController from "../controllers/adminProductController.js";
 import * as orderController from "../controllers/adminOrderController.js";
 import * as userController from "../controllers/adminUserController.js";
+import * as heroSlideController from "../controllers/heroSlideController.js";
 
 const router = express.Router();
 
@@ -62,4 +63,16 @@ router.get("/users/:id", userController.getUserById);
 router.put("/users/:id", userController.updateUser);
 router.delete("/users/:id", userController.deleteUser);
 
+// Hero Slides (Shop page)
+router.post("/hero-slides/upload-image", upload.single("image"), (req, res) => {
+  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+  res.status(201).json({ url: `/uploads/${req.file.filename}` });
+});
+router.get("/hero-slides", heroSlideController.getAllSlides);
+router.get("/hero-slides/:id", heroSlideController.getSlideById);
+router.post("/hero-slides", heroSlideController.createSlide);
+router.put("/hero-slides/:id", heroSlideController.updateSlide);
+router.delete("/hero-slides/:id", heroSlideController.deleteSlide);
+
 export default router;
+

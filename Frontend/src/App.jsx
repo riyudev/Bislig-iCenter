@@ -15,7 +15,6 @@ function App() {
     <div className="bg-ghostWhite min-h-screen">
       <Router>
         <Navbar />
-
         <Routes>
           {/* Main Shop Page */}
           <Route path="/" element={<Shop />} />
@@ -37,9 +36,9 @@ function App() {
         </Routes>
 
         <Footer />
-        </Router>
-        <Toaster position="top-center" />
-      </div>
+      </Router>
+      <Toaster position="top-center" />
+    </div>
   );
 }
 

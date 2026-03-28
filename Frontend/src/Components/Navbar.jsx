@@ -133,11 +133,7 @@ function Navbar() {
       <nav
         className={`fixed right-0 left-0 z-50 border-b border-gray-200/50 backdrop-blur-xl transition-all duration-300 ${
           promoBanner ? "top-[30px]" : "top-0"
-        } ${
-          scrolled
-            ? "bg-[rgba(248,248,255,0.97)] shadow-[0_4px_32px_rgba(0,0,0,0.10)]"
-            : "bg-[rgba(248,248,255,0.82)] shadow-[0_2px_24px_rgba(0,0,0,0.06)]"
-        }`}
+        } ${scrolled ? "bg-gray-50/95 shadow-lg" : "bg-gray-50/80 shadow-md"}`}
       >
         {/* Top Row */}
         <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-5 px-6 py-[10px]">
@@ -203,9 +199,9 @@ function Navbar() {
           <div className="flex shrink-0 items-center gap-3.5">
             {/* Social */}
             <div className="flex items-center gap-1.5">
-              <span className="mr-0.5 text-[11.5px] tracking-[0.04em] text-gray-500">
+              <p className="mr-0.5 text-[11.5px] tracking-[0.04em] text-gray-500">
                 Follow us
-              </span>
+              </p>
               <a
                 href="#"
                 aria-label="Facebook"
@@ -345,10 +341,10 @@ function Navbar() {
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `rounded-full px-3.5 py-[5px] text-[13.5px] font-semibold tracking-[0.02em] no-underline transition-all duration-200 ${
+                  `font-productSansBold rounded-full px-3.5 py-[5px] text-[13.5px] tracking-[0.02em] no-underline transition-all duration-200 ${
                     isActive
                       ? "text-white shadow-[0_2px_12px_rgba(26,26,46,0.25)]"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-[#1a1a2e]"
+                      : "font-productSansBold text-gray-600 hover:bg-gray-100 hover:text-[#1a1a2e]"
                   }`
                 }
                 style={({ isActive }) =>
@@ -366,18 +362,18 @@ function Navbar() {
 
           {/* Trust Badges */}
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
+            <p className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
               <MdLocalShipping className="shrink-0 text-[13px] text-blue-500" />
               Free Shipping
-            </span>
-            <span className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
+            </p>
+            <p className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
               <MdSecurity className="shrink-0 text-[13px] text-blue-500" />
               Warranty
-            </span>
-            <span className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
+            </p>
+            <p className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100/80 px-2.5 py-[3px] text-[11.5px] font-medium tracking-[0.02em] text-gray-500">
               <BsBagCheck className="shrink-0 text-[13px] text-blue-500" />
               Cash on Delivery
-            </span>
+            </p>
           </div>
         </div>
       </nav>

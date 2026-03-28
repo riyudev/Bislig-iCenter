@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import heroSlideRoutes from "./routes/heroSlideRoutes.js";
 
 dotenv.config();
 
@@ -22,23 +23,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(
-  cors({
-    origin: clientUrl,
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  clientUrl,
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
 
-// Serve uploaded images
+// Serve uploaded images — before cors so images are never blocked
 app.use(
   "/uploads",
   express.static(path.join(process.cwd(), "uploads"))
+);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
+    credentials: true,
+  })
 );
 
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/hero-slides", heroSlideRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });

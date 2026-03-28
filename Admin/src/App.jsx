@@ -5,7 +5,7 @@ import AdminLayout from "./Components/AdminLayout.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Products from "./pages/Products.jsx";
 import Orders from "./pages/Orders.jsx";
-import Inventory from "./pages/Inventory.jsx";
+import Shop from "./pages/Shop.jsx";
 import Users from "./pages/Users.jsx";
 import Login from "./pages/Login.jsx";
 
@@ -19,7 +19,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="orders" element={<Orders />} />
-            <Route path="inventory" element={<Inventory />} />
+            <Route path="shop" element={<Shop />} />
             <Route path="users" element={<Users />} />
           </Route>
         </Routes>

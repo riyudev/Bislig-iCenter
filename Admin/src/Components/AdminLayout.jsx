@@ -4,7 +4,7 @@ import {
   FaTachometerAlt,
   FaBox,
   FaShoppingCart,
-  FaChartLine,
+  FaStore,
   FaUsers,
   FaSignOutAlt,
 } from "react-icons/fa";
@@ -16,7 +16,7 @@ const AdminLayout = () => {
     { path: "/", label: "Dashboard", icon: FaTachometerAlt },
     { path: "/products", label: "Products", icon: FaBox },
     { path: "/orders", label: "Orders", icon: FaShoppingCart },
-    { path: "/inventory", label: "Inventory", icon: FaChartLine },
+    { path: "/shop", label: "Shop", icon: FaStore },
     { path: "/users", label: "Users", icon: FaUsers },
   ];
 
