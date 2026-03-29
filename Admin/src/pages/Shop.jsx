@@ -67,25 +67,36 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-full space-y-6 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-myblack">Shop — Hero Carousel</h2>
-          <p className="mt-0.5 text-sm text-myblack/60">
-            Manage the hero slides shown on the frontend shop page.
-          </p>
-        </div>
-        <button
-          onClick={() => setModalSlide(null)}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-        >
-          <FaPlus className="text-xs" />
-          New Slide
-        </button>
+    <div className="min-h-full space-y-8 p-8">
+      {/* Page Header */}
+      <div>
+        <h2 className="text-myblack">Shop</h2>
+        <p className="mt-0.5 text-sm text-myblack/60">
+          Manage the content components shown on the frontend shop page.
+        </p>
       </div>
 
-      {/* Slides grid */}
+      <hr className="border-myblack/10" />
+
+      {/* Hero Carousel Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold text-myblack">Hero Carousel</h3>
+            <p className="mt-0.5 text-sm text-myblack/60">
+              Manage the hero slides shown at the top of the shop page.
+            </p>
+          </div>
+          <button
+            onClick={() => setModalSlide(null)}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          >
+            <FaPlus className="text-xs" />
+            New Slide
+          </button>
+        </div>
+
+        {/* Slides grid */}
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((i) => (
@@ -210,6 +221,7 @@ const Shop = () => {
           ))}
         </div>
       )}
+      </div>
 
       {/* Slide modal */}
       {modalSlide !== undefined && (

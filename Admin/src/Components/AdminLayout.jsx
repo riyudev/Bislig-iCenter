@@ -26,14 +26,14 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-ghostWhite">
-      <aside className="w-72 bg-white shadow-sm">
-        <div className="p-6 border-b">
+    <div className="flex h-screen w-full overflow-hidden bg-ghostWhite">
+      <aside className="z-10 flex h-full w-72 flex-shrink-0 flex-col bg-white shadow-sm">
+        <div className="border-b p-6">
           <h4 className="text-myblack">Admin Panel</h4>
-          <p className="text-myblack/60 text-sm">Bislig iCenter</p>
+          <p className="text-sm text-myblack/60">Bislig iCenter</p>
         </div>
 
-        <nav className="p-3 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.path;
@@ -54,10 +54,10 @@ const AdminLayout = () => {
           })}
         </nav>
 
-        <div className="p-4">
+        <div className="mt-auto border-t border-slate-100 p-4">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-myblack/10 bg-white px-4 py-3 text-myblack hover:border-blue-500"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-myblack/10 bg-white px-4 py-3 text-myblack transition-colors hover:border-blue-500 hover:text-blue-600"
           >
             <FaSignOutAlt />
             Logout
@@ -65,7 +65,7 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      <main className="flex-1">
+      <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>
     </div>
