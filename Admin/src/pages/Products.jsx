@@ -39,7 +39,6 @@ const Products = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [flagCounts, setFlagCounts] = useState({ bestSeller: 0, featured: 0 });
 
   const fetchProducts = async (page = 1) => {
     const token = localStorage.getItem("admin_token");
@@ -107,24 +106,6 @@ const Products = () => {
     setError("");
   };
 
-  useEffect(() => {
-    if (formOpen) {
-      const adminToken = localStorage.getItem("admin_token");
-      fetch("/api/admin/products?limit=1000", {
-        headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.products) {
-          setFlagCounts({
-            bestSeller: data.products.filter(p => p.isBestSeller && p._id !== editing?._id).length,
-            featured: data.products.filter(p => p.isFeatured && p._id !== editing?._id).length,
-          });
-        }
-      })
-      .catch(() => {});
-    }
-  }, [formOpen, editing]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -363,8 +344,6 @@ const Products = () => {
         onSpecChange={handleSpecChange}
         addSpec={addSpec}
         removeSpec={removeSpec}
-        disableBestSeller={!form.isBestSeller && flagCounts.bestSeller >= 3}
-        disableFeatured={!form.isFeatured && flagCounts.featured >= 4}
       />
     </div>
   );

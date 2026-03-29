@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 import SlideModal from "../Components/SlideModal";
+import SectionManager from "../Components/SectionManager";
 
 const API = "/api/admin";
 const getToken = () => localStorage.getItem("admin_token");
@@ -24,6 +25,22 @@ const Shop = () => {
   const [modalSlide, setModalSlide] = useState(undefined); // undefined = closed, null = new, obj = edit
   const [deleting, setDeleting] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  const loadProducts = async () => {
+    setProductsLoading(true);
+    try {
+      const res = await fetch(`${API}/products?limit=1000`, { headers: authHeader() });
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch {
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -38,7 +55,10 @@ const Shop = () => {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { 
+    load(); 
+    loadProducts();
+  }, []);
 
   const handleDelete = async (id) => {
     setDeleting(id);
@@ -46,6 +66,15 @@ const Shop = () => {
     setConfirmDeleteId(null);
     setDeleting(null);
     load();
+  };
+
+  const handleUpdateProduct = async (productId, updateData) => {
+    await fetch(`${API}/products/${productId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...authHeader() },
+      body: JSON.stringify(updateData),
+    });
+    loadProducts();
   };
 
   const toggleActive = async (slide) => {
@@ -75,8 +104,6 @@ const Shop = () => {
           Manage the content components shown on the frontend shop page.
         </p>
       </div>
-
-      <hr className="border-myblack/10" />
 
       {/* Hero Carousel Section */}
       <div className="space-y-6">
@@ -222,6 +249,24 @@ const Shop = () => {
         </div>
       )}
       </div>
+
+      <SectionManager
+        title="Best Sellers"
+        description="Select up to 3 products to display in the Best Seller section."
+        flag="isBestSeller"
+        maxCount={3}
+        products={products}
+        onUpdateProduct={handleUpdateProduct}
+      />
+
+      <SectionManager
+        title="Latest Products"
+        description="Select up to 4 products to feature in the Just Arrived section."
+        flag="isNew"
+        maxCount={4}
+        products={products}
+        onUpdateProduct={handleUpdateProduct}
+      />
 
       {/* Slide modal */}
       {modalSlide !== undefined && (

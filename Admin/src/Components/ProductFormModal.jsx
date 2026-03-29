@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { FaTimes, FaToggleOff, FaToggleOn } from "react-icons/fa";
 
 const mobileTemplate = [
   "Processor (Chipset)",
@@ -87,34 +88,34 @@ const ProductFormModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-myblack">
-              {editing ? "Edit product" : "Add product"}
-            </h3>
-            <p className="text-xs text-myblack/60">
-              Basic details and flags only. Inventory is adjusted on the
-              Inventory page.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 hover:bg-slate-200"
-          >
-            Close
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-4">
+          <h3 className="font-productSansReg text-myblack text-lg">
+            {editing ? "Edit product" : "Add product"}
+          </h3>
+          <button onClick={onClose} type="button" className="rounded-full p-2 hover:bg-slate-100">
+            <FaTimes className="text-myblack/60" />
           </button>
         </div>
 
-        {error && (
-          <div className="mb-3 rounded-2xl bg-rose-50 p-3 text-sm text-rose-700 ring-1 ring-rose-100">
-            {error}
-          </div>
-        )}
+        <div className="p-6 pb-0">
+          <p className="mb-4 mt-[-10px] text-xs text-myblack/60">
+            Basic details and flags only. Inventory is adjusted on the
+            Inventory page.
+          </p>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {error && (
+            <div className="mb-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700 ring-1 ring-rose-100">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={onSubmit}>
+          <div className="space-y-4 px-6 pb-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="text-xs text-myblack/70">Name</label>
               <input
@@ -327,64 +328,49 @@ const ProductFormModal = ({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-4">
-            <label className="flex items-center gap-2 text-xs text-myblack/80">
-              <input
-                type="checkbox"
-                name="isActive"
-                checked={form.isActive}
-                onChange={onChange}
-                className="h-4 w-4 rounded border-myblack/20"
-              />
-              Active
+          <div className="mt-2 flex flex-col justify-end">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Status
             </label>
-            <label className={`flex items-center gap-2 text-xs ${disableNew ? 'text-myblack/40 cursor-not-allowed' : 'text-myblack/80'}`}>
-              <input
-                type="checkbox"
-                name="isNew"
-                checked={form.isNew}
-                onChange={onChange}
-                disabled={disableNew}
-                className="h-4 w-4 rounded border-myblack/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              Mark as new {disableNew && <span className="text-[10px] ml-1">(Limit Reached)</span>}
-            </label>
-            <label className={`flex items-center gap-2 text-xs ${disableBestSeller ? 'text-myblack/40 cursor-not-allowed' : 'text-myblack/80'}`}>
-              <input
-                type="checkbox"
-                name="isBestSeller"
-                checked={form.isBestSeller}
-                onChange={onChange}
-                disabled={disableBestSeller}
-                className="h-4 w-4 rounded border-myblack/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              Best seller {disableBestSeller && <span className="text-[10px] ml-1">(Limit Reached)</span>}
-            </label>
-            <label className={`flex items-center gap-2 text-xs ${disableFeatured ? 'text-myblack/40 cursor-not-allowed' : 'text-myblack/80'}`}>
-              <input
-                type="checkbox"
-                name="isFeatured"
-                checked={form.isFeatured}
-                onChange={onChange}
-                disabled={disableFeatured}
-                className="h-4 w-4 rounded border-myblack/20 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              Featured {disableFeatured && <span className="text-[10px] ml-1">(Limit Reached)</span>}
-            </label>
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  target: {
+                    name: "isActive",
+                    type: "checkbox",
+                    checked: !form.isActive,
+                  },
+                })
+              }
+              className={`flex w-fit items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors ${
+                form.isActive
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-slate-200 bg-slate-50 text-slate-500"
+              }`}
+            >
+              {form.isActive ? (
+                <FaToggleOn className="text-xl text-emerald-500" />
+              ) : (
+                <FaToggleOff className="text-xl text-slate-400" />
+              )}
+              {form.isActive ? "Active" : "Inactive"}
+            </button>
+          </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-end gap-3">
+          <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 rounded-b-2xl border-t bg-white px-6 py-4">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full bg-white px-4 py-2 text-sm ring-1 ring-myblack/10 hover:ring-slate-400"
+              className="rounded-xl border border-slate-200 px-5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
               disabled={saving}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-60"
+              className="rounded-xl bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
               disabled={saving}
             >
               {saving
