@@ -9,11 +9,13 @@ import Footer from "./Components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Product from "./pages/Product";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from "./helpers/ScrollToTop";
 
 function App() {
   return (
     <div className="bg-ghostWhite min-h-screen">
       <Router>
+        <ScrollToTop />
         <Navbar />
         <Routes>
           {/* Main Shop Page */}

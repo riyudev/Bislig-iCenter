@@ -69,7 +69,7 @@ function Navbar() {
   useEffect(() => {
     const interval = setInterval(() => {
       setPromoIndex((prev) => (prev + 1) % promoMessages.length);
-    }, 3500);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -132,7 +132,7 @@ function Navbar() {
       {/* ── Main Navbar ── */}
       <nav
         className={`fixed right-0 left-0 z-50 border-b border-gray-200/50 backdrop-blur-xl transition-all duration-300 ${
-          promoBanner ? "top-[30px]" : "top-0"
+          promoBanner ? "top-[35px]" : "top-0"
         } ${scrolled ? "bg-gray-50/95 shadow-lg" : "bg-gray-50/80 shadow-md"}`}
       >
         {/* Top Row */}
