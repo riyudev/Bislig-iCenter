@@ -7,6 +7,7 @@ import {
   toggleItemCheck,
   toggleAllChecks,
   clearCart,
+  clearCheckedItems,
 } from "../controllers/cartController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -22,5 +23,6 @@ router.post("/remove", removeFromCart);
 router.post("/toggle-check", toggleItemCheck);
 router.post("/toggle-all-checks", toggleAllChecks);
 router.post("/clear", clearCart);
+router.post("/clear-checked", clearCheckedItems);
 
 export default router;

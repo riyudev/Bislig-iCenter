@@ -119,6 +119,23 @@ export const toggleAllChecks = async (req, res, next) => {
   }
 };
 
+// Clear checked items
+export const clearCheckedItems = async (req, res, next) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user.id });
+    
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    await cart.clearCheckedItems();
+
+    res.json(cart);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Clear cart
 export const clearCart = async (req, res, next) => {
   try {

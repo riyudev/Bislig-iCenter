@@ -337,6 +337,40 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  const clearCheckedCartItems = async () => {
+    if (!user) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/cart/clear-checked", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const updatedCart = await res.json();
+        
+        // Convert backend cart format to frontend format
+        const items = {};
+        const checks = {};
+        
+        updatedCart.items.forEach(item => {
+          const itemCartItemId = `${item.productId}-${item.storage}-${item.color}`;
+          items[itemCartItemId] = item;
+          checks[itemCartItemId] = updatedCart.checkedItems[itemCartItemId] || false;
+        });
+        
+        setCartItems(items);
+        setCheckedItems(checks);
+        setCartOrder(updatedCart.cartOrder || []);
+      }
+    } catch (err) {
+      console.error("Failed to clear checked items:", err);
+    }
+  };
+
   const areAllItemsChecked = () => {
     if (cartOrder.length === 0) return false;
     for (const id of cartOrder) {
@@ -403,6 +437,7 @@ const ShopContextProvider = (props) => {
     removeFromCart,
     toggleItemCheck,
     toggleAllChecks,
+    clearCheckedCartItems,
     areAllItemsChecked,
     getItemTotalQuantity,
     getCartProducts,

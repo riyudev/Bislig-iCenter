@@ -18,7 +18,7 @@ import { toast } from "react-hot-toast";
 
 function Checkout() {
   const { user, login } = useAuth();
-  const { getCartProducts, checkedItems, getTotalCartAmount } =
+  const { getCartProducts, checkedItems, getTotalCartAmount, clearCheckedCartItems } =
     useContext(ShopContext);
   const navigate = useNavigate();
 
@@ -127,6 +127,7 @@ function Checkout() {
     }
 
     // In a real app, API call to place order would happen here
+    clearCheckedCartItems();
     setShowSuccessModal(true);
   };
 

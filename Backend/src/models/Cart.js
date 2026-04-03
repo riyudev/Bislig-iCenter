@@ -100,6 +100,29 @@ cartSchema.methods.toggleItemCheck = function(productId, storage, color) {
   return this.save();
 };
 
+// Helper method to clear checked items
+cartSchema.methods.clearCheckedItems = function() {
+  const checkedIds = [];
+  for (const [key, value] of this.checkedItems.entries()) {
+    if (value === true) {
+      checkedIds.push(key);
+    }
+  }
+
+  this.items = this.items.filter(item => {
+    const cartItemId = this.generateCartItemId(item.productId, item.storage, item.color);
+    return !checkedIds.includes(cartItemId);
+  });
+  
+  this.cartOrder = this.cartOrder.filter(id => !checkedIds.includes(id));
+  
+  for (const id of checkedIds) {
+    this.checkedItems.delete(id);
+  }
+  
+  return this.save();
+};
+
 // Helper method to clear cart
 cartSchema.methods.clearCart = function() {
   this.items = [];
