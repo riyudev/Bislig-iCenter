@@ -13,7 +13,7 @@ import { IoSearch, IoClose } from "react-icons/io5";
 import { BsCart3, BsBagCheck } from "react-icons/bs";
 import { HiSparkles } from "react-icons/hi2";
 import { MdLocalShipping, MdSecurity, MdStar } from "react-icons/md";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
 import AccountSidebar from "./AccountSidebar";
@@ -21,6 +21,7 @@ import AccountSidebar from "./AccountSidebar";
 function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAccountSidebarOpen, setIsAccountSidebarOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -99,6 +100,10 @@ function Navbar() {
     setIsDropdownOpen(false);
     setIsAccountSidebarOpen(true);
   };
+
+  if (location.pathname === "/checkout") {
+    return null;
+  }
 
   return (
     <>

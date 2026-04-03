@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa6";
 import { MdLocalShipping, MdSecurity, MdVerified } from "react-icons/md";
 import { BiSupport } from "react-icons/bi";
@@ -12,6 +12,11 @@ function Footer() {
     { icon: <BiSupport className="text-xl text-cyan-400" />, title: "24/7 Premium Support", desc: "Dedicated tech rescue" },
     { icon: <MdVerified className="text-xl text-cyan-400" />, title: "Certified Authentic", desc: "100% Genuine products" },
   ];
+
+  const location = useLocation();
+  if (location.pathname === "/checkout") {
+    return null;
+  }
 
   return (
     <footer className="bg-myblack text-ghostWhite relative overflow-hidden pt-16 pb-8">

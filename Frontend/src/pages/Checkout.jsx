@@ -1,0 +1,499 @@
+import React, { useState, useContext, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { ShopContext } from "../context/ShopContext";
+import {
+  FaCheckCircle,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaPhone,
+  FaUser,
+  FaArrowLeft,
+  FaPaypal,
+  FaMoneyBillWave,
+  FaShieldAlt,
+  FaSave,
+} from "react-icons/fa";
+import { toast } from "react-hot-toast";
+
+function Checkout() {
+  const { user, login } = useAuth();
+  const { getCartProducts, checkedItems, getTotalCartAmount } =
+    useContext(ShopContext);
+  const navigate = useNavigate();
+
+  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isSavingShipping, setIsSavingShipping] = useState(false);
+
+  const cartProducts = getCartProducts();
+  const checkoutProducts = cartProducts.filter(
+    (p) => checkedItems[p.cartItemId],
+  );
+  const totalAmount = getTotalCartAmount();
+
+  const parsePrice = (val) => {
+    if (val === null || val === undefined) return null;
+    const num =
+      typeof val === "number"
+        ? val
+        : Number(String(val).replace(/[^0-9.-]+/g, ""));
+    return Number.isFinite(num) ? num : null;
+  };
+
+  const formatPrice = (value) => {
+    const num = parsePrice(value);
+    return Number.isFinite(num)
+      ? new Intl.NumberFormat("en-PH", {
+          style: "currency",
+          currency: "PHP",
+          maximumFractionDigits: 0,
+        }).format(num)
+      : value;
+  };
+
+  const hasCompleteProfile = !!(
+    user?.name &&
+    user?.email &&
+    user?.mobileNumber &&
+    user?.address
+  );
+
+  const [shippingInfo, setShippingInfo] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    mobileNumber: user?.mobileNumber || "",
+    address: user?.address || "",
+  });
+
+  useEffect(() => {
+    if (checkoutProducts.length === 0 && !showSuccessModal) {
+      navigate("/cart");
+    }
+  }, [checkoutProducts.length, navigate, showSuccessModal]);
+
+  const handleInputChange = (e) => {
+    setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value });
+  };
+
+  const handleSaveShipping = async () => {
+    if (
+      !shippingInfo.name ||
+      !shippingInfo.email ||
+      !shippingInfo.mobileNumber ||
+      !shippingInfo.address
+    ) {
+      toast.error("Please fill in all fields before saving.");
+      return;
+    }
+    setIsSavingShipping(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/update-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: shippingInfo.name,
+          email: shippingInfo.email,
+          mobileNumber: shippingInfo.mobileNumber,
+          address: shippingInfo.address,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        login(data.user);
+        toast.success("Shipping info saved to your profile!");
+      } else {
+        toast.error(data.message || "Failed to save shipping info.");
+      }
+    } catch {
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsSavingShipping(false);
+    }
+  };
+
+  const handlePlaceOrder = () => {
+    if (!hasCompleteProfile) {
+      if (
+        !shippingInfo.name ||
+        !shippingInfo.email ||
+        !shippingInfo.mobileNumber ||
+        !shippingInfo.address
+      ) {
+        toast.error("Please fill in all shipping information.");
+        return;
+      }
+    }
+
+    // In a real app, API call to place order would happen here
+    setShowSuccessModal(true);
+  };
+
+  return (
+    <div className="relative min-h-screen bg-slate-50 pb-20">
+      {/* Background Decor */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-blue-400/10 blur-[120px]" />
+        <div className="absolute top-40 -left-20 h-[400px] w-[400px] rounded-full bg-cyan-400/10 blur-[100px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="font-productSansReg mb-8">
+          <Link
+            to="/cart"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-blue-600"
+          >
+            <FaArrowLeft /> Back to Cart
+          </Link>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+            Secure Checkout
+          </h1>
+        </div>
+
+        <div className="font-productSansReg flex items-stretch gap-8 lg:gap-12">
+          {/* Left Column: Shipping Information */}
+          <div className="flex flex-[3] flex-col">
+            <div className="flex-1 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Shipping Information
+                </h2>
+                {hasCompleteProfile && (
+                  <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-600">
+                    <FaCheckCircle /> Verified
+                  </span>
+                )}
+              </div>
+
+              {hasCompleteProfile ? (
+                <div className="space-y-5 rounded-2xl border border-slate-100 bg-slate-50 p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaUser />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        Full Name
+                      </p>
+                      <p className="text-lg font-bold text-slate-900">
+                        {user.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaEnvelope />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        Email Address
+                      </p>
+                      <p className="text-lg font-bold text-slate-900">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaPhone />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        Mobile Number
+                      </p>
+                      <p className="text-lg font-bold text-slate-900">
+                        {user.mobileNumber}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaMapMarkerAlt />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-500">
+                        Delivery Address
+                      </p>
+                      <p className="text-lg leading-relaxed font-bold text-slate-900">
+                        {user.address}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <p className="mb-4 text-sm text-slate-500">
+                    Please enter your shipping details for this order.
+                  </p>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={shippingInfo.name}
+                      onChange={handleInputChange}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={shippingInfo.email}
+                        onChange={handleInputChange}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                        Mobile Number
+                      </label>
+                      <input
+                        type="tel"
+                        name="mobileNumber"
+                        value={shippingInfo.mobileNumber}
+                        onChange={handleInputChange}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        placeholder="+63 912 345 6789"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      Delivery Address
+                    </label>
+                    <textarea
+                      name="address"
+                      rows="3"
+                      value={shippingInfo.address}
+                      onChange={handleInputChange}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                      placeholder="Complete Address (Street, Barangay, City, Province)"
+                    />
+                  </div>
+
+                  {/* Save to Profile button */}
+                  <button
+                    type="button"
+                    onClick={handleSaveShipping}
+                    disabled={isSavingShipping}
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-blue-600 px-4 py-3 text-sm font-bold text-blue-600 transition-all hover:bg-blue-50 active:scale-95 disabled:opacity-60"
+                  >
+                    <FaSave />
+                    {isSavingShipping ? "Saving..." : "Save to Profile"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Payment & Summary */}
+          <div className="flex flex-[2] flex-col gap-8">
+            {/* Payment Method */}
+            <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+              <h2 className="mb-6 text-2xl font-bold text-slate-900">
+                Payment Method
+              </h2>
+              <div className="grid grid-cols-1 gap-4 text-left">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("COD")}
+                  className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                    paymentMethod === "COD"
+                      ? "border-blue-600 bg-blue-50/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
+                      : "border-slate-200 bg-white hover:border-blue-200"
+                  }`}
+                >
+                  <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${paymentMethod === "COD" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}
+                  >
+                    <FaMoneyBillWave className="text-xl" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <span className="block font-bold text-slate-900">
+                      Cash on Delivery
+                    </span>
+                    <span className="block text-xs font-medium text-slate-500">
+                      Pay when you receive
+                    </span>
+                  </div>
+                  <div
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${paymentMethod === "COD" ? "border-blue-600" : "border-slate-300"}`}
+                  >
+                    {paymentMethod === "COD" && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("PAYPAL")}
+                  className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                    paymentMethod === "PAYPAL"
+                      ? "border-blue-600 bg-blue-50/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
+                      : "border-slate-200 bg-white hover:border-blue-200"
+                  }`}
+                >
+                  <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${paymentMethod === "PAYPAL" ? "bg-[#003087] text-white" : "bg-slate-100 text-slate-500"}`}
+                  >
+                    <FaPaypal className="text-xl" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <span className="block font-bold text-slate-900">
+                      PayPal
+                    </span>
+                    <span className="block text-xs font-medium text-slate-500">
+                      Not integrated yet
+                    </span>
+                  </div>
+                  <div
+                    className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${paymentMethod === "PAYPAL" ? "border-blue-600" : "border-slate-300"}`}
+                  >
+                    {paymentMethod === "PAYPAL" && (
+                      <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="flex flex-col rounded-3xl bg-white p-6 shadow-md ring-1 ring-slate-200 sm:p-8">
+              <h2 className="mb-6 text-2xl font-bold text-slate-900">
+                Order Summary
+              </h2>
+
+              <div className="custom-scrollbar mb-6 max-h-[300px] flex-1 space-y-4 overflow-y-auto pr-2">
+                {checkoutProducts.map((product) => (
+                  <div key={product.cartItemId} className="flex gap-4">
+                    <div className="h-16 w-16 shrink-0 rounded-xl border border-slate-100 bg-slate-50 p-2">
+                      <img
+                        src={
+                          product.image?.startsWith("http")
+                            ? product.image
+                            : `http://localhost:5000${product.image || ""}`
+                        }
+                        alt={product.name}
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col justify-center">
+                      <h4 className="line-clamp-1 text-sm font-bold text-slate-900">
+                        {product.name}
+                      </h4>
+                      <p className="text-xs font-medium text-slate-500">
+                        Qty: {product.quantity}
+                      </p>
+                    </div>
+                    <div className="flex items-center font-bold text-slate-900">
+                      {formatPrice(
+                        parsePrice(product.newPrice) * product.quantity,
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-slate-200 pt-6">
+                <div className="mb-2 flex items-center justify-between text-sm font-medium text-slate-500">
+                  <span>Subtotal</span>
+                  <span>{formatPrice(totalAmount)}</span>
+                </div>
+                <div className="mb-4 flex items-center justify-between text-sm font-medium text-slate-500">
+                  <span>Shipping</span>
+                  <span className="font-bold text-emerald-600">FREE</span>
+                </div>
+                <div className="mb-8 flex items-center justify-between">
+                  <span className="text-xl font-bold text-slate-900">
+                    Total
+                  </span>
+                  <span className="text-3xl font-extrabold tracking-tight text-blue-600">
+                    {formatPrice(totalAmount)}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handlePlaceOrder}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-8 py-4 text-lg font-bold tracking-wide text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-1 hover:bg-blue-600 hover:shadow-blue-500/30 active:scale-95"
+                >
+                  <FaShieldAlt /> Place Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-white p-8 text-center shadow-2xl"
+            style={{ animation: "modalSlideUp 0.3s ease-out forwards" }}
+          >
+            {/* Confetti / Glow bg */}
+            <div className="pointer-events-none absolute top-0 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-green-400/20 blur-[80px]" />
+
+            <div className="font-productSansReg relative z-10">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 shadow-inner ring-8 ring-green-50">
+                <FaCheckCircle className="text-5xl text-green-500" />
+              </div>
+
+              <h3 className="mb-3 text-3xl font-extrabold tracking-tight text-slate-900">
+                Order Successful!
+              </h3>
+
+              <p className="mb-8 leading-relaxed font-medium text-slate-500">
+                Thank you for your purchase. Your order has been placed
+                successfully. We will send you an email confirmation shortly.
+              </p>
+
+              <button
+                onClick={() => navigate("/")}
+                className="w-full rounded-full bg-blue-600 px-8 py-4 text-base font-bold tracking-wide text-white shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-1 hover:bg-blue-700 active:scale-95"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @keyframes modalSlideUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #cbd5e1;
+          border-radius: 10px;
+        }
+      `,
+        }}
+      />
+    </div>
+  );
+}
+
+export default Checkout;

@@ -226,3 +226,47 @@ export const getMe = async (req, res, next) => {
 
 };
 
+
+
+export const updateProfile = async (req, res, next) => {
+
+  try {
+
+    const { name, email, mobileNumber, address, currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id).select("+password");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Handle password change if requested
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: "Current password is required to change password" });
+      }
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+      user.password = newPassword;
+    }
+
+    // Update profile fields
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (mobileNumber !== undefined) user.mobileNumber = mobileNumber;
+    if (address !== undefined) user.address = address;
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id);
+    res.json({ user: updatedUser });
+
+  } catch (err) {
+
+    next(err);
+
+  }
+
+};
+
+

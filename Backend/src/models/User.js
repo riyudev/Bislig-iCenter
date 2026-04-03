@@ -82,6 +82,26 @@ const userSchema = new mongoose.Schema(
 
     },
 
+    mobileNumber: {
+
+      type: String,
+
+      trim: true,
+
+      default: "",
+
+    },
+
+    address: {
+
+      type: String,
+
+      trim: true,
+
+      default: "",
+
+    },
+
   },
 
   { timestamps: true }
