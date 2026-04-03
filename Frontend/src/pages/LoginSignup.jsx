@@ -102,7 +102,7 @@ function LoginSignup() {
         <div className="mb-8 text-center">
           <Link
             to="/"
-            className="mb-6 inline-flex items-center justify-center gap-3 no-underline"
+            className="mb-6 inline-flex items-center justify-center gap-1 no-underline"
           >
             <div
               className="flex h-[48px] w-[48px] items-center justify-center rounded-[14px] p-1 shadow-[0_2px_12px_rgba(59,130,246,0.15)] transition-transform duration-300 hover:scale-105"
@@ -117,10 +117,10 @@ function LoginSignup() {
               />
             </div>
             <div className="flex flex-col text-left leading-tight">
-              <span className="text-[20px] font-extrabold tracking-[0.06em] text-[#1a1a2e]">
+              <span className="font-productSansBold text-[20px] tracking-[0.06em] text-[#1a1a2e]">
                 BiSLIG
               </span>
-              <span className="text-[12px] font-semibold tracking-[0.18em] text-blue-500">
+              <span className="font-productSansBold text-[12px] tracking-[0.18em] text-blue-500">
                 iCENTER
               </span>
             </div>

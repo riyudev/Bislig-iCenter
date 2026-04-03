@@ -160,10 +160,10 @@ function Navbar() {
               />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-[18px] font-extrabold tracking-[0.06em] text-[#1a1a2e]">
+              <span className="font-productSansBold text-[18px] tracking-[0.06em] text-[#1a1a2e]">
                 BiSLIG
               </span>
-              <span className="text-[11px] font-semibold tracking-[0.18em] text-blue-500">
+              <span className="font-productSansBold text-[11px] tracking-[0.18em] text-blue-500">
                 iCENTER
               </span>
             </div>

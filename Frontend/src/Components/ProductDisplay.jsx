@@ -1,4 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { ShopContext } from "../context/ShopContext";
 import {
   FaCartPlus,
@@ -217,6 +218,38 @@ const ProductDisplay = (props) => {
   const [wishlisted, setWishlisted] = useState(false);
   const [addedPulse, setAddedPulse] = useState(false);
 
+  // ── Fly-to-cart animation ──────────────────────────────────────────
+  const [flyingIcons, setFlyingIcons] = useState([]);
+  const flyIdRef = useRef(0);
+
+  const launchFlyAnimation = useCallback((buttonEl) => {
+    const navCartBtn = document.getElementById("navbar-cart-btn");
+    if (!buttonEl || !navCartBtn) return;
+
+    const from = buttonEl.getBoundingClientRect();
+    const to   = navCartBtn.getBoundingClientRect();
+
+    const startX = from.left + from.width  / 2;
+    const startY = from.top  + from.height / 2;
+    const dx = Math.round((to.left + to.width  / 2) - startX);
+    const dy = Math.round((to.top  + to.height / 2) - startY);
+    // Lift arc height: 40% of vertical travel
+    const arc = Math.round(Math.abs(dy) * 0.4);
+
+    const id = ++flyIdRef.current;
+    const kfName = `ftc-${id}`;
+    const kfCSS = `
+      @keyframes ${kfName} {
+        0%   { transform: translate(0px, 0px) scale(1);                                              opacity: 1; }
+        20%  { transform: translate(${Math.round(dx*0.1)}px, ${Math.round(dy*0.1 - arc)}px) scale(1.45); opacity: 1; }
+        65%  { transform: translate(${Math.round(dx*0.7)}px, ${Math.round(dy*0.7 - arc*0.25)}px) scale(0.85); opacity: 0.85; }
+        100% { transform: translate(${dx}px, ${dy}px) scale(0.15);                                  opacity: 0; }
+      }
+    `;
+    setFlyingIcons((prev) => [...prev, { id, startX, startY, kfName, kfCSS }]);
+    setTimeout(() => setFlyingIcons((prev) => prev.filter((f) => f.id !== id)), 1100);
+  }, []);
+
 
   /* ─── Price Helpers ────────────────────────────────────────────── */
   const parsePrice = (val) => {
@@ -281,7 +314,7 @@ const ProductDisplay = (props) => {
     else if (type === "decrement" && quantity > 1) setQuantity((p) => p - 1);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (buttonEl) => {
     addToCart(
       product._id || product.id,
       selectedVariant || "Default",
@@ -291,14 +324,62 @@ const ProductDisplay = (props) => {
     );
     setAddedPulse(true);
     setTimeout(() => setAddedPulse(false), 600);
+    if (buttonEl) launchFlyAnimation(buttonEl);
   };
-
   const hasSpecs =
     (product.specifications || []).filter((s) => s.value?.trim()).length > 0;
 
   /* ─── Render ────────────────────────────────────────────────────── */
+  const flyPortal = flyingIcons.length > 0
+    ? ReactDOM.createPortal(
+        <>
+          {flyingIcons.map(({ id, startX, startY, kfName, kfCSS }) => (
+            <React.Fragment key={id}>
+              <style>{kfCSS}</style>
+              <div
+                style={{
+                  position: "fixed",
+                  left: startX - 22,
+                  top: startY - 22,
+                  width: 44,
+                  height: 44,
+                  zIndex: 99999,
+                  pointerEvents: "none",
+                  animation: `${kfName} 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{
+                  position: "absolute", inset: "-8px", borderRadius: "50%",
+                  background: "radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(6,182,212,0.2) 55%, transparent 72%)",
+                  filter: "blur(10px)",
+                }} />
+                <div style={{
+                  position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
+                  background: "linear-gradient(135deg, #1d4ed8, #0891b2)",
+                  borderRadius: "50%", width: 40, height: 40,
+                  boxShadow: "0 0 0 3px #fff, 0 0 20px rgba(59,130,246,0.85), 0 4px 14px rgba(0,0,0,0.22)",
+                }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="9" cy="21" r="1"/>
+                    <circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                  </svg>
+                </div>
+              </div>
+            </React.Fragment>
+          ))}
+        </>,
+        document.body,
+      )
+    : null;
+
   return (
-    <div className="laptop:flex-row laptop:items-start laptop:gap-12 mb-8 flex w-full flex-col gap-8 rounded-3xl border border-slate-100 bg-white px-6 py-8 shadow-xl shadow-slate-100">
+    <>
+      {flyPortal}
+      <div className="laptop:flex-row laptop:items-start laptop:gap-12 mb-8 flex w-full flex-col gap-8 rounded-3xl border border-slate-100 bg-white px-6 py-8 shadow-xl shadow-slate-100">
       {/* ══ Left: Image + Perks ════════════════════════════════════ */}
       <div className="laptop:max-w-[460px] relative w-full flex-shrink-0">
         {/* Image card */}
@@ -499,7 +580,8 @@ const ProductDisplay = (props) => {
           </div>
 
           <button
-            onClick={handleAddToCart}
+            id="product-add-to-cart-btn"
+            onClick={(e) => handleAddToCart(e.currentTarget)}
             className={`btn-black inline-flex flex-1 items-center justify-center gap-2.5 px-8 py-3.5 text-base transition-all duration-300 ${addedPulse ? "scale-95 opacity-80" : ""}`}
           >
             <FaCartPlus className="h-5 w-5" />
@@ -554,6 +636,7 @@ const ProductDisplay = (props) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
