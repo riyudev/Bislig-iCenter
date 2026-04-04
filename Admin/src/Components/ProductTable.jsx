@@ -2,6 +2,31 @@ import React from "react";
 import ActionMenu from "./ActionMenu";
 
 const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
+  const formatVariant = (variantStr) => {
+    if (!variantStr) return "";
+    const parts = variantStr.split("+").map(p => p.trim());
+    if (parts.length === 2) {
+      const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
+      const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
+      if (match0 && match1) {
+        const val0 = parseInt(match0[1]);
+        const unit0 = match0[2].toUpperCase();
+        const val1 = parseInt(match1[1]);
+        const unit1 = match1[2].toUpperCase();
+        
+        let isPart0Storage = false;
+        if (unit0 === "TB") isPart0Storage = true;
+        else if (unit1 === "TB") isPart0Storage = false;
+        else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
+        
+        if (isPart0Storage) {
+          return `${parts[1]} + ${parts[0]}`;
+        }
+      }
+    }
+    return variantStr;
+  };
+
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
       <table className="min-w-full divide-y divide-slate-200">
@@ -13,8 +38,8 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
             <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Category
             </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
-              Colors
+            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+              Variation
             </th>
             <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Price
@@ -64,9 +89,6 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                       <p className="font-productSansReg text-myblack">
                         {p.name}
                       </p>
-                      <p className="text-xs text-myblack/60">
-                        stocks: {p.stocks || 0}
-                      </p>
                     </div>
                   </div>
                 </td>
@@ -74,15 +96,18 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                   {p.category}
                 </td>
                 <td className="px-6 py-4">
-                  {p.colors && p.colors.length > 0 ? (
-                    <div className="flex flex-wrap justify-start gap-1">
-                      {p.colors.map((color, idx) => (
-                        <span
-                          key={idx}
-                          className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 border border-slate-200"
-                        >
-                          {color}
-                        </span>
+                  {p.stockItems && p.stockItems.length > 0 ? (
+                    <div className="flex flex-col gap-1.5 min-w-[200px]">
+                      {p.stockItems.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 border-b border-slate-100 pb-1.5 last:border-0 last:pb-0">
+                          <span className="font-semibold text-slate-700">{item.color}</span>
+                          <span className="text-slate-300">•</span>
+                          <span>{formatVariant(item.variant)}</span>
+                          <span className="text-slate-300">•</span>
+                          <span className={`font-semibold ${item.stock <= (p.lowStockThreshold || 5) ? 'text-rose-500' : 'text-emerald-600'}`}>
+                            {item.stock} in stock
+                          </span>
+                        </div>
                       ))}
                     </div>
                   ) : (

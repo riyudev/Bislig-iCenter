@@ -52,6 +52,9 @@ const ProductFormModal = ({
   onSpecChange,
   addSpec,
   removeSpec,
+  handleStockItemChange,
+  addStockItem,
+  removeStockItem,
   disableBestSeller,
   disableFeatured,
   disableNew,
@@ -183,7 +186,7 @@ const ProductFormModal = ({
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
               <label className="text-xs text-myblack/70">New price (₱)</label>
               <input
@@ -208,17 +211,6 @@ const ProductFormModal = ({
               />
             </div>
             <div>
-              <label className="text-xs text-myblack/70">Stocks</label>
-              <input
-                name="stocks"
-                type="number"
-                min="0"
-                value={form.stocks}
-                onChange={onChange}
-                className="mt-1 w-full rounded-xl border border-myblack/10 bg-white px-4 py-2 text-sm"
-              />
-            </div>
-            <div>
               <label className="text-xs text-myblack/70">
                 Low stock threshold
               </label>
@@ -233,31 +225,85 @@ const ProductFormModal = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="text-xs text-myblack/70">
-                Variants (comma-separated)
-              </label>
-              <input
-                name="variants"
-                value={form.variants}
-                onChange={onChange}
-                className="mt-1 w-full rounded-xl border border-myblack/10 bg-white px-4 py-2 text-sm"
-                placeholder="128GB, 256GB, 512GB"
-              />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-myblack/80">Variations & Stock</label>
+              <button
+                type="button"
+                onClick={addStockItem}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              >
+                + Add Variation
+              </button>
             </div>
-            <div>
-              <label className="text-xs text-myblack/70">
-                Colors (comma-separated)
-              </label>
-              <input
-                name="colors"
-                value={form.colors}
-                onChange={onChange}
-                className="mt-1 w-full rounded-xl border border-myblack/10 bg-white px-4 py-2 text-sm"
-                placeholder="Black, White, Blue"
-              />
-            </div>
+            
+            {(form.stockItems || []).length === 0 ? (
+              <p className="text-xs text-myblack/50 italic">No variations added.</p>
+            ) : (
+              <div className="space-y-2">
+                {(form.stockItems || []).map((item, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <input
+                      placeholder="Color (e.g., Black)"
+                      value={item.color}
+                      onChange={(e) => handleStockItemChange(index, "color", e.target.value)}
+                      required
+                      className="w-1/3 rounded-xl border border-myblack/10 bg-white px-3 py-1.5 text-xs"
+                    />
+                    <div className="relative w-1/4">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="RAM"
+                        value={item.ram}
+                        onChange={(e) => handleStockItemChange(index, "ram", e.target.value)}
+                        className="w-full rounded-xl border border-myblack/10 bg-white px-3 py-1.5 pr-8 text-xs"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-myblack/50 pointer-events-none">
+                        GB
+                      </span>
+                    </div>
+                    <div className="relative w-1/4">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Storage"
+                        value={item.storage}
+                        onChange={(e) => handleStockItemChange(index, "storage", e.target.value)}
+                        className="w-full rounded-xl border border-myblack/10 bg-white px-3 py-1.5 pr-12 text-xs"
+                      />
+                      <select
+                        value={item.storageUnit || "GB"}
+                        onChange={(e) => handleStockItemChange(index, "storageUnit", e.target.value)}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent text-xs text-slate-500 cursor-pointer outline-none border-none pr-1"
+                      >
+                        <option value="GB">GB</option>
+                        <option value="TB">TB</option>
+                      </select>
+                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Stock"
+                      value={item.stock}
+                      onChange={(e) => handleStockItemChange(index, "stock", e.target.value)}
+                      required
+                      className="w-1/4 rounded-xl border border-myblack/10 bg-white px-3 py-1.5 text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeStockItem(index)}
+                      className="text-rose-500 hover:text-rose-700 shrink-0 p-1"
+                      title="Remove Variation"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

@@ -8,15 +8,13 @@ const emptyForm = {
   image: "",
   oldPrice: "",
   newPrice: "",
-  variants: "",
-  colors: "",
   description: "",
   isActive: true,
   isNew: false,
   isBestSeller: false,
   isFeatured: false,
   lowStockThreshold: 5,
-  stocks: 0,
+  stockItems: [],
   specifications: [],
 };
 
@@ -84,15 +82,32 @@ const Products = () => {
       image: p.image || "",
       oldPrice: p.oldPrice ?? "",
       newPrice: p.newPrice ?? "",
-      variants: (p.variants || []).join(", "),
-      colors: (p.colors || []).join(", "),
       description: p.description || "",
       isActive: p.isActive ?? true,
       isNew: p.isNew ?? false,
       isBestSeller: p.isBestSeller ?? false,
       isFeatured: p.isFeatured ?? false,
       lowStockThreshold: p.lowStockThreshold ?? 5,
-      stocks: p.stocks ?? 0,
+      stockItems: (p.stockItems || []).map(s => {
+        const [ramRaw, ...storageParts] = (s.variant || "").split(" + ");
+        let ramVal = (ramRaw || "").trim().replace(/GB$/i, "");
+        let storageRawStr = storageParts.join(" + ");
+        let storageVal = (storageRawStr || "").trim();
+        let storageUnit = "GB";
+        if (storageVal.toUpperCase().endsWith("TB")) {
+          storageUnit = "TB";
+          storageVal = storageVal.replace(/TB$/i, "").trim();
+        } else {
+          storageVal = storageVal.replace(/GB$/i, "").trim();
+        }
+        return {
+          color: s.color || "",
+          storage: storageVal || "",
+          storageUnit: storageUnit,
+          ram: ramVal || "",
+          stock: s.stock || 0
+        };
+      }),
       specifications: p.specifications || [],
     });
     setFormOpen(true);
@@ -120,6 +135,29 @@ const Products = () => {
       const newSpecs = [...prev.specifications];
       newSpecs[index][field] = value;
       return { ...prev, specifications: newSpecs };
+    });
+  };
+
+  const handleStockItemChange = (index, field, value) => {
+    setForm((prev) => {
+      const newItems = [...(prev.stockItems || [])];
+      newItems[index] = { ...newItems[index], [field]: value };
+      return { ...prev, stockItems: newItems };
+    });
+  };
+
+  const addStockItem = () => {
+    setForm((prev) => ({
+      ...prev,
+      stockItems: [...(prev.stockItems || []), { color: "", storage: "", storageUnit: "GB", ram: "", stock: 0 }],
+    }));
+  };
+
+  const removeStockItem = (index) => {
+    setForm((prev) => {
+      const newItems = [...(prev.stockItems || [])];
+      newItems.splice(index, 1);
+      return { ...prev, stockItems: newItems };
     });
   };
 
@@ -178,31 +216,36 @@ const Products = () => {
     setError("");
     const adminToken = localStorage.getItem("admin_token");
 
+    const validStockItems = (form.stockItems || []).filter(
+      (s) => s.color.trim() !== "" && (s.storage?.trim() !== "" || s.ram?.trim() !== "")
+    );
+
     const body = {
       name: form.name.trim(),
       category: form.category,
       image: form.image.trim(),
       oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
       newPrice: form.newPrice ? Number(form.newPrice) : 0,
-      variants: form.variants
-        ? form.variants
-            .split(",")
-            .map((v) => v.trim())
-            .filter(Boolean)
-        : [],
-      colors: form.colors
-        ? form.colors
-            .split(",")
-            .map((c) => c.trim())
-            .filter(Boolean)
-        : [],
       description: form.description.trim(),
       isActive: form.isActive,
       isNew: form.isNew,
       isBestSeller: form.isBestSeller,
       isFeatured: form.isFeatured,
       lowStockThreshold: Number(form.lowStockThreshold || 5),
-      stocks: Number(form.stocks || 0),
+      stockItems: validStockItems.map((s) => ({
+        color: s.color.trim(),
+        variant: [
+          s.ram?.toString().trim() ? `${s.ram.toString().trim()}GB` : "",
+          s.storage?.toString().trim() ? `${s.storage.toString().trim()}${s.storageUnit || 'GB'}` : ""
+        ].filter(Boolean).join(" + "),
+        stock: Number(s.stock || 0),
+      })),
+      variants: [...new Set(validStockItems.map((s) => [
+        s.ram?.toString().trim() ? `${s.ram.toString().trim()}GB` : "",
+        s.storage?.toString().trim() ? `${s.storage.toString().trim()}${s.storageUnit || 'GB'}` : ""
+      ].filter(Boolean).join(" + ")))],
+      colors: [...new Set(validStockItems.map((s) => s.color.trim()))],
+      stocks: validStockItems.reduce((sum, s) => sum + Number(s.stock || 0), 0),
       specifications: (form.specifications || []).filter(
         (s) => s.key.trim() !== "" && s.value.trim() !== ""
       ),
@@ -344,6 +387,9 @@ const Products = () => {
         onSpecChange={handleSpecChange}
         addSpec={addSpec}
         removeSpec={removeSpec}
+        handleStockItemChange={handleStockItemChange}
+        addStockItem={addStockItem}
+        removeStockItem={removeStockItem}
       />
     </div>
   );

@@ -209,10 +209,10 @@ const ProductDisplay = (props) => {
   const { product } = props;
   const { addToCart } = useContext(ShopContext);
   const [selectedVariant, setSelectedVariant] = useState(
-    product.variants?.[0] || null,
+    product.stockItems?.[0]?.variant || product.variants?.[0] || null,
   );
   const [selectedColor, setSelectedColor] = useState(
-    product.colors?.[0] || null,
+    product.stockItems?.[0]?.color || product.colors?.[0] || null,
   );
   const [quantity, setQuantity] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
@@ -250,6 +250,32 @@ const ProductDisplay = (props) => {
     setTimeout(() => setFlyingIcons((prev) => prev.filter((f) => f.id !== id)), 1100);
   }, []);
 
+
+  // ── Formatter ──────────────────────────────────────────────────────
+  const formatVariant = (variantStr) => {
+    if (!variantStr) return "";
+    const parts = variantStr.split("+").map(p => p.trim());
+    if (parts.length === 2) {
+      const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
+      const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
+      if (match0 && match1) {
+        const val0 = parseInt(match0[1]);
+        const unit0 = match0[2].toUpperCase();
+        const val1 = parseInt(match1[1]);
+        const unit1 = match1[2].toUpperCase();
+        
+        let isPart0Storage = false;
+        if (unit0 === "TB") isPart0Storage = true;
+        else if (unit1 === "TB") isPart0Storage = false;
+        else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
+        
+        if (isPart0Storage) {
+          return `${parts[1]} + ${parts[0]}`;
+        }
+      }
+    }
+    return variantStr;
+  };
 
   /* ─── Price Helpers ────────────────────────────────────────────── */
   const parsePrice = (val) => {
@@ -329,6 +355,11 @@ const ProductDisplay = (props) => {
   const hasSpecs =
     (product.specifications || []).filter((s) => s.value?.trim()).length > 0;
 
+  const currentStockItem = (product.stockItems || []).find(
+    (item) => item.variant === selectedVariant && item.color === selectedColor
+  );
+  const currentStock = currentStockItem ? currentStockItem.stock : (product.stocks || 0);
+
   /* ─── Render ────────────────────────────────────────────────────── */
   const flyPortal = flyingIcons.length > 0
     ? ReactDOM.createPortal(
@@ -379,11 +410,11 @@ const ProductDisplay = (props) => {
   return (
     <>
       {flyPortal}
-      <div className="laptop:flex-row laptop:items-start laptop:gap-12 mb-8 flex w-full flex-col gap-8 rounded-3xl border border-slate-100 bg-white px-6 py-8 shadow-xl shadow-slate-100">
+      <div className="laptop:flex-row laptop:items-start laptop:gap-8 mb-6 flex w-full flex-col gap-6 rounded-3xl border border-slate-100 bg-white px-5 py-6 shadow-xl shadow-slate-100">
       {/* ══ Left: Image + Perks ════════════════════════════════════ */}
       <div className="laptop:max-w-[460px] relative w-full flex-shrink-0">
         {/* Image card */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-8 ring-1 ring-slate-200/80">
+        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-6 ring-1 ring-slate-200/80">
           <img
             src={
               product.image?.startsWith("http")
@@ -391,7 +422,7 @@ const ProductDisplay = (props) => {
                 : `http://localhost:5000${product.image || ""}`
             }
             alt={product.name}
-            className="mx-auto h-[360px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+            className="mx-auto h-[300px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]"
             loading="lazy"
           />
 
@@ -473,7 +504,7 @@ const ProductDisplay = (props) => {
         </div>
 
         {/* Product name */}
-        <h3 className="leading-tight">{product.name}</h3>
+        <h3 className="leading-tight text-2xl font-bold">{product.name}</h3>
 
         {/* Social-proof trust strip */}
         <TrustStrip />
@@ -481,16 +512,16 @@ const ProductDisplay = (props) => {
         <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
 
         {/* Price */}
-        <div className="flex flex-wrap items-baseline gap-3">
-          <span className="font-productSansBold text-4xl text-slate-900">
+        <div className="flex flex-wrap items-baseline gap-2">
+          <span className="font-productSansBold text-3xl text-slate-900">
             {formatPHP(effectiveNewP, product.newPrice)}
           </span>
           {hasDiscount && (
             <>
-              <span className="font-productSansLight text-lg text-slate-400 line-through">
+              <span className="font-productSansLight text-base text-slate-400 line-through">
                 {formatPHP(effectiveOldP, product.oldPrice)}
               </span>
-              <span className="rounded-full bg-rose-50 px-3 py-1 text-sm font-semibold text-rose-600 ring-1 ring-rose-200">
+              <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-600 ring-1 ring-rose-200">
                 Save {discountPercent}%
               </span>
             </>
@@ -499,9 +530,9 @@ const ProductDisplay = (props) => {
 
         {/* Savings callout */}
         {hasDiscount && (
-          <div className="flex w-fit items-center gap-2 rounded-xl bg-amber-50 px-4 py-2.5 ring-1 ring-amber-200">
-            <span className="text-base">💰</span>
-            <p className="font-productSansBold text-sm text-amber-700">
+          <div className="flex w-fit items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-2 ring-1 ring-amber-200">
+            <span className="text-sm">💰</span>
+            <p className="font-productSansBold text-xs text-amber-700">
               You save{" "}
               {formatPHP(
                 Number.isFinite(effectiveOldP) && Number.isFinite(effectiveNewP)
@@ -514,49 +545,56 @@ const ProductDisplay = (props) => {
           </div>
         )}
 
-        {/* Variants */}
-        {product.variants && product.variants.length > 0 && (
-          <div className="space-y-2.5">
-            <h5>Select Configuration</h5>
-            <div className="flex flex-wrap gap-2.5">
-              {product.variants.map((variant, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedVariant(variant)}
-                  className={`cursor-pointer rounded-xl border-2 px-4 py-2.5 text-sm transition-all duration-200 ${
-                    selectedVariant === variant
-                      ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
-                      : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
-                  }`}
-                >
-                  {variant}
-                </button>
-              ))}
+        {/* Available Variation */}
+        {product.stockItems && product.stockItems.length > 0 && (
+          <div className="space-y-2">
+            <h5 className="text-sm font-semibold text-slate-800">Available Variation</h5>
+            <div className="flex flex-wrap gap-2">
+              {product.stockItems.map((item, index) => {
+                const formattedVar = formatVariant(item.variant);
+                const label = `${formattedVar} | ${item.color}`;
+                const isSelected = selectedVariant === item.variant && selectedColor === item.color;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      setSelectedVariant(item.variant);
+                      setSelectedColor(item.color);
+                    }}
+                    className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs transition-all duration-200 ${
+                      isSelected
+                        ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
+                        : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Colors */}
-        {product.colors && product.colors.length > 0 && (
-          <div className="space-y-2.5">
-            <h5>Select Color</h5>
-            <div className="flex flex-wrap gap-2.5">
-              {product.colors.map((color, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedColor(color)}
-                  className={`cursor-pointer rounded-xl border-2 px-5 py-2.5 text-sm transition-all duration-200 ${
-                    selectedColor === color
-                      ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
-                      : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
-            </div>
+        {/* Product meta (category / availability) */}
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="font-productSansBold text-xs text-slate-700">
+              Category:
+            </span>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600 capitalize">
+              {product.category}
+            </span>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <span className="font-productSansBold text-xs text-slate-700">
+              Stock:
+            </span>
+            <span className={`flex items-center gap-1.5 text-xs font-semibold ${currentStock > 0 ? (currentStock <= (product.lowStockThreshold || 5) ? 'text-amber-600' : 'text-emerald-600') : 'text-rose-600'}`}>
+              <span className={`inline-block h-1.5 w-1.5 rounded-full ${currentStock > 0 ? (currentStock <= (product.lowStockThreshold || 5) ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 animate-pulse') : 'bg-rose-500'}`} />
+              {currentStock > 0 ? `${currentStock} items left` : 'Out of Stock'}
+            </span>
+          </div>
+        </div>
 
         {/* Quantity + Add to Cart */}
         <div className="flex flex-wrap items-center gap-4">
@@ -573,7 +611,8 @@ const ProductDisplay = (props) => {
             </span>
             <button
               onClick={() => handleQuantityChange("increment")}
-              className="font-robotoBold h-11 w-11 text-lg text-slate-600 transition-colors hover:bg-slate-100"
+              className="font-robotoBold h-11 w-11 text-lg text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-40"
+              disabled={quantity >= currentStock}
             >
               +
             </button>
@@ -582,10 +621,11 @@ const ProductDisplay = (props) => {
           <button
             id="product-add-to-cart-btn"
             onClick={(e) => handleAddToCart(e.currentTarget)}
-            className={`btn-black inline-flex flex-1 items-center justify-center gap-2.5 px-8 py-3.5 text-base transition-all duration-300 ${addedPulse ? "scale-95 opacity-80" : ""}`}
+            disabled={currentStock <= 0}
+            className={`btn-black inline-flex flex-1 items-center justify-center gap-2.5 px-8 py-3.5 text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${addedPulse ? "scale-95 opacity-80" : ""}`}
           >
             <FaCartPlus className="h-5 w-5" />
-            ADD TO CART
+            {currentStock > 0 ? "ADD TO CART" : "SOLD OUT"}
           </button>
         </div>
 
@@ -614,26 +654,6 @@ const ProductDisplay = (props) => {
           <SpecsTable specifications={product.specifications} />
         )}
 
-        {/* Product meta (category / availability) */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="font-productSansBold text-sm text-slate-700">
-              Category:
-            </span>
-            <span className="rounded-full bg-slate-100 px-3 py-0.5 text-xs text-slate-600 capitalize">
-              {product.category}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-productSansBold text-sm text-slate-700">
-              Availability:
-            </span>
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600">
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-              In Stock — Bislig iCenter
-            </span>
-          </div>
-        </div>
       </div>
     </div>
     </>

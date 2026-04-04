@@ -69,6 +69,31 @@ function Cart() {
     }
   });
 
+  const formatVariant = (variantStr) => {
+    if (!variantStr) return "";
+    const parts = variantStr.split("+").map(p => p.trim());
+    if (parts.length === 2) {
+      const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
+      const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
+      if (match0 && match1) {
+        const val0 = parseInt(match0[1]);
+        const unit0 = match0[2].toUpperCase();
+        const val1 = parseInt(match1[1]);
+        const unit1 = match1[2].toUpperCase();
+        
+        let isPart0Storage = false;
+        if (unit0 === "TB") isPart0Storage = true;
+        else if (unit1 === "TB") isPart0Storage = false;
+        else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
+        
+        if (isPart0Storage) {
+          return `${parts[1]} + ${parts[0]}`;
+        }
+      }
+    }
+    return variantStr;
+  };
+
   if (cartProducts.length === 0) {
     return (
       <div className="flex min-h-[85vh] flex-col items-center justify-center bg-gradient-to-b from-slate-50 via-white to-white px-4 py-16">
@@ -209,10 +234,10 @@ function Cart() {
                                 <p className="flex items-center gap-1.5">
                                   <span className="h-1.5 w-1.5 rounded-full bg-slate-300"></span>
                                   <span className="text-slate-400">
-                                    Storage:
+                                    Variation:
                                   </span>{" "}
                                   <span className="text-slate-700">
-                                    {product.storage}
+                                    {formatVariant(product.storage)}
                                   </span>
                                 </p>
                               )}
