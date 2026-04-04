@@ -60,11 +60,11 @@ const Orders = () => {
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <input
           className="rounded-xl border border-myblack/10 bg-white px-4 py-3"
-          placeholder="Search by order #, name, phone..."
+          placeholder="Search by order #, name, item..."
           value={filter.search}
           onChange={(e) => setFilter((p) => ({ ...p, search: e.target.value }))}
           onKeyDown={(e) => {
-            if (e.key === "Enter") fetchOrders(1);
+            fetchOrders(1);
           }}
         />
         <select

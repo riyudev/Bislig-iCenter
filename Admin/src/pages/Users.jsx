@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 const Users = () => {
-  const [state, setState] = useState({ loading: true, users: [], pages: 1, page: 1 });
-  const [filter, setFilter] = useState({ search: "", role: "" });
+  const [state, setState] = useState({
+    loading: true,
+    users: [],
+    pages: 1,
+    page: 1,
+  });
+  const [filter, setFilter] = useState({ search: "", role: "", status: "" });
   const [error, setError] = useState("");
 
   const fetchUsers = async (page = 1) => {
@@ -15,6 +20,7 @@ const Users = () => {
       limit: 20,
       ...(filter.search && { search: filter.search }),
       ...(filter.role && { role: filter.role }),
+      ...(filter.status && { status: filter.status }),
     }).toString();
 
     const res = await fetch(`/api/admin/users?${query}`, {
@@ -37,7 +43,7 @@ const Users = () => {
   useEffect(() => {
     fetchUsers(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.role]);
+  }, [filter.role, filter.status]);
 
   const updateRole = async (id, role) => {
     const token = localStorage.getItem("admin_token");
@@ -65,14 +71,14 @@ const Users = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <input
           className="rounded-xl border border-myblack/10 bg-white px-4 py-3"
           placeholder="Search name/email..."
           value={filter.search}
           onChange={(e) => setFilter((p) => ({ ...p, search: e.target.value }))}
           onKeyDown={(e) => {
-            if (e.key === "Enter") fetchUsers(1);
+            fetchUsers(1);
           }}
         />
         <select
@@ -80,9 +86,18 @@ const Users = () => {
           value={filter.role}
           onChange={(e) => setFilter((p) => ({ ...p, role: e.target.value }))}
         >
-          <option value="">All</option>
+          <option value="">All Roles</option>
           <option value="user">User</option>
           <option value="admin">Admin</option>
+        </select>
+        <select
+          className="rounded-xl border border-myblack/10 bg-white px-4 py-3"
+          value={filter.status}
+          onChange={(e) => setFilter((p) => ({ ...p, status: e.target.value }))}
+        >
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
         </select>
       </div>
 
@@ -90,21 +105,30 @@ const Users = () => {
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+                Phone
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {state.loading ? (
               <tr>
-                <td className="px-6 py-6" colSpan={3}>
+                <td className="px-6 py-6" colSpan={4}>
                   Loading...
                 </td>
               </tr>
             ) : state.users.length === 0 ? (
               <tr>
-                <td className="px-6 py-6" colSpan={3}>
+                <td className="px-6 py-6" colSpan={4}>
                   No users.
                 </td>
               </tr>
@@ -112,17 +136,26 @@ const Users = () => {
               state.users.map((u) => (
                 <tr key={u._id}>
                   <td className="px-6 py-4">
-                    <div className="font-productSansReg text-myblack">{u.name}</div>
+                    <div className="font-productSansReg text-myblack">
+                      {u.name}
+                    </div>
                     {u.username && (
-                      <div className="text-xs text-myblack/60">@{u.username}</div>
+                      <div className="text-xs text-myblack/60">
+                        @{u.username}
+                      </div>
                     )}
                   </td>
                   <td className="px-6 py-4 text-myblack/70">{u.email}</td>
+                  <td className="px-6 py-4 text-myblack/70">
+                    {u.mobileNumber || ""}
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <span
                         className={`h-2.5 w-2.5 rounded-full ${
-                          u.computedStatus === "active" ? "bg-emerald-500" : "bg-slate-400"
+                          u.computedStatus === "active"
+                            ? "bg-emerald-500"
+                            : "bg-slate-400"
                         }`}
                       />
                       <span className="text-sm text-myblack/70">
@@ -142,7 +175,11 @@ const Users = () => {
           <button
             key={i}
             onClick={() => fetchUsers(i + 1)}
-            className={`rounded-full px-4 py-2 ${state.page === i + 1 ? "bg-blue-600 text-white" : "bg-white ring-1 ring-myblack/10 hover:ring-blue-500"}`}
+            className={`rounded-full px-4 py-2 ${
+              state.page === i + 1
+                ? "bg-blue-600 text-white"
+                : "bg-white ring-1 ring-myblack/10 hover:ring-blue-500"
+            }`}
           >
             {i + 1}
           </button>

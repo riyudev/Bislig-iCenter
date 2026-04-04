@@ -13,6 +13,7 @@ export const getOrders = async (req, res, next) => {
         { "customer.name": { $regex: search, $options: "i" } },
         { "customer.phone": { $regex: search, $options: "i" } },
         { "customer.email": { $regex: search, $options: "i" } },
+        { "items.name": { $regex: search, $options: "i" } },
       ];
     }
 

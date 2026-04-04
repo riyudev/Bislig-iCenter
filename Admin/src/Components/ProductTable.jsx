@@ -14,6 +14,9 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
               Category
             </th>
             <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
+              Colors
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Price
             </th>
             <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
@@ -27,13 +30,13 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
         <tbody className="divide-y divide-slate-200">
           {loading ? (
             <tr>
-              <td className="px-6 py-6" colSpan={5}>
+              <td className="px-6 py-6" colSpan={6}>
                 Loading...
               </td>
             </tr>
           ) : products.length === 0 ? (
             <tr>
-              <td className="px-6 py-6" colSpan={5}>
+              <td className="px-6 py-6" colSpan={6}>
                 No products found.
               </td>
             </tr>
@@ -69,6 +72,22 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                 </td>
                 <td className="px-6 py-4 text-center text-sm text-myblack/70">
                   {p.category}
+                </td>
+                <td className="px-6 py-4">
+                  {p.colors && p.colors.length > 0 ? (
+                    <div className="flex flex-wrap justify-start gap-1">
+                      {p.colors.map((color, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 border border-slate-200"
+                        >
+                          {color}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-myblack/30">—</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-center text-sm text-myblack">
                   ₱{Number(p.newPrice || 0).toLocaleString()}
