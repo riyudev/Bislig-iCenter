@@ -60,7 +60,8 @@ function Checkout() {
   );
 
   const [shippingInfo, setShippingInfo] = useState({
-    name: user?.name || "",
+    firstName: (user?.name || "").split(" ")[0] || "",
+    lastName: (user?.name || "").split(" ").slice(1).join(" ") || "",
     email: user?.email || "",
     mobileNumber: user?.mobileNumber || "",
     address: user?.address || "",
@@ -77,8 +78,9 @@ function Checkout() {
   };
 
   const handleSaveShipping = async () => {
+    const fullName = `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
     if (
-      !shippingInfo.name ||
+      !fullName ||
       !shippingInfo.email ||
       !shippingInfo.mobileNumber ||
       !shippingInfo.address
@@ -93,7 +95,7 @@ function Checkout() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          name: shippingInfo.name,
+          name: fullName,
           email: shippingInfo.email,
           mobileNumber: shippingInfo.mobileNumber,
           address: shippingInfo.address,
@@ -115,8 +117,9 @@ function Checkout() {
 
   const handlePlaceOrder = async () => {
     if (!hasCompleteProfile) {
+      const fullName = `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
       if (
-        !shippingInfo.name ||
+        !fullName ||
         !shippingInfo.email ||
         !shippingInfo.mobileNumber ||
         !shippingInfo.address
@@ -124,7 +127,11 @@ function Checkout() {
         toast.error("Please fill in all shipping information.");
         return;
       }
-    }
+    };
+
+    const shippingFullName = hasCompleteProfile
+      ? user.name
+      : `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
 
     const orderItems = checkoutProducts.map((p) => {
       const price = parsePrice(p.newPrice);
@@ -142,7 +149,7 @@ function Checkout() {
     const orderData = {
       orderItems,
       customer: {
-        name: hasCompleteProfile ? user.name : shippingInfo.name,
+        name: shippingFullName,
         email: hasCompleteProfile ? user.email : shippingInfo.email,
         phone: hasCompleteProfile ? user.mobileNumber : shippingInfo.mobileNumber,
         address: hasCompleteProfile ? user.address : shippingInfo.address,
@@ -273,18 +280,34 @@ function Checkout() {
                   <p className="mb-4 text-sm text-slate-500">
                     Please enter your shipping details for this order.
                   </p>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={shippingInfo.name}
-                      onChange={handleInputChange}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                      placeholder="John Doe"
-                    />
+                  {/* Name & Last Name */}
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={shippingInfo.firstName}
+                        onChange={handleInputChange}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        placeholder="First name"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={shippingInfo.lastName}
+                        onChange={handleInputChange}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        placeholder="Last name"
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>

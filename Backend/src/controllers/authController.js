@@ -232,7 +232,7 @@ export const updateProfile = async (req, res, next) => {
 
   try {
 
-    const { name, email, mobileNumber, address, currentPassword, newPassword } = req.body;
+    const { name, username, email, mobileNumber, address, currentPassword, newPassword } = req.body;
 
     const user = await User.findById(req.user._id).select("+password");
 
@@ -248,6 +248,18 @@ export const updateProfile = async (req, res, next) => {
         return res.status(401).json({ message: "Current password is incorrect" });
       }
       user.password = newPassword;
+    }
+
+    // Handle username change with uniqueness check
+    if (username !== undefined) {
+      const normalizedUsername = String(username).trim().toLowerCase();
+      if (normalizedUsername !== user.username) {
+        const taken = await User.findOne({ username: normalizedUsername });
+        if (taken) {
+          return res.status(409).json({ message: "Username already in use" });
+        }
+        user.username = normalizedUsername;
+      }
     }
 
     // Update profile fields

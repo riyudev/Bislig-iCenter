@@ -3,13 +3,21 @@ import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/bislig-iCenter-Logo.png";
-import { FiMail, FiLock, FiUser, FiArrowRight } from "react-icons/fi";
+import {
+  FiMail,
+  FiLock,
+  FiUser,
+  FiArrowRight,
+  FiEye,
+  FiEyeOff,
+} from "react-icons/fi";
 
 function LoginSignup() {
   const [signState, setSignState] = useState("Sign In");
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -17,7 +25,7 @@ function LoginSignup() {
   const toggleSignState = () => {
     setSignState((currentState) => {
       const newState = currentState === "Sign In" ? "Sign Up" : "Sign In";
-      setName("");
+      setUsername("");
       setEmail("");
       setPassword("");
       return newState;
@@ -25,7 +33,7 @@ function LoginSignup() {
   };
 
   const clearForm = () => {
-    setName("");
+    setUsername("");
     setEmail("");
     setPassword("");
   };
@@ -42,8 +50,8 @@ function LoginSignup() {
     const payload =
       signState === "Sign Up"
         ? {
-            name: name.trim(),
-            username: name.trim(),
+            name: username.trim(),
+            username: username.trim(),
             email: email.trim(),
             password,
           }
@@ -145,10 +153,10 @@ function LoginSignup() {
                   <FiUser className="text-[18px]" />
                 </div>
                 <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   type="text"
-                  placeholder="Full Name"
+                  placeholder="Username"
                   required
                   className="w-full rounded-xl border border-gray-200 bg-white/80 py-3.5 pr-4 pl-11 text-[14.5px] text-[#1a1a2e] transition-all duration-200 outline-none placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
                 />
@@ -176,11 +184,22 @@ function LoginSignup() {
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 required
-                className="w-full rounded-xl border border-gray-200 bg-white/80 py-3.5 pr-4 pl-11 text-[14.5px] text-[#1a1a2e] transition-all duration-200 outline-none placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
+                className="w-full rounded-xl border border-gray-200 bg-white/80 py-3.5 pr-11 pl-11 text-[14.5px] text-[#1a1a2e] transition-all duration-200 outline-none placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-blue-500"
+              >
+                {showPassword ? (
+                  <FiEye className="text-[18px]" />
+                ) : (
+                  <FiEyeOff className="text-[18px]" />
+                )}
+              </button>
             </div>
 
             {signState === "Sign In" && (

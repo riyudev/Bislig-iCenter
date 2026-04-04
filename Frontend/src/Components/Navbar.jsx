@@ -258,7 +258,7 @@ function Navbar() {
                     {user ? "Hello," : ""}
                   </span>
                   <span className="text-[13px] font-semibold text-[#1a1a2e]">
-                    {user ? user.name.split(" ")[0] : "Login"}
+                    {user ? user.username.split(" ")[0] : "Login"}
                   </span>
                 </div>
                 {user && (
