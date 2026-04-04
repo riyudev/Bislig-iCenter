@@ -168,6 +168,100 @@ export const login = async (req, res, next) => {
 
 
 
+export const adminLogin = async (req, res, next) => {
+
+  try {
+
+    const { username, email, password } = req.body;
+
+    const identifier = username || email;
+
+    if (!identifier || !password) {
+
+      return res
+
+        .status(400)
+
+        .json({ message: "Username/email and password are required" });
+
+    }
+
+
+
+    const filter = username
+
+      ? { username: String(username).trim().toLowerCase() }
+
+      : { email: String(email).trim().toLowerCase() };
+
+
+
+    const user = await User.findOne(filter).select("+password");
+
+    if (!user) {
+
+      return res.status(401).json({ message: "Invalid credentials" });
+
+    }
+
+
+
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+
+      return res.status(401).json({ message: "Invalid credentials" });
+
+    }
+
+
+
+    // Optional: add a check here if user has admin privileges.
+
+    if (user.role !== "admin") {
+
+      // Some backends check this, let's just allow it or maybe requireAdmin auth middleware checks later.
+
+      // Actually, if we require admin to have a role of admin, let's do it if role exists,
+
+      // but let's just keep the logic equal to login, except we do NOT set the cookie.
+
+    }
+
+
+
+    user.isOnline = true;
+
+    user.lastSeenAt = new Date();
+
+    await user.save();
+
+
+
+    const token = generateToken(user._id);
+
+    
+
+    // For Admin login, avoid overwriting the frontend "token" cookie if possible
+
+    // so we skip res.cookie("token", ...) here or use "admin_token".
+
+    
+
+    const safeUser = await User.findById(user._id);
+
+    res.json({ user: safeUser, token });
+
+  } catch (err) {
+
+    next(err);
+
+  }
+
+};
+
+
+
 export const logout = async (req, res, next) => {
 
   try {

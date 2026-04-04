@@ -157,13 +157,35 @@ export const getDashboardStats = async (req, res, next) => {
         }
       ]),
       
-      // Low stock products - query directly in DB instead of loading all products
+      // Low stock products - compare stocks against lowStockThreshold
       Product.countDocuments({
         isActive: true,
-        $or: [
-          { stocks: { $lte: 5 } },
-          { "stockItems.stock": { $lte: 5 } }
-        ]
+        $expr: {
+          $or: [
+            // If no variants, check global stocks
+            {
+              $and: [
+                { $eq: [{ $size: { $ifNull: ["$stockItems", []] } }, 0] },
+                { $lte: ["$stocks", { $ifNull: ["$lowStockThreshold", 5] }] }
+              ]
+            },
+            // If variants exist, check if ANY variant is low on stock
+            {
+              $gt: [
+                {
+                  $size: {
+                    $filter: {
+                      input: { $ifNull: ["$stockItems", []] },
+                      as: "item",
+                      cond: { $lte: ["$$item.stock", { $ifNull: ["$lowStockThreshold", 5] }] }
+                    }
+                  }
+                },
+                0
+              ]
+            }
+          ]
+        }
       })
     ]);
 
