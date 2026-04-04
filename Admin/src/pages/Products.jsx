@@ -326,7 +326,7 @@ const Products = () => {
           value={filter.search}
           onChange={(e) => setFilter((p) => ({ ...p, search: e.target.value }))}
           onKeyDown={(e) => {
-            if (e.key === "Enter") fetchProducts(1);
+            fetchProducts(1);
           }}
         />
         <select
@@ -347,9 +347,10 @@ const Products = () => {
           value={filter.status}
           onChange={(e) => setFilter((p) => ({ ...p, status: e.target.value }))}
         >
-          <option value="">All</option>
+          <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
+          <option value="bestseller">Best Selling</option>
         </select>
       </div>
 

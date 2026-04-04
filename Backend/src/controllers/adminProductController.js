@@ -16,8 +16,13 @@ export const getProducts = async (req, res, next) => {
       ];
     }
 
+    let sortConfig = { createdAt: -1 };
+    if (status === "bestseller") {
+      sortConfig = { totalSales: -1, createdAt: -1 };
+    }
+
     const products = await Product.find(filter)
-      .sort({ createdAt: -1 })
+      .sort(sortConfig)
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit));
 
