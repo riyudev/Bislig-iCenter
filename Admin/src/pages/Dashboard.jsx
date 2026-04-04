@@ -120,7 +120,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))}
-            
+
             <div className="bg-white rounded-xl shadow-sm p-4">
               <div className="h-4 bg-gray-200 rounded w-32 mb-3 animate-pulse"></div>
               <div className="space-y-2">

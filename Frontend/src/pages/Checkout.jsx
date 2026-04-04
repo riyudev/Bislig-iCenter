@@ -113,7 +113,7 @@ function Checkout() {
     }
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!hasCompleteProfile) {
       if (
         !shippingInfo.name ||
@@ -126,9 +126,53 @@ function Checkout() {
       }
     }
 
-    // In a real app, API call to place order would happen here
-    clearCheckedCartItems();
-    setShowSuccessModal(true);
+    const orderItems = checkoutProducts.map((p) => {
+      const price = parsePrice(p.newPrice);
+      return {
+        productId: p._id || p.productId,
+        name: p.name,
+        variant: p.storage || "64GB",
+        color: p.color || "Default",
+        quantity: p.quantity,
+        unitPrice: price,
+        totalPrice: price * p.quantity,
+      };
+    });
+
+    const orderData = {
+      orderItems,
+      customer: {
+        name: hasCompleteProfile ? user.name : shippingInfo.name,
+        email: hasCompleteProfile ? user.email : shippingInfo.email,
+        phone: hasCompleteProfile ? user.mobileNumber : shippingInfo.mobileNumber,
+        address: hasCompleteProfile ? user.address : shippingInfo.address,
+      },
+      subtotal: totalAmount,
+      shippingFee: 0,
+      total: totalAmount,
+      paymentMethod: paymentMethod.toLowerCase(),
+    };
+
+    try {
+      const res = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(orderData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to place order");
+      }
+
+      clearCheckedCartItems();
+      setShowSuccessModal(true);
+    } catch (err) {
+      toast.error(err.message || "Failed to complete your order. Try again.");
+    }
   };
 
   return (

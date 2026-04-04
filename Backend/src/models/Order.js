@@ -32,12 +32,12 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: { type: String, enum: ["cod", "pickup"], default: "cod" },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "packed", "shipped", "completed", "cancelled"],
+      enum: ["pending", "confirmed", "preparing", "shipped", "completed", "cancelled"],
       default: "pending",
     },
     orderDate: { type: Date, default: Date.now },
     confirmedDate: { type: Date },
-    packedDate: { type: Date },
+    preparingDate: { type: Date },
     shippedDate: { type: Date },
     completedDate: { type: Date },
     cancelledDate: { type: Date },
@@ -55,7 +55,7 @@ orderSchema.index({ orderDate: -1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ orderDate: -1, status: 1 });
 
-orderSchema.pre("save", async function (next) {
+orderSchema.pre("validate", async function (next) {
   if (!this.orderNumber) {
     const count = await this.constructor.countDocuments();
     this.orderNumber = `ORD-${String(count + 1).padStart(6, "0")}`;
@@ -70,8 +70,8 @@ orderSchema.methods.updateStatus = function (newStatus) {
     case "confirmed":
       this.confirmedDate = now;
       break;
-    case "packed":
-      this.packedDate = now;
+    case "preparing":
+      this.preparingDate = now;
       break;
     case "shipped":
       this.shippedDate = now;

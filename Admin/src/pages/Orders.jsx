@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 
 const Orders = () => {
-  const [state, setState] = useState({ loading: true, orders: [], pages: 1, page: 1 });
+  const [state, setState] = useState({
+    loading: true,
+    orders: [],
+    pages: 1,
+    page: 1,
+  });
   const [filter, setFilter] = useState({ search: "", status: "" });
 
   const fetchOrders = async (page = 1) => {
@@ -70,7 +75,7 @@ const Orders = () => {
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
-          <option value="packed">Packed</option>
+          <option value="preparing">Preparing</option>
           <option value="shipped">Shipped</option>
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
@@ -81,41 +86,83 @@ const Orders = () => {
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Order #</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Customer</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">Action</th>
+              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                Order #
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                Customer
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                Items
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                Total
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                Status
+              </th>
+              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {state.loading ? (
               <tr>
-                <td className="px-6 py-6" colSpan={5}>
+                <td className="px-4 py-6" colSpan={6}>
                   Loading...
                 </td>
               </tr>
             ) : state.orders.length === 0 ? (
               <tr>
-                <td className="px-6 py-6" colSpan={5}>
+                <td className="px-4 py-6" colSpan={6}>
                   No orders.
                 </td>
               </tr>
             ) : (
               state.orders.map((o) => (
                 <tr key={o._id}>
-                  <td className="px-6 py-4 font-productSansReg text-myblack">{o.orderNumber}</td>
-                  <td className="px-6 py-4 text-myblack/70">
-                    <div className="text-myblack">{o.customer?.name}</div>
-                    <div className="text-xs">{o.customer?.phone}</div>
+                  <td className="px-3 py-3 font-productSansReg text-sm text-myblack">
+                    {o.orderNumber}
                   </td>
-                  <td className="px-6 py-4 text-myblack">₱{Number(o.total || 0).toLocaleString()}</td>
-                  <td className="px-6 py-4">
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  <td className="px-3 py-3 text-myblack/70">
+                    <div className="text-sm font-semibold text-myblack">
+                      {o.customer?.name}
+                    </div>
+                    <div className="text-xs">{o.customer?.phone}</div>
+                    {o.customer?.address && (
+                      <div
+                        className="mt-0.5 text-xs text-slate-500 leading-tight line-clamp-2"
+                        title={o.customer.address}
+                      >
+                        {o.customer.address}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 py-3 text-myblack/70 text-sm max-w-[250px]">
+                    {o.items?.map((item, idx) => (
+                      <div key={idx} className="mb-2 last:mb-0">
+                        <div className="text-xs leading-tight font-semibold text-myblack">
+                          {item.name}
+                          <span className="font-normal text-slate-500 ml-1">
+                            ({item.color}) x{item.quantity}
+                          </span>
+                        </div>
+                        <div className="text-[11px] font-medium text-slate-500 mt-0.5">
+                          ₱{Number(item.unitPrice || 0).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                  </td>
+                  <td className="px-3 py-3 text-sm font-medium text-myblack">
+                    ₱{Number(o.total || 0).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-3">
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">
                       {o.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 py-3">
                     <select
                       className="rounded-xl border border-myblack/10 bg-white px-3 py-2"
                       value={o.status}
@@ -123,7 +170,7 @@ const Orders = () => {
                     >
                       <option value="pending">Pending</option>
                       <option value="confirmed">Confirmed</option>
-                      <option value="packed">Packed</option>
+                      <option value="preparing">Preparing</option>
                       <option value="shipped">Shipped</option>
                       <option value="completed">Completed</option>
                       <option value="cancelled">Cancelled</option>
@@ -141,7 +188,11 @@ const Orders = () => {
           <button
             key={i}
             onClick={() => fetchOrders(i + 1)}
-            className={`rounded-full px-4 py-2 ${state.page === i + 1 ? "bg-blue-600 text-white" : "bg-white ring-1 ring-myblack/10 hover:ring-blue-500"}`}
+            className={`rounded-full px-4 py-2 ${
+              state.page === i + 1
+                ? "bg-blue-600 text-white"
+                : "bg-white ring-1 ring-myblack/10 hover:ring-blue-500"
+            }`}
           >
             {i + 1}
           </button>

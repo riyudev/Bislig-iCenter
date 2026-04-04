@@ -60,4 +60,11 @@
   p {
     @apply font-productSansLight laptop:leading-6;
   }
+  th,
+  td,
+  span,
+  option,
+  select {
+    @apply font-productSansLight;
+  }
 }
