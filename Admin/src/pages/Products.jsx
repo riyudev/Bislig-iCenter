@@ -105,7 +105,9 @@ const Products = () => {
           storage: storageVal || "",
           storageUnit: storageUnit,
           ram: ramVal || "",
-          stock: s.stock || 0
+          stock: s.stock || 0,
+          newPrice: s.newPrice ?? "",
+          oldPrice: s.oldPrice ?? "",
         };
       }),
       specifications: p.specifications || [],
@@ -149,7 +151,7 @@ const Products = () => {
   const addStockItem = () => {
     setForm((prev) => ({
       ...prev,
-      stockItems: [...(prev.stockItems || []), { color: "", storage: "", storageUnit: "GB", ram: "", stock: 0 }],
+      stockItems: [...(prev.stockItems || []), { color: "", storage: "", storageUnit: "GB", ram: "", stock: 0, newPrice: "", oldPrice: "" }],
     }));
   };
 
@@ -224,8 +226,8 @@ const Products = () => {
       name: form.name.trim(),
       category: form.category,
       image: form.image.trim(),
-      oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
-      newPrice: form.newPrice ? Number(form.newPrice) : 0,
+      oldPrice: validStockItems.length > 0 ? undefined : form.oldPrice ? Number(form.oldPrice) : undefined,
+      newPrice: validStockItems.length > 0 ? Math.min(...validStockItems.map(s => Number(s.newPrice) || Infinity)) : (form.newPrice ? Number(form.newPrice) : 0),
       description: form.description.trim(),
       isActive: form.isActive,
       isNew: form.isNew,
@@ -239,6 +241,8 @@ const Products = () => {
           s.storage?.toString().trim() ? `${s.storage.toString().trim()}${s.storageUnit || 'GB'}` : ""
         ].filter(Boolean).join(" + "),
         stock: Number(s.stock || 0),
+        newPrice: Number(s.newPrice || 0),
+        oldPrice: s.oldPrice ? Number(s.oldPrice) : undefined,
       })),
       variants: [...new Set(validStockItems.map((s) => [
         s.ram?.toString().trim() ? `${s.ram.toString().trim()}GB` : "",

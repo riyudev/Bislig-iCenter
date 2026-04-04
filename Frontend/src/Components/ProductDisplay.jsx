@@ -162,36 +162,16 @@ const ProductDisplay = (props) => {
     return Number.isFinite(num) ? num : null;
   };
 
-  const getDerivedVariantPrice = (variant, basePrice) => {
-    if (!variant || !Number.isFinite(basePrice)) return basePrice;
-    const v = String(variant).trim().toUpperCase();
-    const gbMatch = v.match(/(\d+)\s*GB/);
-    const tbMatch = v.match(/(\d+(?:\.\d+)?)\s*TB/);
-    const sizeGb = gbMatch
-      ? Number(gbMatch[1])
-      : tbMatch
-        ? Number(tbMatch[1]) * 1024
-        : null;
-    const variants = Array.isArray(product?.variants) ? product.variants : [];
-    const idx = Math.max(
-      0,
-      variants.findIndex((x) => x === variant),
-    );
-    if (!Number.isFinite(sizeGb)) return basePrice + idx * 3000;
-    if (sizeGb <= 64) return basePrice - 3000;
-    if (sizeGb <= 128) return basePrice;
-    if (sizeGb <= 256) return basePrice + 7000;
-    if (sizeGb <= 512) return basePrice + 14000;
-    if (sizeGb <= 1024) return basePrice + 22000;
-    return basePrice + 30000;
-  };
+  const currentStockItem = (product.stockItems || []).find(
+    (item) => item.variant === selectedVariant && item.color === selectedColor
+  );
+  const currentStock = currentStockItem ? currentStockItem.stock : (product.stocks || 0);
 
   const oldP = parsePrice(product.oldPrice);
   const baseNewP = parsePrice(product.newPrice);
-  const selectedNewP = parsePrice(product?.variantPrices?.[selectedVariant]);
-  const effectiveNewP =
-    selectedNewP ?? getDerivedVariantPrice(selectedVariant, baseNewP);
-  const effectiveOldP = getDerivedVariantPrice(selectedVariant, oldP);
+  const effectiveNewP = parsePrice(currentStockItem?.newPrice) ?? baseNewP;
+  const effectiveOldP = parsePrice(currentStockItem?.oldPrice) ?? oldP;
+
   const hasDiscount =
     Number.isFinite(effectiveOldP) &&
     Number.isFinite(effectiveNewP) &&
@@ -229,11 +209,6 @@ const ProductDisplay = (props) => {
   };
   const hasSpecs =
     (product.specifications || []).filter((s) => s.value?.trim()).length > 0;
-
-  const currentStockItem = (product.stockItems || []).find(
-    (item) => item.variant === selectedVariant && item.color === selectedColor
-  );
-  const currentStock = currentStockItem ? currentStockItem.stock : (product.stocks || 0);
 
   /* ─── Render ────────────────────────────────────────────────────── */
   const flyPortal = flyingIcons.length > 0

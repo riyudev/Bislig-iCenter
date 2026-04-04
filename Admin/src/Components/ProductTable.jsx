@@ -4,7 +4,7 @@ import ActionMenu from "./ActionMenu";
 const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
   const formatVariant = (variantStr) => {
     if (!variantStr) return "";
-    const parts = variantStr.split("+").map(p => p.trim());
+    const parts = variantStr.split("+").map((p) => p.trim());
     if (parts.length === 2) {
       const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
       const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
@@ -13,12 +13,12 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
         const unit0 = match0[2].toUpperCase();
         const val1 = parseInt(match1[1]);
         const unit1 = match1[2].toUpperCase();
-        
+
         let isPart0Storage = false;
         if (unit0 === "TB") isPart0Storage = true;
         else if (unit1 === "TB") isPart0Storage = false;
         else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
-        
+
         if (isPart0Storage) {
           return `${parts[1]} + ${parts[0]}`;
         }
@@ -39,7 +39,13 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
               Category
             </th>
             <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
+              Color
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
               Variation
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
+              Stock
             </th>
             <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
               Price
@@ -66,73 +72,120 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
               </td>
             </tr>
           ) : (
-            products.map((p) => (
-              <tr key={p._id}>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <ActionMenu
-                      product={p}
-                      onEdit={onEdit}
-                      onToggle={onToggle}
-                      onRemove={onRemove}
-                    />
-                    <img
-                      className="h-10 w-10 object-contain"
-                      src={
-                        p.image?.startsWith("http")
-                          ? p.image
-                          : `http://localhost:5000${p.image || ""}`
-                      }
-                      alt={p.name}
-                    />
-                    <div>
-                      <p className="font-productSansReg text-myblack">
-                        {p.name}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-center text-sm text-myblack/70">
-                  {p.category}
-                </td>
-                <td className="px-6 py-4">
-                  {p.stockItems && p.stockItems.length > 0 ? (
-                    <div className="flex flex-col gap-1.5 min-w-[200px]">
-                      {p.stockItems.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs text-slate-600 border-b border-slate-100 pb-1.5 last:border-0 last:pb-0">
-                          <span className="font-semibold text-slate-700">{item.color}</span>
-                          <span className="text-slate-300">•</span>
-                          <span>{formatVariant(item.variant)}</span>
-                          <span className="text-slate-300">•</span>
-                          <span className={`font-semibold ${item.stock <= (p.lowStockThreshold || 5) ? 'text-rose-500' : 'text-emerald-600'}`}>
-                            {item.stock} in stock
+            products.map((p) => {
+              const items =
+                p.stockItems && p.stockItems.length > 0
+                  ? p.stockItems
+                  : [
+                      {
+                        color: "-",
+                        variant: "-",
+                        stock: "-",
+                        newPrice: p.newPrice,
+                      },
+                    ];
+
+              return (
+                <React.Fragment key={p._id}>
+                  {items.map((item, idx) => (
+                    <tr
+                      key={`${p._id}-${idx}`}
+                      className={idx !== items.length - 1 ? "border-b-0" : ""}
+                    >
+                      {idx === 0 && (
+                        <>
+                          <td
+                            rowSpan={items.length}
+                            className="px-6 py-4 align-top"
+                          >
+                            <div className="flex items-center gap-3">
+                              <ActionMenu
+                                product={p}
+                                onEdit={onEdit}
+                                onToggle={onToggle}
+                                onRemove={onRemove}
+                              />
+                              <img
+                                className="h-10 w-10 object-contain"
+                                src={
+                                  p.image?.startsWith("http")
+                                    ? p.image
+                                    : `http://localhost:5000${p.image || ""}`
+                                }
+                                alt={p.name}
+                              />
+                              <div>
+                                <p className="font-productSansReg text-myblack shrink-0 max-w-[150px] truncate">
+                                  {p.name}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td
+                            rowSpan={items.length}
+                            className="px-6 py-2 text-center text-sm text-myblack/70 align-top"
+                          >
+                            {p.category}
+                          </td>
+                        </>
+                      )}
+
+                      <td className="px-6 py-2 text-sm text-myblack/70 font-medium">
+                        {item.color}
+                      </td>
+                      <td className="px-6 py-2 text-sm text-myblack/70">
+                        {item.variant !== "-"
+                          ? formatVariant(item.variant)
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-2 text-center text-sm">
+                        {item.stock !== "-" ? (
+                          <span
+                            className={`font-semibold ${
+                              item.stock <= (p.lowStockThreshold || 5)
+                                ? "text-rose-500"
+                                : "text-emerald-600"
+                            }`}
+                          >
+                            {item.stock}
                           </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-sm text-myblack/30">—</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-center text-sm text-myblack">
-                  ₱{Number(p.newPrice || 0).toLocaleString()}
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      p.isActive
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-rose-50 text-rose-700"
-                    }`}
-                  >
-                    {p.isActive ? "Active" : "Inactive"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-center text-sm text-myblack">
-                  {Number(p.totalSales || 0).toLocaleString()}
-                </td>
-              </tr>
-            ))
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td className="px-6 py-2 text-center text-sm font-semibold text-myblack">
+                        ₱{Number(item.newPrice || 0).toLocaleString()}
+                      </td>
+
+                      {idx === 0 && (
+                        <>
+                          <td
+                            rowSpan={items.length}
+                            className="px-6 py-2 text-center align-top"
+                          >
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs font-semibold inline-block ${
+                                p.isActive
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : "bg-rose-50 text-rose-700"
+                              }`}
+                            >
+                              {p.isActive ? "Active" : "Inactive"}
+                            </span>
+                          </td>
+                          <td
+                            rowSpan={items.length}
+                            className="px-6 py-2 text-center text-sm text-myblack align-top"
+                          >
+                            {Number(p.totalSales || 0).toLocaleString()}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </React.Fragment>
+              );
+            })
           )}
         </tbody>
       </table>

@@ -5,6 +5,8 @@ const variantStockSchema = new mongoose.Schema(
     variant: { type: String, required: true },
     color: { type: String, required: true },
     stock: { type: Number, default: 0, min: 0 },
+    newPrice: { type: Number, required: true, min: 0 },
+    oldPrice: { type: Number },
     sku: { type: String, unique: true, sparse: true },
   },
   { _id: false }

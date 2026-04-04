@@ -385,7 +385,20 @@ const ShopContextProvider = (props) => {
       .map((id) => {
         const { productId, storage, color, quantity } = cartItems[id];
         const product = allProducts.find((p) => p._id === productId);
-        return { ...product, storage, color, quantity, cartItemId: id };
+        let currentNewPrice = product?.newPrice;
+        let currentOldPrice = product?.oldPrice;
+        
+        if (product && product.stockItems) {
+          const matchedVariant = product.stockItems.find(
+            (si) => si.color === color && si.variant === storage
+          );
+          if (matchedVariant) {
+            currentNewPrice = matchedVariant.newPrice ?? product.newPrice;
+            currentOldPrice = matchedVariant.oldPrice ?? product.oldPrice;
+          }
+        }
+        
+        return { ...product, storage, color, quantity, cartItemId: id, newPrice: currentNewPrice, oldPrice: currentOldPrice };
       });
   };
 
@@ -393,10 +406,19 @@ const ShopContextProvider = (props) => {
     let total = 0;
     cartOrder.forEach((id) => {
       if (cartItems[id] && checkedItems[id]) {
-        const { productId, quantity } = cartItems[id];
+        const { productId, quantity, storage, color } = cartItems[id];
         const product = allProducts.find((p) => p._id === productId);
         if (product) {
-          total += quantity * Number(product.newPrice || 0);
+          let itemPrice = product.newPrice || 0;
+          if (product.stockItems) {
+            const matchedVariant = product.stockItems.find(
+              (si) => si.color === color && si.variant === storage
+            );
+            if (matchedVariant && matchedVariant.newPrice != null) {
+              itemPrice = matchedVariant.newPrice;
+            }
+          }
+          total += quantity * Number(itemPrice);
         }
       }
     });

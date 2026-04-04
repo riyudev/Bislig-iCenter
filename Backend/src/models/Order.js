@@ -46,6 +46,8 @@ const orderSchema = new mongoose.Schema(
     trackingNumber: { type: String },
     proofOfDeliveryUrl: { type: String },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    stockDeducted: { type: Boolean, default: false },
+    salesAdded: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

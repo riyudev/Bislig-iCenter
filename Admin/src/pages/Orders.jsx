@@ -50,6 +50,31 @@ const Orders = () => {
     fetchOrders(state.page);
   };
 
+  const formatVariant = (variantStr) => {
+    if (!variantStr || variantStr === "Default") return "";
+    const parts = variantStr.split("+").map(p => p.trim());
+    if (parts.length === 2) {
+      const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
+      const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
+      if (match0 && match1) {
+        const val0 = parseInt(match0[1]);
+        const unit0 = match0[2].toUpperCase();
+        const val1 = parseInt(match1[1]);
+        const unit1 = match1[2].toUpperCase();
+        
+        let isPart0Storage = false;
+        if (unit0 === "TB") isPart0Storage = true;
+        else if (unit1 === "TB") isPart0Storage = false;
+        else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
+        
+        if (isPart0Storage) {
+          return `${parts[1]} + ${parts[0]}`;
+        }
+      }
+    }
+    return variantStr;
+  };
+
   return (
     <div className="p-8 space-y-6">
       <div>
@@ -145,7 +170,7 @@ const Orders = () => {
                         <div className="text-xs leading-tight font-semibold text-myblack">
                           {item.name}
                           <span className="font-normal text-slate-500 ml-1">
-                            ({item.color}) x{item.quantity}
+                            ({item.variant && item.variant !== "Default" ? `${formatVariant(item.variant)} | ` : ""}{item.color}) x{item.quantity}
                           </span>
                         </div>
                         <div className="text-[11px] font-medium text-slate-500 mt-0.5">

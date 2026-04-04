@@ -54,10 +54,68 @@ export const updateOrderStatus = async (req, res, next) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    await order.updateStatus(status);
     if (adminNotes !== undefined) order.adminNotes = adminNotes;
     if (trackingNumber !== undefined) order.trackingNumber = trackingNumber;
-    await order.save();
+
+    const oldStatus = order.status;
+    if (status !== oldStatus) {
+      let requiresStockDeduction = false;
+      let requiresStockAddition = false;
+      let requiresSalesAddition = false;
+      let requiresSalesDeduction = false;
+
+      if (['confirmed', 'preparing', 'shipped', 'completed'].includes(status) && !order.stockDeducted) {
+        requiresStockDeduction = true;
+        order.stockDeducted = true;
+      }
+      
+      if (['shipped', 'completed'].includes(status) && !order.salesAdded) {
+        requiresSalesAddition = true;
+        order.salesAdded = true;
+      }
+      
+      if (status === 'cancelled') {
+        if (order.stockDeducted) {
+          requiresStockAddition = true;
+          order.stockDeducted = false;
+        }
+        if (order.salesAdded) {
+          requiresSalesDeduction = true;
+          order.salesAdded = false;
+        }
+      }
+
+      await order.updateStatus(status);
+
+      // Perform synchronous updates to products
+      if (requiresStockDeduction || requiresStockAddition || requiresSalesAddition || requiresSalesDeduction) {
+        for (const item of order.items) {
+          const product = await Product.findById(item.productId);
+          if (product) {
+            let stockDelta = 0;
+            let salesDelta = 0;
+
+            if (requiresStockDeduction) stockDelta -= item.quantity;
+            if (requiresStockAddition) stockDelta += item.quantity;
+            if (requiresSalesAddition) salesDelta += item.quantity;
+            if (requiresSalesDeduction) salesDelta -= item.quantity;
+
+            if (stockDelta !== 0 || salesDelta !== 0) {
+              const stockItem = product.stockItems.find(s => s.variant === item.variant && s.color === item.color);
+              if (stockItem) {
+                  stockItem.stock = Math.max(0, stockItem.stock + stockDelta);
+              }
+              product.stocks = Math.max(0, product.stocks + stockDelta);
+              product.totalSales = Math.max(0, product.totalSales + salesDelta);
+              await product.save();
+            }
+          }
+        }
+        await order.save(); // Save the final flags if not saved by updateStatus
+      }
+    } else {
+      await order.save();
+    }
 
     res.json(order);
   } catch (err) {
@@ -71,9 +129,49 @@ export const cancelOrder = async (req, res, next) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    await order.updateStatus("cancelled");
     if (reason) order.adminNotes = reason;
-    await order.save();
+
+    if (order.status !== "cancelled") {
+      let requiresStockAddition = false;
+      let requiresSalesDeduction = false;
+
+      if (order.stockDeducted) {
+        requiresStockAddition = true;
+        order.stockDeducted = false;
+      }
+      if (order.salesAdded) {
+        requiresSalesDeduction = true;
+        order.salesAdded = false;
+      }
+
+      await order.updateStatus("cancelled");
+
+      if (requiresStockAddition || requiresSalesDeduction) {
+        for (const item of order.items) {
+          const product = await Product.findById(item.productId);
+          if (product) {
+            let stockDelta = 0;
+            let salesDelta = 0;
+
+            if (requiresStockAddition) stockDelta += item.quantity;
+            if (requiresSalesDeduction) salesDelta -= item.quantity;
+
+            if (stockDelta !== 0 || salesDelta !== 0) {
+              const stockItem = product.stockItems.find(s => s.variant === item.variant && s.color === item.color);
+              if (stockItem) {
+                  stockItem.stock = Math.max(0, stockItem.stock + stockDelta);
+              }
+              product.stocks = Math.max(0, product.stocks + stockDelta);
+              product.totalSales = Math.max(0, product.totalSales + salesDelta);
+              await product.save();
+            }
+          }
+        }
+        await order.save();
+      }
+    } else {
+      await order.save();
+    }
 
     res.json(order);
   } catch (err) {
