@@ -17,6 +17,8 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { useAuth } from "../context/AuthContext";
 import AccountSidebar from "./AccountSidebar";
+import MyOrdersSidebar from "./MyOrdersSidebar";
+import { BsBoxSeam } from "react-icons/bs";
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -24,6 +26,7 @@ function Navbar() {
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAccountSidebarOpen, setIsAccountSidebarOpen] = useState(false);
+  const [isMyOrdersSidebarOpen, setIsMyOrdersSidebarOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -99,6 +102,11 @@ function Navbar() {
   const handleAccountClick = () => {
     setIsDropdownOpen(false);
     setIsAccountSidebarOpen(true);
+  };
+
+  const handleMyOrdersClick = () => {
+    setIsDropdownOpen(false);
+    setIsMyOrdersSidebarOpen(true);
   };
 
   if (location.pathname === "/checkout") {
@@ -309,6 +317,14 @@ function Navbar() {
                     My Account
                   </button>
                   <button
+                    onClick={handleMyOrdersClick}
+                    id="navbar-orders-btn"
+                    className="flex w-full cursor-pointer items-center gap-2.5 border-none bg-transparent px-4 py-[11px] text-left text-[13.5px] text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    <BsBoxSeam className="shrink-0 text-[15px]" />
+                    My Orders
+                  </button>
+                  <button
                     onClick={handleLogout}
                     id="navbar-logout-btn"
                     className="flex w-full cursor-pointer items-center gap-2.5 border-none bg-transparent px-4 py-[11px] text-left text-[13.5px] text-red-500 transition-colors hover:bg-gray-50"
@@ -386,6 +402,10 @@ function Navbar() {
       <AccountSidebar
         isOpen={isAccountSidebarOpen}
         onClose={() => setIsAccountSidebarOpen(false)}
+      />
+      <MyOrdersSidebar
+        isOpen={isMyOrdersSidebarOpen}
+        onClose={() => setIsMyOrdersSidebarOpen(false)}
       />
     </>
   );

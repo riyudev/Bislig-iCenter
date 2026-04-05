@@ -9,7 +9,7 @@ const FALLBACK_SLIDES = [
   {
     tag: "Welcome to iCenter",
     headline: ["Premium Gadgets,", "Delivered", "Fast."],
-    sub: "Official warranty · 0% installment · Free shipping",
+    sub: "Official warranty · Secure Payment · Free shipping",
     cta: "Shop Now",
     ctaLink: "/",
     image: "",
@@ -22,12 +22,37 @@ const FALLBACK_SLIDES = [
 // Tailwind safelist for dynamic classes coming from the backend API
 // eslint-disable-next-line no-unused-vars
 const THEME_SAFELIST = [
-  "from-orange-950", "via-[#1a0a00]", "to-black", "bg-orange-500/20", "text-orange-300", "border-orange-500/30",
-  "from-slate-950", "via-[#0a0f1a]", "bg-blue-500/20", "text-blue-300", "border-blue-500/30",
-  "from-violet-950", "via-[#0d0a1a]", "bg-violet-500/20", "text-violet-300", "border-violet-500/30",
-  "from-cyan-950", "via-[#00101a]", "bg-cyan-500/20", "text-cyan-300", "border-cyan-500/30",
-  "from-rose-950", "via-[#1a0007]", "bg-rose-500/20", "text-rose-300", "border-rose-500/30",
-  "from-emerald-950", "via-[#001a0a]", "bg-emerald-500/20", "text-emerald-300", "border-emerald-500/30",
+  "from-orange-950",
+  "via-[#1a0a00]",
+  "to-black",
+  "bg-orange-500/20",
+  "text-orange-300",
+  "border-orange-500/30",
+  "from-slate-950",
+  "via-[#0a0f1a]",
+  "bg-blue-500/20",
+  "text-blue-300",
+  "border-blue-500/30",
+  "from-violet-950",
+  "via-[#0d0a1a]",
+  "bg-violet-500/20",
+  "text-violet-300",
+  "border-violet-500/30",
+  "from-cyan-950",
+  "via-[#00101a]",
+  "bg-cyan-500/20",
+  "text-cyan-300",
+  "border-cyan-500/30",
+  "from-rose-950",
+  "via-[#1a0007]",
+  "bg-rose-500/20",
+  "text-rose-300",
+  "border-rose-500/30",
+  "from-emerald-950",
+  "via-[#001a0a]",
+  "bg-emerald-500/20",
+  "text-emerald-300",
+  "border-emerald-500/30",
 ];
 
 function HeroSkeleton() {
@@ -151,7 +176,7 @@ function Hero() {
 
           {/* Badges */}
           <div className="flex flex-wrap items-center gap-3">
-            {["Official Warranty", "0% Installment", "Free Shipping"].map(
+            {["Official Warranty", "Secure Payment", "Free Shipping"].map(
               (b) => (
                 <span
                   key={b}

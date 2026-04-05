@@ -41,3 +41,32 @@ export const getUserOrders = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc    Cancel an order
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+export const cancelOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Check if user is the creator of the order
+    if (order.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ message: "Not authorized to cancel this order" });
+    }
+
+    // Check if order is eligible for cancellation
+    if (order.status !== "pending" && order.status !== "confirmed") {
+      return res.status(400).json({ message: "Order cannot be cancelled at this stage" });
+    }
+
+    await order.updateStatus("cancelled");
+
+    res.json({ message: "Order cancelled successfully", order });
+  } catch (err) {
+    next(err);
+  }
+};
