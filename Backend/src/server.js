@@ -11,6 +11,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import heroSlideRoutes from "./routes/heroSlideRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import newsletterRoutes from "./routes/newsletterRoutes.js";
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/hero-slides", heroSlideRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });

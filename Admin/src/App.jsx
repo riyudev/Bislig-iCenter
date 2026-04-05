@@ -8,6 +8,7 @@ import Orders from "./pages/Orders.jsx";
 import Shop from "./pages/Shop.jsx";
 import Users from "./pages/Users.jsx";
 import Login from "./pages/Login.jsx";
+import NewsLetters from "./pages/NewsLetters.jsx";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="orders" element={<Orders />} />
             <Route path="shop" element={<Shop />} />
             <Route path="users" element={<Users />} />
+            <Route path="newsletters" element={<NewsLetters />} />
           </Route>
         </Routes>
       </BrowserRouter>

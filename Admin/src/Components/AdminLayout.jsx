@@ -7,6 +7,7 @@ import {
   FaStore,
   FaUsers,
   FaSignOutAlt,
+  FaEnvelope,
 } from "react-icons/fa";
 
 const AdminLayout = () => {
@@ -18,6 +19,7 @@ const AdminLayout = () => {
     { path: "/orders", label: "Orders", icon: FaShoppingCart },
     { path: "/shop", label: "Shop", icon: FaStore },
     { path: "/users", label: "Users", icon: FaUsers },
+    { path: "/newsletters", label: "News Letters", icon: FaEnvelope },
   ];
 
   const handleLogout = () => {
