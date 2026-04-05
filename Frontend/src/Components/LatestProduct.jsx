@@ -11,7 +11,7 @@ function LatestProduct() {
   const skeletonCount = Math.max(0, 4 - latestItemsToDisplay.length);
 
   return (
-    <section className="relative place-items-center overflow-hidden py-24">
+    <section className="relative place-items-center overflow-hidden py-12 laptop:py-24">
       {/* Subtle background decoration */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-slate-50/50" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] bg-[size:24px_24px]" />
@@ -20,7 +20,7 @@ function LatestProduct() {
         className="pointer-events-none absolute -top-20 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-cyan-100/40 opacity-70 blur-3xl"
       />
 
-      <div className="relative mx-auto w-7xl space-y-12 px-5">
+      <div className="relative mx-auto w-full max-w-7xl space-y-8 laptop:space-y-12 px-4 laptop:px-5">
         {/* ── Section header ── */}
         <header className="place-items-center space-y-6 text-center">
           {/* eyebrow badge */}
@@ -51,7 +51,7 @@ function LatestProduct() {
         </header>
 
         {/* ── Product grid ── */}
-        <div className="laptop:grid-cols-4 tablet:gap-x-6 grid w-fit grid-cols-2 gap-x-3 place-self-center">
+        <div className="grid w-full grid-cols-2 gap-3 laptop:grid-cols-4 laptop:gap-x-6">
           {productsLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
               <ItemSkeleton key={`loading-${i}`} />
