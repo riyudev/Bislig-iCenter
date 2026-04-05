@@ -57,22 +57,22 @@ const THEME_SAFELIST = [
 
 function HeroSkeleton() {
   return (
-    <section className="relative flex min-h-screen w-full items-center overflow-hidden bg-gradient-to-br from-slate-950 via-[#0a0f1a] to-black">
-      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] animate-pulse items-center justify-between gap-10 px-8 py-32">
-        <div className="flex max-w-[560px] flex-col gap-6">
-          <div className="h-6 w-40 rounded-full bg-white/10" />
-          <div className="space-y-3">
-            <div className="h-14 w-72 rounded-xl bg-white/10" />
-            <div className="h-14 w-60 rounded-xl bg-white/10" />
-            <div className="h-14 w-52 rounded-xl bg-white/10" />
+    <section className="relative flex min-h-[80vh] laptop:min-h-screen w-full items-center overflow-hidden bg-gradient-to-br from-slate-950 via-[#0a0f1a] to-black">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] animate-pulse flex-col laptop:flex-row items-center justify-between gap-8 px-5 laptop:px-8 pt-20 laptop:pt-32 pb-16">
+        <div className="flex w-full laptop:max-w-[560px] flex-col items-center laptop:items-start gap-5">
+          <div className="h-5 w-32 laptop:h-6 laptop:w-40 rounded-full bg-white/10" />
+          <div className="space-y-3 w-full">
+            <div className="h-9 laptop:h-14 w-[80%] rounded-xl bg-white/10 mx-auto laptop:mx-0" />
+            <div className="h-9 laptop:h-14 w-[65%] rounded-xl bg-white/10 mx-auto laptop:mx-0" />
+            <div className="h-9 laptop:h-14 w-[55%] rounded-xl bg-white/10 mx-auto laptop:mx-0" />
           </div>
-          <div className="h-4 w-80 rounded-full bg-white/10" />
+          <div className="h-4 w-64 laptop:w-80 rounded-full bg-white/10" />
           <div className="mt-2 flex gap-4">
-            <div className="h-11 w-36 rounded-full bg-white/10" />
-            <div className="h-11 w-28 rounded-full bg-white/10" />
+            <div className="h-10 laptop:h-11 w-32 laptop:w-36 rounded-full bg-white/10" />
+            <div className="h-10 laptop:h-11 w-24 laptop:w-28 rounded-full bg-white/10" />
           </div>
         </div>
-        <div className="relative hidden flex-1 items-center justify-center lg:flex">
+        <div className="relative hidden flex-1 items-center justify-center laptop:flex">
           <div className="h-[420px] w-[320px] rounded-3xl bg-white/5" />
         </div>
       </div>
@@ -129,7 +129,7 @@ function Hero() {
 
   return (
     <section
-      className={`relative flex min-h-screen w-full items-center overflow-hidden bg-gradient-to-br ${slide.accent} transition-all duration-700`}
+      className={`relative flex min-h-[80vh] laptop:min-h-screen w-full items-center overflow-hidden bg-gradient-to-br ${slide.accent} transition-all duration-700`}
     >
       {/* Background noise texture overlay */}
       <div
@@ -145,23 +145,25 @@ function Hero() {
       />
 
       {/* Content */}
+      {/* Content wrapper */}
       <div
-        className={`relative z-10 mx-auto flex w-full max-w-[1280px] items-center justify-between gap-10 px-8 pt-28 transition-opacity duration-350 ${
+        className={`relative z-10 mx-auto flex w-full max-w-[1280px] flex-col laptop:flex-row items-center justify-between gap-4 laptop:gap-10 px-5 laptop:px-8 pt-20 laptop:pt-28 pb-12 laptop:pb-0 transition-opacity duration-350 ${
           animating ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
-        {/* Left text */}
-        <div className="flex max-w-[560px] flex-col gap-6">
+        {/* ─── LEFT: Text Column ─── */}
+        <div className="flex w-full laptop:max-w-[560px] flex-col items-center laptop:items-start gap-3 laptop:gap-6 text-center laptop:text-left">
+
           {/* Tag pill */}
           <span
-            className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs font-semibold tracking-widest uppercase ${slide.pill}`}
+            className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 laptop:px-3.5 py-1 text-[10px] laptop:text-xs font-semibold tracking-widest uppercase ${slide.pill}`}
           >
-            <HiSparkles className="text-sm" />
+            <HiSparkles className="text-xs laptop:text-sm" />
             {slide.tag}
           </span>
 
           {/* Headline */}
-          <h1 className="!text-6xl leading-[1.05] font-extrabold tracking-tight !text-white">
+          <h1 className="!text-[1.55rem] laptop:!text-6xl leading-[1.12] laptop:leading-[1.05] font-extrabold tracking-tight !text-white">
             {(slide.headline || []).filter(Boolean).map((line, i) => (
               <span key={i} className="block">
                 {line}
@@ -169,13 +171,32 @@ function Hero() {
             ))}
           </h1>
 
-          {/* Sub */}
-          {slide.sub && (
-            <p className="text-base tracking-wide text-white/60">{slide.sub}</p>
+          {/* Product image — mobile only, sits below headline */}
+          {slide.image && (
+            <div className="flex laptop:hidden w-full items-center justify-center py-1">
+              <img
+                src={slide.image}
+                alt={slide.tag}
+                style={{
+                  maxHeight: "180px",
+                  maxWidth: "160px",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.55))",
+                  transition: "all 0.7s",
+                }}
+              />
+            </div>
           )}
 
-          {/* Badges */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Subtitle */}
+          {slide.sub && (
+            <p className="text-[12.5px] laptop:text-base tracking-wide text-white/60 max-w-[280px] laptop:max-w-none">{slide.sub}</p>
+          )}
+
+          {/* Badges — desktop only */}
+          <div className="hidden laptop:flex flex-wrap items-center gap-3">
             {["Official Warranty", "Secure Payment", "Free Shipping"].map(
               (b) => (
                 <span
@@ -189,35 +210,26 @@ function Hero() {
           </div>
 
           {/* CTA */}
-          <div className="mt-2 flex items-center gap-4">
+          <div className="flex items-center gap-3 laptop:gap-4">
             <a
               href={slide.ctaLink || "/"}
-              className="group flex items-center gap-2 rounded-full bg-white px-7 py-3 text-sm font-bold text-black transition-all duration-200 hover:gap-3 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]"
+              className="group flex items-center gap-2 rounded-full bg-white px-5 laptop:px-7 py-2.5 laptop:py-3 text-sm font-bold text-black transition-all duration-200 hover:gap-3 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]"
             >
               {slide.cta || "Shop Now"}
               <BsArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
             </a>
             <a
               href="#bestSeller"
-              className="text-sm font-medium text-white/50 underline underline-offset-4 transition hover:text-white/80"
+              className="hidden laptop:inline text-sm font-medium text-white/50 underline underline-offset-4 transition hover:text-white/80"
             >
               View Best Sellers
             </a>
           </div>
         </div>
 
-        {/* Right — product image */}
+        {/* ─── RIGHT: Product image — laptop only ─── */}
         {slide.image && (
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-              minWidth: 0,
-            }}
-          >
+          <div className="hidden laptop:flex flex-1 items-center justify-center relative min-w-0">
             <img
               src={slide.image}
               alt={slide.tag}
