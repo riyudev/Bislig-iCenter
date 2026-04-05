@@ -58,8 +58,8 @@ const Items = (props) => {
           )}
 
           {/* "New" badge (passed from LatestProduct) */}
-          {props.badge === "New" && !hasDiscount && (
-            <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-500 to-sky-400 px-2.5 py-1 text-[11px] font-bold text-white shadow-md shadow-blue-200">
+          {props.badge === "New" && (
+            <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-500 to-sky-400 px-2.5 py-1 text-[11px] font-bold text-white shadow-md shadow-blue-200">
               <FiStar className="h-3 w-3 fill-white text-white" />
               NEW
             </span>

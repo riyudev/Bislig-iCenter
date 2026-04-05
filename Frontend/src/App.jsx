@@ -9,6 +9,7 @@ import Checkout from "./pages/Checkout";
 import Footer from "./Components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Product from "./pages/Product";
+import SearchResults from "./pages/SearchResults";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "./helpers/ScrollToTop";
 
@@ -33,6 +34,7 @@ function App() {
           />
 
           {/* Other Pages */}
+          <Route path="/search" element={<SearchResults />} />
           <Route path="/:category/:productId" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />

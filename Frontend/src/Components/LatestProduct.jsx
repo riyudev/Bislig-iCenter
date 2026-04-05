@@ -64,8 +64,8 @@ function LatestProduct() {
                   id={item._id}
                   name={item.name}
                   image={item.image}
-                  newPrice={item.newPrice}
-                  oldPrice={item.oldPrice}
+                  newPrice={item.stockItems?.[0]?.newPrice ?? item.newPrice}
+                  oldPrice={item.stockItems?.[0]?.oldPrice ?? item.oldPrice}
                   category={item.category}
                   badge="New"
                 />
