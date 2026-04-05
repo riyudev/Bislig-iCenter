@@ -81,7 +81,8 @@ function MobileNavbar() {
     });
     const unique = [...new Set(suggestions)];
     unique.sort((a, b) => {
-      const aL = a.toLowerCase(), bL = b.toLowerCase();
+      const aL = a.toLowerCase(),
+        bL = b.toLowerCase();
       if (aL.startsWith(lowerQuery) && !bL.startsWith(lowerQuery)) return -1;
       if (!aL.startsWith(lowerQuery) && bL.startsWith(lowerQuery)) return 1;
       return 0;
@@ -204,7 +205,9 @@ function MobileNavbar() {
           <a href="/" className="flex shrink-0 items-center gap-2 no-underline">
             <div
               className="flex h-[44px] w-[44px] items-center justify-center rounded-[12px] p-0.5 shadow-[0_2px_10px_rgba(59,130,246,0.15)]"
-              style={{ background: "linear-gradient(135deg, #f0f4ff, #dbeafe)" }}
+              style={{
+                background: "linear-gradient(135deg, #f0f4ff, #dbeafe)",
+              }}
             >
               <img
                 src={Logo}
@@ -282,7 +285,9 @@ function MobileNavbar() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 180)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleSearchSubmit(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearchSubmit();
+                }}
                 placeholder="Search products…"
                 className="flex-1 bg-transparent px-2 py-2.5 text-[13px] text-[#1a1a2e] outline-none placeholder:text-gray-400"
               />
@@ -335,7 +340,10 @@ function MobileNavbar() {
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
         }`}
-        style={{ background: "rgba(15,20,40,0.55)", backdropFilter: "blur(4px)" }}
+        style={{
+          background: "rgba(15,20,40,0.55)",
+          backdropFilter: "blur(4px)",
+        }}
         onClick={() => setIsDrawerOpen(false)}
       />
 
@@ -349,13 +357,16 @@ function MobileNavbar() {
         <div
           className="flex shrink-0 items-center justify-between px-5 py-4"
           style={{
-            background: "linear-gradient(135deg, #1a1a2e 0%, #0f3460 60%, #1e4d8c 100%)",
+            background:
+              "linear-gradient(135deg, #1a1a2e 0%, #0f3460 60%, #1e4d8c 100%)",
           }}
         >
           <div className="flex items-center gap-2.5">
             <div
               className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] shadow-md"
-              style={{ background: "linear-gradient(135deg, #f0f4ff, #dbeafe)" }}
+              style={{
+                background: "linear-gradient(135deg, #f0f4ff, #dbeafe)",
+              }}
             >
               <img src={Logo} alt="Logo" className="w-8 object-contain" />
             </div>
@@ -394,7 +405,7 @@ function MobileNavbar() {
               >
                 {user.name?.[0]?.toUpperCase()}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="font-productSansBold truncate text-[15px] text-[#1a1a2e]">
                   {user.name}
                 </p>
@@ -437,7 +448,7 @@ function MobileNavbar() {
                 {/* My Account */}
                 <button
                   onClick={handleAccountClick}
-                  className="flex w-full cursor-pointer items-center gap-3 border-none border-b border-gray-100 bg-transparent px-4 py-3.5 text-left transition-colors hover:bg-gray-50"
+                  className="flex w-full cursor-pointer items-center gap-3 border-b border-none border-gray-100 bg-transparent px-4 py-3.5 text-left transition-colors hover:bg-gray-50"
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                     <FaUserCircle className="text-[16px]" />
@@ -476,7 +487,7 @@ function MobileNavbar() {
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 no-underline px-4 py-3.5 transition-all ${
+                    `flex items-center gap-3 px-4 py-3.5 no-underline transition-all ${
                       i < navLinks.length - 1 ? "border-b border-gray-100" : ""
                     } ${
                       isActive
@@ -490,7 +501,7 @@ function MobileNavbar() {
                       <HiSparkles
                         className={`shrink-0 text-sm ${isActive ? "text-amber-300" : "text-amber-400"}`}
                       />
-                      <span className="flex-1 text-[13.5px] font-medium">
+                      <span className="font-productSansReg flex-1 text-[13.5px]">
                         {link.label}
                       </span>
                       <FaChevronRight
@@ -552,15 +563,15 @@ function MobileNavbar() {
           <div className="px-5 pb-6">
             <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-[12px] text-gray-600">
+                <div className="font-productSansLight flex items-center gap-2 text-[12px] text-gray-600">
                   <MdLocalShipping className="shrink-0 text-blue-500" />
                   Free Shipping on orders over ₱2,000
                 </div>
-                <div className="flex items-center gap-2 text-[12px] text-gray-600">
+                <div className="font-productSansLight flex items-center gap-2 text-[12px] text-gray-600">
                   <MdSecurity className="shrink-0 text-blue-500" />
                   1-Year Official Warranty
                 </div>
-                <div className="flex items-center gap-2 text-[12px] text-gray-600">
+                <div className="font-productSansLight flex items-center gap-2 text-[12px] text-gray-600">
                   <BsBagCheck className="shrink-0 text-blue-500" />
                   Cash on Delivery Available
                 </div>

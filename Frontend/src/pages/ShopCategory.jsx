@@ -18,7 +18,8 @@ const ShopCategory = (props) => {
 
   return (
     <div className="mb-20 flex flex-col items-center">
-      <div className="mb-10 pt-24"></div>
+      {/* Top spacer to account for fixed navbar */}
+      <div className="mb-4 pt-20 laptop:mb-10 laptop:pt-[120px]"></div>
 
       <div className="laptop:mb-24 mb-16 w-full max-w-7xl px-5">
         <div className="mb-10 flex flex-col items-center text-center">

@@ -57,22 +57,22 @@ const THEME_SAFELIST = [
 
 function HeroSkeleton() {
   return (
-    <section className="relative flex min-h-[80vh] laptop:min-h-screen w-full items-center overflow-hidden bg-gradient-to-br from-slate-950 via-[#0a0f1a] to-black">
-      <div className="relative z-10 mx-auto flex w-full max-w-[1280px] animate-pulse flex-col laptop:flex-row items-center justify-between gap-8 px-5 laptop:px-8 pt-20 laptop:pt-32 pb-16">
-        <div className="flex w-full laptop:max-w-[560px] flex-col items-center laptop:items-start gap-5">
-          <div className="h-5 w-32 laptop:h-6 laptop:w-40 rounded-full bg-white/10" />
-          <div className="space-y-3 w-full">
-            <div className="h-9 laptop:h-14 w-[80%] rounded-xl bg-white/10 mx-auto laptop:mx-0" />
-            <div className="h-9 laptop:h-14 w-[65%] rounded-xl bg-white/10 mx-auto laptop:mx-0" />
-            <div className="h-9 laptop:h-14 w-[55%] rounded-xl bg-white/10 mx-auto laptop:mx-0" />
+    <section className="laptop:min-h-screen relative flex min-h-[80vh] w-full items-center overflow-hidden bg-gradient-to-br from-slate-950 via-[#0a0f1a] to-black">
+      <div className="laptop:flex-row laptop:px-8 laptop:pt-32 relative z-10 mx-auto flex w-full max-w-[1280px] animate-pulse flex-col items-center justify-between gap-8 px-5 pt-20 pb-16">
+        <div className="laptop:max-w-[560px] laptop:items-start flex w-full flex-col items-center gap-5">
+          <div className="laptop:h-6 laptop:w-40 h-5 w-32 rounded-full bg-white/10" />
+          <div className="w-full space-y-3">
+            <div className="laptop:h-14 laptop:mx-0 mx-auto h-9 w-[80%] rounded-xl bg-white/10" />
+            <div className="laptop:h-14 laptop:mx-0 mx-auto h-9 w-[65%] rounded-xl bg-white/10" />
+            <div className="laptop:h-14 laptop:mx-0 mx-auto h-9 w-[55%] rounded-xl bg-white/10" />
           </div>
-          <div className="h-4 w-64 laptop:w-80 rounded-full bg-white/10" />
+          <div className="laptop:w-80 h-4 w-64 rounded-full bg-white/10" />
           <div className="mt-2 flex gap-4">
-            <div className="h-10 laptop:h-11 w-32 laptop:w-36 rounded-full bg-white/10" />
-            <div className="h-10 laptop:h-11 w-24 laptop:w-28 rounded-full bg-white/10" />
+            <div className="laptop:h-11 laptop:w-36 h-10 w-32 rounded-full bg-white/10" />
+            <div className="laptop:h-11 laptop:w-28 h-10 w-24 rounded-full bg-white/10" />
           </div>
         </div>
-        <div className="relative hidden flex-1 items-center justify-center laptop:flex">
+        <div className="laptop:flex relative hidden flex-1 items-center justify-center">
           <div className="h-[420px] w-[320px] rounded-3xl bg-white/5" />
         </div>
       </div>
@@ -129,7 +129,7 @@ function Hero() {
 
   return (
     <section
-      className={`relative flex min-h-[80vh] laptop:min-h-screen w-full items-center overflow-hidden bg-gradient-to-br ${slide.accent} transition-all duration-700`}
+      className={`laptop:min-h-screen relative flex min-h-[80vh] w-full items-center overflow-hidden bg-gradient-to-br ${slide.accent} transition-all duration-700`}
     >
       {/* Background noise texture overlay */}
       <div
@@ -147,23 +147,22 @@ function Hero() {
       {/* Content */}
       {/* Content wrapper */}
       <div
-        className={`relative z-10 mx-auto flex w-full max-w-[1280px] flex-col laptop:flex-row items-center justify-between gap-4 laptop:gap-10 px-5 laptop:px-8 pt-20 laptop:pt-28 pb-12 laptop:pb-0 transition-opacity duration-350 ${
+        className={`laptop:flex-row laptop:gap-10 laptop:px-8 laptop:pt-28 laptop:pb-0 relative z-10 mx-auto flex w-full max-w-[1280px] flex-col items-center justify-between gap-4 px-5 pt-20 pb-12 transition-opacity duration-350 ${
           animating ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
         {/* ─── LEFT: Text Column ─── */}
-        <div className="flex w-full laptop:max-w-[560px] flex-col items-center laptop:items-start gap-3 laptop:gap-6 text-center laptop:text-left">
-
+        <div className="laptop:max-w-[560px] laptop:items-start laptop:gap-6 laptop:text-left flex w-full flex-col items-center gap-3 text-center">
           {/* Tag pill */}
           <span
-            className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 laptop:px-3.5 py-1 text-[10px] laptop:text-xs font-semibold tracking-widest uppercase ${slide.pill}`}
+            className={`laptop:px-3.5 laptop:text-xs inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-[10px] font-semibold tracking-widest uppercase ${slide.pill}`}
           >
-            <HiSparkles className="text-xs laptop:text-sm" />
+            <HiSparkles className="laptop:text-sm text-xs" />
             {slide.tag}
           </span>
 
           {/* Headline */}
-          <h1 className="!text-[1.55rem] laptop:!text-6xl leading-[1.12] laptop:leading-[1.05] font-extrabold tracking-tight !text-white">
+          <h1 className="laptop:!text-6xl laptop:leading-[1.05] !text-[1.55rem] leading-[1.12] font-extrabold tracking-tight !text-white">
             {(slide.headline || []).filter(Boolean).map((line, i) => (
               <span key={i} className="block">
                 {line}
@@ -173,7 +172,7 @@ function Hero() {
 
           {/* Product image — mobile only, sits below headline */}
           {slide.image && (
-            <div className="flex laptop:hidden w-full items-center justify-center py-1">
+            <div className="laptop:hidden flex w-full items-center justify-center py-1">
               <img
                 src={slide.image}
                 alt={slide.tag}
@@ -192,11 +191,13 @@ function Hero() {
 
           {/* Subtitle */}
           {slide.sub && (
-            <p className="text-[12.5px] laptop:text-base tracking-wide text-white/60 max-w-[280px] laptop:max-w-none">{slide.sub}</p>
+            <p className="laptop:text-base laptop:max-w-none max-w-[280px] text-[12.5px] tracking-wide text-white/60">
+              {slide.sub}
+            </p>
           )}
 
           {/* Badges — desktop only */}
-          <div className="hidden laptop:flex flex-wrap items-center gap-3">
+          <div className="laptop:flex hidden flex-wrap items-center gap-3">
             {["Official Warranty", "Secure Payment", "Free Shipping"].map(
               (b) => (
                 <span
@@ -210,17 +211,17 @@ function Hero() {
           </div>
 
           {/* CTA */}
-          <div className="flex items-center gap-3 laptop:gap-4">
+          <div className="laptop:gap-4 flex items-center gap-3">
             <a
               href={slide.ctaLink || "/"}
-              className="group flex items-center gap-2 rounded-full bg-white px-5 laptop:px-7 py-2.5 laptop:py-3 text-sm font-bold text-black transition-all duration-200 hover:gap-3 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]"
+              className="group laptop:px-7 laptop:py-3 font-productSansBold flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm text-black transition-all duration-200 hover:gap-3 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]"
             >
               {slide.cta || "Shop Now"}
               <BsArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
             </a>
             <a
               href="#bestSeller"
-              className="hidden laptop:inline text-sm font-medium text-white/50 underline underline-offset-4 transition hover:text-white/80"
+              className="laptop:inline hidden text-sm font-medium text-white/50 underline underline-offset-4 transition hover:text-white/80"
             >
               View Best Sellers
             </a>
@@ -229,7 +230,7 @@ function Hero() {
 
         {/* ─── RIGHT: Product image — laptop only ─── */}
         {slide.image && (
-          <div className="hidden laptop:flex flex-1 items-center justify-center relative min-w-0">
+          <div className="laptop:flex relative hidden min-w-0 flex-1 items-center justify-center">
             <img
               src={slide.image}
               alt={slide.tag}

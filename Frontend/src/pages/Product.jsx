@@ -22,7 +22,7 @@ function Product() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center justify-center px-[9%] pt-36">
+    <div className="flex w-full flex-col items-center justify-center px-4 laptop:px-[9%] pt-20 laptop:pt-36 pb-20">
       <Breadcrumbs product={product} />
       <ProductDisplay product={product} />
     </div>

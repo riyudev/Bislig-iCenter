@@ -110,7 +110,7 @@ function BestSeller() {
                     {/* Rank badge above the card */}
                     <div className="relative z-10 -mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                       <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[10px] laptop:text-[11px] font-bold tracking-wider uppercase shadow-md ring-4 ring-white ${meta.badge}`}
+                        className={`inline-flex items-center gap-1 laptop:gap-1.5 rounded-full px-2.5 py-1 laptop:px-3 laptop:py-1.5 text-[8px] laptop:text-[10px] font-bold tracking-widest uppercase shadow-sm ring-4 ring-white ${meta.badge}`}
                       >
                         {meta.label}
                       </span>

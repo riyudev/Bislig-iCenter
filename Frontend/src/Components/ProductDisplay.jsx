@@ -54,7 +54,7 @@ const PERKS = [
 
 /* ─── Social-proof trust strip (replaces star rating) ───────────── */
 const TrustStrip = () => (
-  <div className="flex flex-wrap items-center gap-3">
+  <div className="hidden laptop:flex flex-wrap items-center gap-3">
     {/* Sold count */}
     <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 ring-1 ring-amber-200">
       <span className="text-sm">🔥</span>
@@ -98,7 +98,7 @@ const ProductDisplay = (props) => {
   const flyIdRef = useRef(0);
 
   const launchFlyAnimation = useCallback((buttonEl) => {
-    const navCartBtn = document.getElementById("navbar-cart-btn");
+    const navCartBtn = document.getElementById("navbar-cart-btn") || document.getElementById("mobile-navbar-cart-btn");
     if (!buttonEl || !navCartBtn) return;
 
     const from = buttonEl.getBoundingClientRect();
@@ -326,9 +326,9 @@ const ProductDisplay = (props) => {
           ))}
         </div>
 
-        {/* Description below perks */}
+        {/* Description below perks (Desktop only) */}
         {product.description && (
-          <div className="mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
+          <div className="hidden laptop:block mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
             <p className="font-productSansBold mb-1 text-[11px] uppercase tracking-wider text-slate-400">
               About this product
             </p>
@@ -499,7 +499,18 @@ const ProductDisplay = (props) => {
 
         <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
 
-        {/* ── Specifications ───────────────────────────────────────── */}
+        {/* ── Specifications & Mobile Description ──────────────────── */}
+        {product.description && (
+          <div className="laptop:hidden mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
+            <p className="font-productSansBold mb-1 text-[11px] uppercase tracking-wider text-slate-400">
+              About this product
+            </p>
+            <p className="font-productSansLight text-sm leading-relaxed text-slate-700">
+              {product.description}
+            </p>
+          </div>
+        )}
+
         {hasSpecs && (
           <SpecsTable specifications={product.specifications} />
         )}
