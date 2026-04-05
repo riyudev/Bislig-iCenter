@@ -35,8 +35,8 @@ const ShopCategory = (props) => {
                   id={item._id || item.id}
                   name={item.name}
                   image={item.image}
-                  newPrice={item.newPrice}
-                  oldPrice={item.oldPrice}
+                  newPrice={item.stockItems?.[0]?.newPrice ?? item.newPrice}
+                  oldPrice={item.stockItems?.[0]?.oldPrice ?? item.oldPrice}
                   category={categoryLower}
                 />
               );

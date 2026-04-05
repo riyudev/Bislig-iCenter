@@ -58,9 +58,56 @@ function Navbar() {
     { path: "/android", label: "Android" },
   ];
 
-  const { getTotalCartQuantity } = useContext(ShopContext);
+  const { getTotalCartQuantity, allProducts } = useContext(ShopContext);
   const cartCount = getTotalCartQuantity();
   const cartCountLabel = cartCount >= 100 ? "99+" : String(cartCount);
+
+  // Derive suggestions from allProducts based on searchQuery
+  const searchSuggestions = React.useMemo(() => {
+    if (!searchQuery.trim() || !allProducts) return [];
+    const lowerQuery = searchQuery.toLowerCase();
+
+    const suggestions = [];
+    allProducts.forEach((product) => {
+      if (product.name.toLowerCase().includes(lowerQuery)) {
+        suggestions.push(product.name);
+      } else if (
+        product.category.toLowerCase().includes(lowerQuery) &&
+        !suggestions.includes(product.category)
+      ) {
+        suggestions.push(product.category);
+      }
+    });
+
+    // Remove duplicates
+    const uniqueSuggestions = [...new Set(suggestions)];
+
+    uniqueSuggestions.sort((a, b) => {
+      const aLower = a.toLowerCase();
+      const bLower = b.toLowerCase();
+      if (aLower.startsWith(lowerQuery) && !bLower.startsWith(lowerQuery))
+        return -1;
+      if (!aLower.startsWith(lowerQuery) && bLower.startsWith(lowerQuery))
+        return 1;
+      return 0;
+    });
+
+    return uniqueSuggestions.slice(0, 5); // limit to 5
+  }, [searchQuery, allProducts]);
+
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault?.();
+    if (searchQuery.trim()) {
+      setIsSearchFocused(false);
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion);
+    setIsSearchFocused(false);
+    navigate(`/search?q=${encodeURIComponent(suggestion)}`);
+  };
 
   // Scroll effect
   useEffect(() => {
@@ -178,34 +225,63 @@ function Navbar() {
           </a>
 
           {/* Search Bar */}
-          <div
-            className={`flex max-w-[500px] flex-1 items-center overflow-hidden rounded-full border transition-all duration-200 ${
-              isSearchFocused
-                ? "border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.15),0_2px_12px_rgba(0,0,0,0.07)]"
-                : "border-gray-200 shadow-[0_1px_6px_rgba(0,0,0,0.05)]"
-            } bg-white/85`}
-          >
-            <IoSearch className="ml-3.5 shrink-0 text-lg text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products, brands, categories…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              className="flex-1 bg-transparent px-2.5 py-[9px] text-[13.5px] text-[#1a1a2e] outline-none placeholder:text-gray-400"
-            />
-            {searchQuery && (
+          <div className="relative flex max-w-[500px] flex-1 flex-col">
+            <div
+              className={`flex w-full items-center overflow-hidden rounded-full border transition-all duration-200 ${
+                isSearchFocused
+                  ? "border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.15),0_2px_12px_rgba(0,0,0,0.07)]"
+                  : "border-gray-200 shadow-[0_1px_6px_rgba(0,0,0,0.05)]"
+              } bg-white/85`}
+            >
+              <IoSearch className="ml-3.5 shrink-0 text-lg text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products, brands, categories…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => {
+                  setTimeout(() => setIsSearchFocused(false), 200);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearchSubmit();
+                }}
+                className="flex-1 bg-transparent px-2.5 py-[9px] text-[13.5px] text-[#1a1a2e] outline-none placeholder:text-gray-400"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    // don't submit empty search
+                  }}
+                  className="flex cursor-pointer items-center border-none bg-transparent p-1.5 text-base text-gray-400"
+                >
+                  <IoClose />
+                </button>
+              )}
               <button
-                onClick={() => setSearchQuery("")}
-                className="flex cursor-pointer items-center border-none bg-transparent p-1.5 text-base text-gray-400"
+                onClick={handleSearchSubmit}
+                className="btn-black m-1 px-[18px] py-[7px] text-[13px] font-semibold tracking-[0.03em]"
               >
-                <IoClose />
+                Search
               </button>
+            </div>
+
+            {/* Suggestions Dropdown */}
+            {isSearchFocused && searchSuggestions.length > 0 && (
+              <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
+                {searchSuggestions.map((suggestion, idx) => (
+                  <div
+                    key={idx}
+                    onMouseDown={() => handleSuggestionClick(suggestion)}
+                    className="flex cursor-pointer items-center gap-3 px-4 py-3 text-[13.5px] text-gray-700 transition-colors hover:bg-gray-50 hover:text-blue-600"
+                  >
+                    <IoSearch className="text-gray-400" />
+                    <span className="font-productSansReg">{suggestion}</span>
+                  </div>
+                ))}
+              </div>
             )}
-            <button className="btn-black m-1 px-[18px] py-[7px] text-[13px] font-semibold tracking-[0.03em]">
-              Search
-            </button>
           </div>
 
           {/* Right Actions */}
