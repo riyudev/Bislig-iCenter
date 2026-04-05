@@ -18,8 +18,12 @@ import { toast } from "react-hot-toast";
 
 function Checkout() {
   const { user, login } = useAuth();
-  const { getCartProducts, checkedItems, getTotalCartAmount, clearCheckedCartItems } =
-    useContext(ShopContext);
+  const {
+    getCartProducts,
+    checkedItems,
+    getTotalCartAmount,
+    clearCheckedCartItems,
+  } = useContext(ShopContext);
   const navigate = useNavigate();
 
   const [paymentMethod, setPaymentMethod] = useState("COD");
@@ -78,7 +82,8 @@ function Checkout() {
   };
 
   const handleSaveShipping = async () => {
-    const fullName = `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
+    const fullName =
+      `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
     if (
       !fullName ||
       !shippingInfo.email ||
@@ -117,7 +122,8 @@ function Checkout() {
 
   const handlePlaceOrder = async () => {
     if (!hasCompleteProfile) {
-      const fullName = `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
+      const fullName =
+        `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
       if (
         !fullName ||
         !shippingInfo.email ||
@@ -127,7 +133,7 @@ function Checkout() {
         toast.error("Please fill in all shipping information.");
         return;
       }
-    };
+    }
 
     const shippingFullName = hasCompleteProfile
       ? user.name
@@ -151,7 +157,9 @@ function Checkout() {
       customer: {
         name: shippingFullName,
         email: hasCompleteProfile ? user.email : shippingInfo.email,
-        phone: hasCompleteProfile ? user.mobileNumber : shippingInfo.mobileNumber,
+        phone: hasCompleteProfile
+          ? user.mobileNumber
+          : shippingInfo.mobileNumber,
         address: hasCompleteProfile ? user.address : shippingInfo.address,
       },
       subtotal: totalAmount,
@@ -183,7 +191,7 @@ function Checkout() {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-50 pb-20">
+    <div className="relative min-h-screen bg-slate-50">
       {/* Background Decor */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -191,99 +199,99 @@ function Checkout() {
         <div className="absolute top-40 -left-20 h-[400px] w-[400px] rounded-full bg-cyan-400/10 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="laptop:pt-20 laptop:pb-12 relative z-10 mx-auto max-w-7xl px-4 pt-8 pb-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="font-productSansReg mb-8">
+        <div className="font-productSansReg laptop:mb-8 mb-5">
           <Link
             to="/cart"
             className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-blue-600"
           >
             <FaArrowLeft /> Back to Cart
           </Link>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="laptop:text-4xl text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
             Secure Checkout
           </h1>
         </div>
 
-        <div className="font-productSansReg flex items-stretch gap-8 lg:gap-12">
+        <div className="font-productSansReg laptop:flex-row laptop:gap-8 flex flex-col items-stretch gap-6 lg:gap-12">
           {/* Left Column: Shipping Information */}
           <div className="flex flex-[3] flex-col">
-            <div className="flex-1 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-900">
+            <div className="laptop:p-6 flex-1 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-8">
+              <div className="laptop:mb-6 mb-4 flex items-center justify-between">
+                <h2 className="laptop:text-2xl text-xl font-bold text-slate-900">
                   Shipping Information
                 </h2>
                 {hasCompleteProfile && (
-                  <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-600">
+                  <span className="laptop:px-3 laptop:text-sm flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-600">
                     <FaCheckCircle /> Verified
                   </span>
                 )}
               </div>
 
               {hasCompleteProfile ? (
-                <div className="space-y-5 rounded-2xl border border-slate-100 bg-slate-50 p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <FaUser />
+                <div className="laptop:space-y-5 laptop:p-6 space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <div className="laptop:gap-4 flex items-start gap-3">
+                    <div className="laptop:h-10 laptop:w-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaUser className="laptop:text-base text-[12px]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-500">
+                      <p className="laptop:text-sm text-xs font-semibold text-slate-500">
                         Full Name
                       </p>
-                      <p className="text-lg font-bold text-slate-900">
+                      <p className="laptop:text-lg text-sm font-bold text-slate-900">
                         {user.name}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <FaEnvelope />
+                  <div className="laptop:gap-4 flex items-start gap-3">
+                    <div className="laptop:h-10 laptop:w-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaEnvelope className="laptop:text-base text-[12px]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-500">
+                      <p className="laptop:text-sm text-xs font-semibold text-slate-500">
                         Email Address
                       </p>
-                      <p className="text-lg font-bold text-slate-900">
+                      <p className="laptop:text-lg text-sm font-bold text-slate-900">
                         {user.email}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <FaPhone />
+                  <div className="laptop:gap-4 flex items-start gap-3">
+                    <div className="laptop:h-10 laptop:w-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaPhone className="laptop:text-base text-[12px]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-500">
+                      <p className="laptop:text-sm text-xs font-semibold text-slate-500">
                         Mobile Number
                       </p>
-                      <p className="text-lg font-bold text-slate-900">
+                      <p className="laptop:text-lg text-sm font-bold text-slate-900">
                         {user.mobileNumber}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                      <FaMapMarkerAlt />
+                  <div className="laptop:gap-4 flex items-start gap-3">
+                    <div className="laptop:h-10 laptop:w-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                      <FaMapMarkerAlt className="laptop:text-base text-[12px]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-500">
+                      <p className="laptop:text-sm text-xs font-semibold text-slate-500">
                         Delivery Address
                       </p>
-                      <p className="text-lg leading-relaxed font-bold text-slate-900">
+                      <p className="laptop:text-lg text-sm leading-relaxed font-bold text-slate-900">
                         {user.address}
                       </p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-5">
-                  <p className="mb-4 text-sm text-slate-500">
+                <div className="laptop:space-y-5 space-y-4">
+                  <p className="laptop:mb-4 laptop:text-sm mb-2 text-xs text-slate-500">
                     Please enter your shipping details for this order.
                   </p>
                   {/* Name & Last Name */}
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div className="laptop:gap-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      <label className="laptop:text-sm mb-1.5 block text-xs font-semibold text-slate-700">
                         Name
                       </label>
                       <input
@@ -296,7 +304,7 @@ function Checkout() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      <label className="laptop:text-sm mb-1.5 block text-xs font-semibold text-slate-700">
                         Last Name
                       </label>
                       <input
@@ -304,14 +312,14 @@ function Checkout() {
                         name="lastName"
                         value={shippingInfo.lastName}
                         onChange={handleInputChange}
-                        className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        className="laptop:text-sm laptop:px-4 laptop:py-3 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                         placeholder="Last name"
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div className="laptop:gap-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      <label className="laptop:text-sm mb-1.5 block text-xs font-semibold text-slate-700">
                         Email Address
                       </label>
                       <input
@@ -319,12 +327,12 @@ function Checkout() {
                         name="email"
                         value={shippingInfo.email}
                         onChange={handleInputChange}
-                        className="w-full rounded-xl border border-slate-300 px-4 py-3 transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                        className="laptop:text-sm laptop:px-4 laptop:py-3 w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs transition-all outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                         placeholder="john@example.com"
                       />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                      <label className="laptop:text-sm mb-1.5 block text-xs font-semibold text-slate-700">
                         Mobile Number
                       </label>
                       <input
@@ -369,35 +377,35 @@ function Checkout() {
           {/* Right Column: Payment & Summary */}
           <div className="flex flex-[2] flex-col gap-8">
             {/* Payment Method */}
-            <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-              <h2 className="mb-6 text-2xl font-bold text-slate-900">
+            <div className="laptop:p-6 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-8">
+              <h2 className="laptop:mb-6 laptop:text-2xl mb-4 text-lg font-bold text-slate-900">
                 Payment Method
               </h2>
-              <div className="grid grid-cols-1 gap-4 text-left">
+              <div className="laptop:gap-4 grid grid-cols-1 gap-3 text-left">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("COD")}
-                  className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                  className={`laptop:gap-4 laptop:p-4 flex items-center gap-3 rounded-2xl border-2 p-3 transition-all ${
                     paymentMethod === "COD"
                       ? "border-blue-600 bg-blue-50/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
                       : "border-slate-200 bg-white hover:border-blue-200"
                   }`}
                 >
                   <div
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${paymentMethod === "COD" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}
+                    className={`laptop:h-12 laptop:w-12 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${paymentMethod === "COD" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"}`}
                   >
-                    <FaMoneyBillWave className="text-xl" />
+                    <FaMoneyBillWave className="laptop:text-xl text-lg" />
                   </div>
                   <div className="flex-1 text-left">
-                    <span className="block font-bold text-slate-900">
+                    <span className="laptop:text-base block text-sm font-bold text-slate-900">
                       Cash on Delivery
                     </span>
-                    <span className="block text-xs font-medium text-slate-500">
+                    <span className="laptop:text-xs block text-[10px] font-medium text-slate-500">
                       Pay when you receive
                     </span>
                   </div>
                   <div
-                    className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${paymentMethod === "COD" ? "border-blue-600" : "border-slate-300"}`}
+                    className={`laptop:h-5 laptop:w-5 flex h-4 w-4 items-center justify-center rounded-full border-2 ${paymentMethod === "COD" ? "border-blue-600" : "border-slate-300"}`}
                   >
                     {paymentMethod === "COD" && (
                       <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
@@ -408,27 +416,27 @@ function Checkout() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("PAYPAL")}
-                  className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                  className={`laptop:gap-4 laptop:p-4 flex items-center gap-3 rounded-2xl border-2 p-3 transition-all ${
                     paymentMethod === "PAYPAL"
                       ? "border-blue-600 bg-blue-50/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
                       : "border-slate-200 bg-white hover:border-blue-200"
                   }`}
                 >
                   <div
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${paymentMethod === "PAYPAL" ? "bg-[#003087] text-white" : "bg-slate-100 text-slate-500"}`}
+                    className={`laptop:h-12 laptop:w-12 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${paymentMethod === "PAYPAL" ? "bg-[#003087] text-white" : "bg-slate-100 text-slate-500"}`}
                   >
-                    <FaPaypal className="text-xl" />
+                    <FaPaypal className="laptop:text-xl text-lg" />
                   </div>
                   <div className="flex-1 text-left">
-                    <span className="block font-bold text-slate-900">
+                    <span className="laptop:text-base block text-sm font-bold text-slate-900">
                       PayPal
                     </span>
-                    <span className="block text-xs font-medium text-slate-500">
+                    <span className="laptop:text-xs block text-[10px] font-medium text-slate-500">
                       Not integrated yet
                     </span>
                   </div>
                   <div
-                    className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${paymentMethod === "PAYPAL" ? "border-blue-600" : "border-slate-300"}`}
+                    className={`laptop:h-5 laptop:w-5 flex h-4 w-4 items-center justify-center rounded-full border-2 ${paymentMethod === "PAYPAL" ? "border-blue-600" : "border-slate-300"}`}
                   >
                     {paymentMethod === "PAYPAL" && (
                       <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
@@ -439,15 +447,18 @@ function Checkout() {
             </div>
 
             {/* Order Summary */}
-            <div className="flex flex-col rounded-3xl bg-white p-6 shadow-md ring-1 ring-slate-200 sm:p-8">
-              <h2 className="mb-6 text-2xl font-bold text-slate-900">
+            <div className="laptop:p-6 flex flex-col overflow-hidden rounded-3xl bg-white p-4 shadow-md ring-1 ring-slate-200 sm:p-8">
+              <h2 className="laptop:mb-6 laptop:text-2xl mb-4 text-lg font-bold text-slate-900">
                 Order Summary
               </h2>
 
-              <div className="custom-scrollbar mb-6 max-h-[300px] flex-1 space-y-4 overflow-y-auto pr-2">
+              <div className="custom-scrollbar laptop:max-h-[300px] mb-6 max-h-[250px] flex-1 space-y-3 overflow-x-hidden overflow-y-auto pr-2">
                 {checkoutProducts.map((product) => (
-                  <div key={product.cartItemId} className="flex gap-4">
-                    <div className="h-16 w-16 shrink-0 rounded-xl border border-slate-100 bg-slate-50 p-2">
+                  <div
+                    key={product.cartItemId}
+                    className="laptop:gap-4 flex gap-2"
+                  >
+                    <div className="laptop:h-16 laptop:w-16 laptop:p-2 h-12 w-12 shrink-0 rounded-xl border border-slate-100 bg-slate-50 p-1">
                       <img
                         src={
                           product.image?.startsWith("http")
@@ -458,15 +469,15 @@ function Checkout() {
                         className="h-full w-full object-contain"
                       />
                     </div>
-                    <div className="flex flex-1 flex-col justify-center">
-                      <h4 className="line-clamp-1 text-sm font-bold text-slate-900">
+                    <div className="flex min-w-0 flex-1 flex-col justify-center">
+                      <h4 className="laptop:text-sm truncate text-[11px] font-bold text-slate-900">
                         {product.name}
                       </h4>
-                      <p className="text-xs font-medium text-slate-500">
+                      <p className="laptop:text-xs text-[10px] font-medium text-slate-500">
                         Qty: {product.quantity}
                       </p>
                     </div>
-                    <div className="flex items-center font-bold text-slate-900">
+                    <div className="laptop:text-base flex shrink-0 items-center pl-2 text-xs font-bold text-slate-900">
                       {formatPrice(
                         parsePrice(product.newPrice) * product.quantity,
                       )}
@@ -475,29 +486,29 @@ function Checkout() {
                 ))}
               </div>
 
-              <div className="border-t border-slate-200 pt-6">
-                <div className="mb-2 flex items-center justify-between text-sm font-medium text-slate-500">
+              <div className="border-t border-slate-200 pt-5">
+                <div className="laptop:text-sm mb-2 flex items-center justify-between text-xs font-medium text-slate-500">
                   <span>Subtotal</span>
                   <span>{formatPrice(totalAmount)}</span>
                 </div>
-                <div className="mb-4 flex items-center justify-between text-sm font-medium text-slate-500">
+                <div className="laptop:text-sm mb-4 flex items-center justify-between text-xs font-medium text-slate-500">
                   <span>Shipping</span>
                   <span className="font-bold text-emerald-600">FREE</span>
                 </div>
-                <div className="mb-8 flex items-center justify-between">
-                  <span className="text-xl font-bold text-slate-900">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="laptop:text-xl text-base font-bold text-slate-900">
                     Total
                   </span>
-                  <span className="text-3xl font-extrabold tracking-tight text-blue-600">
+                  <span className="laptop:text-3xl text-xl font-extrabold tracking-tight text-blue-600">
                     {formatPrice(totalAmount)}
                   </span>
                 </div>
 
                 <button
                   onClick={handlePlaceOrder}
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-8 py-4 text-lg font-bold tracking-wide text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-1 hover:bg-blue-600 hover:shadow-blue-500/30 active:scale-95"
+                  className="laptop:px-8 laptop:py-4 laptop:text-lg flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-[13px] font-bold tracking-wide text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-1 hover:bg-blue-600 hover:shadow-blue-500/30 active:scale-95"
                 >
-                  <FaShieldAlt /> Place Order
+                  <FaShieldAlt className="text-[14px]" /> Place Order
                 </button>
               </div>
             </div>

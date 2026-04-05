@@ -329,37 +329,56 @@ function Cart() {
         </div>
 
         {/* Premium Order Summary Sticky Footer */}
-        <div className="sticky right-0 bottom-0 left-0 z-40 mt-10 border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_30px_rgba(0,0,0,0.06)]">
-          <div className="mx-auto max-w-7xl px-4 lg:px-8">
-            <div className="flex flex-wrap items-center gap-4 py-4">
-              <label className="flex shrink-0 cursor-pointer items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={allChecked}
-                  onChange={(e) => toggleAllChecks(e.target.checked)}
-                  className="h-5 w-5 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="hidden text-xs font-bold tracking-widest text-slate-700 uppercase select-none sm:inline">
-                  Select All
-                </span>
-                <span className="text-xs font-bold tracking-widest text-slate-700 uppercase select-none sm:hidden">
-                  All
-                </span>
-              </label>
+        <div className="sticky right-0 bottom-0 left-0 z-40 mt-10 border-t border-slate-200/80 bg-white shadow-[0_-8px_30px_rgba(0,0,0,0.06)] backdrop-blur-md pb-safe">
+          <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 laptop:py-4">
+            <div className="flex flex-col gap-3 laptop:flex-row laptop:items-center laptop:justify-between">
+              
+              {/* Top Row on Mobile: Select All, Badges & Total */}
+              <div className="flex items-center justify-between laptop:justify-start laptop:gap-6">
+                
+                {/* Left side: Checkbox & Badges */}
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <label className="flex shrink-0 cursor-pointer items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={allChecked}
+                      onChange={(e) => toggleAllChecks(e.target.checked)}
+                      className="h-5 w-5 cursor-pointer rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-xs font-bold tracking-widest text-slate-700 uppercase select-none">
+                      All
+                    </span>
+                  </label>
 
-              <div className="ml-2 flex items-center gap-1.5 sm:ml-4 sm:gap-2">
-                <div className="flex items-center gap-1.5 rounded-full border border-blue-100/80 bg-gradient-to-r from-blue-50 to-cyan-50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-blue-600 shadow-sm sm:px-3.5 sm:py-1.5 sm:text-[11px]">
-                  <Truck className="h-3.5 w-3.5 text-blue-500 sm:h-4 sm:w-4" />
-                  <span className="sm:hidden">Free Shipping</span>
+                  <div className="flex items-center gap-1.5 ml-1">
+                    <div className="flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-bold tracking-wide text-blue-600 sm:px-3 sm:text-[10px]">
+                      <Truck className="h-3 w-3 text-blue-500" />
+                      <span>Free Ship</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="hidden items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-emerald-600 shadow-sm min-[400px]:flex sm:px-3.5 sm:py-1.5 sm:text-[11px]">
-                  <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span className="sm:hidden">Secure Checkout</span>
+
+                {/* Right side (Mobile Top row): Total text (only if not laptop) */}
+                <div className="flex flex-col items-end text-right laptop:hidden">
+                  <div className="text-[9px] sm:text-[10px] font-medium text-slate-500 leading-tight">
+                    Total ({selectedCount} items)
+                  </div>
+                  {totalSavings > 0 && (
+                    <span className="flex animate-pulse items-center gap-1 mt-0.5 mb-0.5 rounded border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[9px] font-black tracking-wide text-rose-500 uppercase shadow-sm">
+                      <Tag className="h-2.5 w-2.5" />
+                      Save {formatPrice(totalSavings)}
+                    </span>
+                  )}
+                  <div className="font-productSansBold text-[17px] sm:text-lg text-slate-900 leading-none mt-0.5">
+                    {formatPrice(totalAmount)}
+                  </div>
                 </div>
               </div>
 
-              <div className="ml-auto flex items-center gap-4 sm:gap-6">
-                <div className="mr-2 flex flex-col items-end justify-center text-right">
+              {/* Bottom Row on Mobile / Right Side on Laptop */}
+              <div className="flex flex-col laptop:flex-row laptop:items-center gap-3">
+                {/* Desktop Total Text */}
+                <div className="hidden laptop:flex flex-col items-end justify-center text-right mr-4">
                   <div className="mb-1 text-sm font-medium text-slate-500">
                     Total ({selectedCount} items)
                   </div>
@@ -370,21 +389,23 @@ function Cart() {
                         Save {formatPrice(totalSavings)}!
                       </span>
                     )}
-                    <span className="font-productSansBold text-2xl leading-none tracking-tight text-slate-900 sm:text-3xl">
+                    <span className="font-productSansBold text-3xl leading-none tracking-tight text-slate-900">
                       {formatPrice(totalAmount)}
                     </span>
                   </div>
                 </div>
 
+                {/* Desktop and Mobile Button */}
                 <button
                   disabled={totalAmount === 0}
                   onClick={() => navigate("/checkout")}
-                  className="group flex items-center gap-2 rounded-full bg-slate-900 px-8 py-3.5 text-base font-bold tracking-wide text-white shadow-lg transition-all hover:bg-blue-600 hover:shadow-blue-500/25 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+                  className="group flex w-full laptop:w-auto items-center justify-center gap-1.5 laptop:gap-2 rounded-full bg-slate-900 px-4 py-2.5 laptop:px-8 laptop:py-4 text-[13px] laptop:text-base font-bold tracking-wide text-white shadow-lg transition-all hover:bg-blue-600 hover:shadow-blue-500/25 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
                 >
                   Checkout
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="h-3.5 w-3.5 laptop:h-5 laptop:w-5 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
+
             </div>
           </div>
         </div>
