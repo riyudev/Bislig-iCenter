@@ -93,8 +93,14 @@ function AccountSidebar({ isOpen, onClose }) {
           setMessage("New passwords do not match");
           return;
         }
+        if (formData.newPassword.length < 8) {
+          setMessage("New password must be at least 8 characters");
+          setIsLoading(false);
+          return;
+        }
         if (!formData.currentPassword) {
           setMessage("Current password is required to change password");
+          setIsLoading(false);
           return;
         }
         updateData.currentPassword = formData.currentPassword;

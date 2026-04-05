@@ -2,6 +2,10 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/User.js";
 
+import OTP from "../models/OTP.js";
+
+import nodemailer from "nodemailer";
+
 
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -32,15 +36,134 @@ const cookieOptions = {
 
 
 
+export const sendOtp = async (req, res, next) => {
+
+  try {
+
+    const { email, username } = req.body;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+
+
+    const normalizedUsername = username ? String(username).trim().toLowerCase() : null;
+
+    const queries = [User.findOne({ email })];
+
+    if (normalizedUsername) queries.push(User.findOne({ username: normalizedUsername }));
+
+    
+
+    const [emailExists, usernameExists] = await Promise.all(queries);
+
+
+
+    if (emailExists) return res.status(409).json({ message: "Email already in use" });
+
+    if (usernameExists) return res.status(409).json({ message: "Username already in use" });
+
+
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+
+
+    await OTP.findOneAndUpdate(
+
+      { email }, 
+
+      { otp, createdAt: Date.now() }, 
+
+      { upsert: true, new: true }
+
+    );
+
+
+
+    const hasValidEmailConfig = 
+      process.env.EMAIL_USER && 
+      process.env.EMAIL_PASS && 
+      process.env.EMAIL_USER !== 'your-email@gmail.com';
+
+    if (hasValidEmailConfig) {
+
+      const transporter = nodemailer.createTransport({
+
+        service: 'gmail',
+
+        auth: {
+
+          user: process.env.EMAIL_USER,
+
+          pass: process.env.EMAIL_PASS
+
+        }
+
+      });
+
+      await transporter.sendMail({
+
+        from: `"Bislig iCenter" <${process.env.EMAIL_USER}>`,
+
+        to: email,
+
+        subject: "Your OTP for Bislig iCenter Signup",
+
+        text: `Your OTP is: ${otp}. It will expire in 3 minutes.`,
+
+      });
+
+    } else {
+
+      console.log(`[DEV MODE] OTP for ${email} is ${otp}`);
+
+    }
+
+
+
+    res.status(200).json({ message: "OTP sent successfully. Please check your email." });
+
+  } catch (err) {
+
+    next(err);
+
+  }
+
+};
+
+
+
 export const register = async (req, res, next) => {
 
   try {
 
-    const { name, username, email, password } = req.body;
+    const { name, username, email, password, otp } = req.body;
 
-    if (!name || !username || !email || !password) {
+    if (!name || !username || !email || !password || !otp) {
 
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields and OTP are required" });
+
+    }
+
+    if (password.length < 8) {
+
+      return res.status(400).json({ message: "Password must be at least 8 characters" });
+
+    }
+
+
+
+    const otpRecord = await OTP.findOne({ email });
+
+    if (!otpRecord) {
+
+      return res.status(400).json({ message: "OTP not found or expired. Please request a new one." });
+
+    }
+
+    if (otpRecord.otp !== otp) {
+
+      return res.status(400).json({ message: "Invalid OTP" });
 
     }
 
@@ -66,13 +189,15 @@ export const register = async (req, res, next) => {
 
     }
 
-
-
     if (usernameExists) {
 
       return res.status(409).json({ message: "Username already in use" });
 
     }
+
+
+
+    await OTP.deleteOne({ email });
 
 
 
@@ -152,7 +277,14 @@ export const login = async (req, res, next) => {
 
     const token = generateToken(user._id);
 
-    res.cookie("token", token, cookieOptions);
+    const tokenOptions = { ...cookieOptions };
+    if (!req.body.rememberMe) {
+      delete tokenOptions.maxAge; // Session cookie
+    } else {
+      tokenOptions.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+    }
+
+    res.cookie("token", token, tokenOptions);
 
     const safeUser = await User.findById(user._id);
 
@@ -334,6 +466,9 @@ export const updateProfile = async (req, res, next) => {
 
     // Handle password change if requested
     if (newPassword) {
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters" });
+      }
       if (!currentPassword) {
         return res.status(400).json({ message: "Current password is required to change password" });
       }
@@ -373,6 +508,86 @@ export const updateProfile = async (req, res, next) => {
 
   }
 
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "No account found with this email" });
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    await OTP.findOneAndUpdate(
+      { email },
+      { otp, createdAt: Date.now() },
+      { upsert: true, new: true }
+    );
+
+    const hasValidEmailConfig = 
+      process.env.EMAIL_USER && 
+      process.env.EMAIL_PASS && 
+      process.env.EMAIL_USER !== 'your-email@gmail.com';
+
+    if (hasValidEmailConfig) {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+      await transporter.sendMail({
+        from: `"Bislig iCenter" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Password Reset OTP for Bislig iCenter",
+        text: `Your OTP to reset your password is: ${otp}. It will expire in 3 minutes.`,
+      });
+    } else {
+      console.log(`[DEV MODE] Forgot Password OTP for ${email} is ${otp}`);
+    }
+
+    res.status(200).json({ message: "OTP sent to your email. Please check your inbox." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Email, OTP, and new password are required" });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: "New password must be at least 8 characters" });
+    }
+
+    const otpRecord = await OTP.findOne({ email });
+    if (!otpRecord) {
+      return res.status(400).json({ message: "OTP not found or expired. Please request a new one." });
+    }
+    if (otpRecord.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+    
+    await OTP.deleteOne({ email });
+
+    res.status(200).json({ message: "Password reset successfully. You can now login." });
+  } catch (err) {
+    next(err);
+  }
 };
 
 
