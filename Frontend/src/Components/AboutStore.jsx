@@ -20,12 +20,12 @@ function AboutStore() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px]" />
       </div>
 
-      <div className="relative mx-auto w-7xl px-5">
-        <div className="flex flex-row items-center justify-between gap-12 lg:gap-24">
+      <div className="relative mx-auto w-full max-w-7xl px-5 laptop:px-8">
+        <div className="flex flex-col laptop:flex-row items-center justify-between gap-12 laptop:gap-16 lg:gap-24">
           
           {/* Left Side — Image with Premium Framing */}
           <motion.div
-            className="w-1/2 relative pr-4 lg:pr-8"
+            className="w-full laptop:w-1/2 relative pr-0 laptop:pr-4 lg:pr-8"
             initial={{ opacity: 0, x: -50, filter: 'blur(10px)' }}
             whileInView={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -47,7 +47,7 @@ function AboutStore() {
 
               {/* Floating stat card */}
               <motion.div 
-                className="absolute -bottom-6 -right-6 z-20 rounded-2xl border border-white/10 bg-[#111827]/80 p-5 backdrop-blur-md shadow-2xl"
+                className="absolute -bottom-4 right-0 laptop:-bottom-6 laptop:-right-6 z-20 rounded-2xl border border-white/10 bg-[#111827]/80 p-4 laptop:p-5 backdrop-blur-md shadow-2xl"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
@@ -68,7 +68,7 @@ function AboutStore() {
 
           {/* Right Side — Text & Content */}
           <motion.div
-            className="w-1/2 space-y-8 text-left"
+            className="w-full laptop:w-1/2 space-y-6 laptop:space-y-8 text-left"
             initial={{ opacity: 0, x: 50, filter: 'blur(10px)' }}
             whileInView={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -96,7 +96,7 @@ function AboutStore() {
             </div>
             
             {/* Description */}
-            <div className="space-y-6 text-[16px] leading-relaxed text-slate-300 xl:text-[18px] font-productSansLight">
+            <div className="space-y-6 text-[15px] laptop:text-[16px] leading-relaxed text-slate-300 xl:text-[18px] font-productSansLight">
               <p>
                 Bislig iCenter is your premiere destination for cutting-edge technology in Bislig City. We are dedicated to bringing you the gold standard in digital lifestyle and mobile computing.
               </p>
@@ -125,11 +125,16 @@ function AboutStore() {
             </ul>
 
             {/* Actions */}
-            <div className="pt-4 flex flex-wrap gap-4 justify-start">
-              <button className="group relative inline-flex items-center gap-3 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(255,255,255,0.25)]">
+            <div className="pt-2 laptop:pt-4 flex flex-wrap gap-4 justify-start">
+              <a 
+                href="https://www.facebook.com/bisligicenter" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center gap-2 laptop:gap-3 rounded-full bg-white px-6 laptop:px-8 py-3 laptop:py-3.5 text-sm font-semibold text-slate-900 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(255,255,255,0.25)]"
+              >
                 <span>Discover More</span>
                 <FiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </button>
+              </a>
             </div>
 
           </motion.div>
