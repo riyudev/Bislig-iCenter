@@ -177,7 +177,7 @@ function AccountSidebar({ isOpen, onClose }) {
 
       {/* Sidebar */}
       <div
-        className={`absolute top-0 right-0 h-screen w-[420px] max-w-full bg-slate-50 shadow-[0_0_40px_rgba(0,0,0,0.1)] transition-transform duration-500 ease-out ${
+        className={`absolute top-0 right-0 h-screen w-full laptop:w-[420px] bg-slate-50 shadow-[0_0_40px_rgba(0,0,0,0.1)] transition-transform duration-500 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

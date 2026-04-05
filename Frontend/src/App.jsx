@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import Navbar from "./Components/Navbar";
+import MobileNavbar from "./Components/MobileNavbar";
 import Shop from "./pages/Shop";
 import ShopCategory from "./pages/ShopCategory";
 import LoginSignup from "./pages/LoginSignup";
@@ -19,6 +20,7 @@ function App() {
       <Router>
         <ScrollToTop />
         <Navbar />
+        <MobileNavbar />
         <Routes>
           {/* Main Shop Page */}
           <Route path="/" element={<Shop />} />

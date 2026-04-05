@@ -1,9 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import { HiSparkles } from "react-icons/hi2";
 import { MdEmail } from "react-icons/md";
 import { BsArrowRight } from "react-icons/bs";
+import { useAuth } from "../context/AuthContext";
 
 function NewsletterSignup() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    if (!user) {
+      alert("Please login to subscribe to the newsletter.");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        alert("Successfully subscribed to the newsletter!");
+      } else {
+        alert(data.message || "Failed to subscribe.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while subscribing.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="relative overflow-hidden py-24">
       {/* Dark gradient background */}
@@ -49,25 +83,17 @@ function NewsletterSignup() {
           ))}
         </div>
 
-        {/* Form */}
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="flex flex-col items-center gap-3 sm:flex-row"
-        >
-          <input
-            type="email"
-            placeholder="Enter your email address"
-            required
-            className="w-full flex-1 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm text-white placeholder:text-white/30 backdrop-blur-sm outline-none ring-1 ring-transparent transition focus:border-blue-500/50 focus:ring-blue-500/20"
-          />
+        {/* Buttons */}
+        <div className="flex justify-center">
           <button
-            type="submit"
-            className="group btn-black flex shrink-0 items-center gap-2 px-7 py-3 text-sm font-semibold"
+            onClick={handleSubscribe}
+            disabled={loading}
+            className="group btn-black flex items-center gap-2 px-7 py-3 text-sm font-semibold disabled:opacity-50"
           >
-            Subscribe
-            <BsArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
+            {loading ? "Subscribing..." : "Subscribe Now"}
+            {!loading && <BsArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />}
           </button>
-        </form>
+        </div>
 
         <p className="mt-4 text-xs text-white/25">
           By subscribing you agree to receive marketing emails from Bislig iCenter. Unsubscribe

@@ -33,6 +33,14 @@ function Navbar() {
   const [promoBanner, setPromoBanner] = useState(true);
   const [promoIndex, setPromoIndex] = useState(0);
   const dropdownRef = useRef(null);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 870);
+
+  // Track viewport width
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 870);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const promoMessages = [
     {
@@ -159,6 +167,7 @@ function Navbar() {
   if (location.pathname === "/checkout") {
     return null;
   }
+  if (!isDesktop) return null;
 
   return (
     <>
