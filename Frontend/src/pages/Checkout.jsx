@@ -95,7 +95,7 @@ function Checkout() {
     }
     setIsSavingShipping(true);
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/update-profile", {
+      const res = await fetch("/api/auth/update-profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -169,7 +169,7 @@ function Checkout() {
     };
 
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -463,7 +463,7 @@ function Checkout() {
                         src={
                           product.image?.startsWith("http")
                             ? product.image
-                            : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${product.image || ""}`
+                            : `${product.image || ""}`
                         }
                         alt={product.name}
                         className="h-full w-full object-contain"

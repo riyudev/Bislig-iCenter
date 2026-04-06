@@ -43,7 +43,7 @@ const Items = (props) => {
             src={
               props.image?.startsWith("http")
                 ? props.image
-                : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${props.image || ""}`
+                : `${props.image || ""}`
             }
             alt={props.name}
             loading="lazy"

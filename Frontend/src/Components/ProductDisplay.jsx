@@ -269,7 +269,7 @@ const ProductDisplay = (props) => {
             src={
               product.image?.startsWith("http")
                 ? product.image
-                : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${product.image || ""}`
+                : `${product.image || ""}`
             }
             alt={product.name}
             className="mx-auto h-[300px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]"

@@ -108,7 +108,7 @@ function AccountSidebar({ isOpen, onClose }) {
       }
 
       const response = await fetch(
-        (import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/update-profile",
+        "/api/auth/update-profile",
         {
           method: "PUT",
           headers: {

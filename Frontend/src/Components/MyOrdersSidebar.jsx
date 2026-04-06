@@ -22,7 +22,7 @@ function MyOrdersSidebar({ isOpen, onClose }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/orders", {
+      const response = await fetch("/api/orders", {
         headers: {
           "Content-Type": "application/json",
         },
@@ -51,7 +51,7 @@ function MyOrdersSidebar({ isOpen, onClose }) {
     if (!orderToCancel) return;
     setCancelling(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}/api/orders/${orderToCancel}/cancel`, {
+      const response = await fetch(`/api/orders/${orderToCancel}/cancel`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

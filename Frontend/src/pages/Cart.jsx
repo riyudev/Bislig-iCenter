@@ -217,7 +217,7 @@ function Cart() {
                               src={
                                 product.image?.startsWith("http")
                                   ? product.image
-                                  : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${product.image || ""}`
+                                  : `${product.image || ""}`
                               }
                               alt={product.name}
                               className="h-full w-full object-contain"

@@ -73,7 +73,7 @@ function LoginSignup() {
     setIsLoading(true);
     if (forgotStage === 1) {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/forgot-password", {
+        const res = await fetch("/api/auth/forgot-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email.trim() }),
@@ -96,7 +96,7 @@ function LoginSignup() {
         return;
       }
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/reset-password", {
+        const res = await fetch("/api/auth/reset-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email.trim(), otp: otp.trim(), newPassword: password }),
@@ -122,7 +122,7 @@ function LoginSignup() {
     setIsLoading(true);
     try {
       const res = await fetch(
-        forgotStage > 0 ? (import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/forgot-password" : (import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/send-otp", 
+        forgotStage > 0 ? "/api/auth/forgot-password" : "/api/auth/send-otp", 
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,7 +154,7 @@ function LoginSignup() {
 
     if (signState === "Sign Up" && !showOtp) {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/send-otp", {
+        const res = await fetch("/api/auth/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -181,8 +181,8 @@ function LoginSignup() {
 
     const url =
       signState === "Sign Up"
-        ? (import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/register"
-        : (import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/auth/login";
+        ? "/api/auth/register"
+        : "/api/auth/login";
 
     const payload =
       signState === "Sign Up"
