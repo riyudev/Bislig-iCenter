@@ -14,7 +14,7 @@ function NewsLetters() {
 
   const fetchSubscribers = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/api/newsletter/subscribers", {
+      const { data } = await axios.get((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/newsletter/subscribers", {
         withCredentials: true,
       });
       setSubscribers(data);
@@ -39,7 +39,7 @@ function NewsLetters() {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/newsletter/send",
+        (import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/newsletter/send",
         { subject, message },
         { withCredentials: true }
       );

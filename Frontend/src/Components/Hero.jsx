@@ -90,7 +90,7 @@ function Hero() {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/hero-slides");
+        const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/hero-slides");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setSlides(

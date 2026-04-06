@@ -54,7 +54,7 @@ const SectionManager = ({
               src={
                 p.image?.startsWith("http")
                   ? p.image
-                  : `http://localhost:5000${p.image}`
+                  : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${p.image}`
               }
               alt={p.name}
               className="h-14 w-14 rounded-lg object-contain bg-slate-50"
@@ -117,7 +117,7 @@ const SectionManager = ({
                         src={
                           p.image?.startsWith("http")
                             ? p.image
-                            : `http://localhost:5000${p.image}`
+                            : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${p.image}`
                         }
                         alt={p.name}
                         className="h-12 w-12 rounded-lg object-contain bg-white ring-1 ring-slate-200"

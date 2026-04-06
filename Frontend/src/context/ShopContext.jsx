@@ -27,7 +27,7 @@ const ShopContextProvider = (props) => {
     const fetchProducts = async () => {
       try {
         setProductsLoading(true);
-        const res = await fetch("http://localhost:5000/api/products");
+        const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/products");
         if (!res.ok) {
           throw new Error("Failed to load products");
         }
@@ -59,7 +59,7 @@ const ShopContextProvider = (props) => {
   const loadCart = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/cart/", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/", {
         credentials: "include",
       });
       
@@ -119,7 +119,7 @@ const ShopContextProvider = (props) => {
     actionLockRef.current[cartItemId] = true;
 
     try {
-      const res = await fetch("http://localhost:5000/api/cart/add", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,7 +177,7 @@ const ShopContextProvider = (props) => {
       // Parse cartItemId to get productId, storage, color
       const [productId, storage, color] = cartItemId.split('-');
 
-      const res = await fetch("http://localhost:5000/api/cart/remove-one", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/remove-one", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,7 +223,7 @@ const ShopContextProvider = (props) => {
       // Parse cartItemId to get productId, storage, color
       const [productId, storage, color] = cartItemId.split('-');
 
-      const res = await fetch("http://localhost:5000/api/cart/remove", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/remove", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -265,7 +265,7 @@ const ShopContextProvider = (props) => {
       // Parse cartItemId to get productId, storage, color
       const [productId, storage, color] = cartItemId.split('-');
 
-      const res = await fetch("http://localhost:5000/api/cart/toggle-check", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/toggle-check", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -304,7 +304,7 @@ const ShopContextProvider = (props) => {
     if (!user) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/cart/toggle-all-checks", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/toggle-all-checks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -341,7 +341,7 @@ const ShopContextProvider = (props) => {
     if (!user) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/cart/clear-checked", {
+      const res = await fetch((import.meta.env.VITE_API_URL || (import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`)) + "/api/cart/clear-checked", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

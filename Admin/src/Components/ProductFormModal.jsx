@@ -178,7 +178,7 @@ const ProductFormModal = ({
                     src={
                       form.image?.startsWith("http")
                         ? form.image
-                        : `http://localhost:5000${form.image || ""}`
+                        : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${form.image || ""}`
                     }
                     alt="Preview"
                     className="h-12 w-12 rounded-xl object-cover ring-1 ring-black/5"
