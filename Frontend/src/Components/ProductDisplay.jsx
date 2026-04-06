@@ -1,5 +1,7 @@
 import React, { useContext, useState, useRef, useCallback } from "react";
 import ReactDOM from "react-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { ShopContext } from "../context/ShopContext";
 import {
   FaCartPlus,
@@ -83,6 +85,8 @@ const TrustStrip = () => (
 const ProductDisplay = (props) => {
   const { product } = props;
   const { addToCart } = useContext(ShopContext);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedVariant, setSelectedVariant] = useState(
     product.stockItems?.[0]?.variant || product.variants?.[0] || null,
   );
@@ -196,6 +200,11 @@ const ProductDisplay = (props) => {
   };
 
   const handleAddToCart = (buttonEl) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    
     addToCart(
       product._id || product.id,
       selectedVariant || "Default",
