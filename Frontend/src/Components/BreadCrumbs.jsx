@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { IoChevronForward } from "react-icons/io5";
 
-const Breadcrumbs = ({ product }) => {
+const BreadCrumbs = ({ product }) => {
   if (!product) return null;
 
   return (
@@ -34,4 +34,4 @@ const Breadcrumbs = ({ product }) => {
   );
 };
 
-export default Breadcrumbs;
+export default BreadCrumbs;

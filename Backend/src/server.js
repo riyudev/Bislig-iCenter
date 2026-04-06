@@ -32,6 +32,9 @@ const allowedOrigins = [
   process.env.ADMIN_URL,
   "http://localhost:5173",
   "http://localhost:5174",
+  "https://bisligicenterph.vercel.app",
+  "https://main-admin-bisligicenterph.vercel.app",
+  "https://bislig-icenter.onrender.com"
 ];
 
 // Serve uploaded images — before cors so images are never blocked
