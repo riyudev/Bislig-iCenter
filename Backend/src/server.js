@@ -27,15 +27,14 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   clientUrl,
+  process.env.CLIENT_URL,
+  process.env.ADMIN_URL,
   "http://localhost:5173",
   "http://localhost:5174",
 ];
 
 // Serve uploaded images — before cors so images are never blocked
-app.use(
-  "/uploads",
-  express.static(path.join(process.cwd(), "uploads"))
-);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(
   cors({
