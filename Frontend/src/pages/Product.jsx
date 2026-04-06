@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { ShopContext } from "../context/ShopContext";
+import { ShopContext } from "../context/ShopContext.jsx";
 import { useParams } from "react-router-dom";
-import ProductDisplay from "../Components/ProductDisplay";
-import Breadcrumbs from "../Components/Breadcrumbs";
+import ProductDisplay from "../Components/ProductDisplay.jsx";
+import Breadcrumbs from "../Components/BreadCrumbs.jsx";
 
 function Product() {
   const { allProducts } = useContext(ShopContext);
@@ -22,7 +22,7 @@ function Product() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center justify-center px-4 laptop:px-[9%] pt-20 laptop:pt-36 pb-20">
+    <div className="laptop:px-[9%] laptop:pt-36 flex w-full flex-col items-center justify-center px-4 pt-20 pb-20">
       <Breadcrumbs product={product} />
       <ProductDisplay product={product} />
     </div>
