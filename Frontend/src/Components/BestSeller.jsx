@@ -35,7 +35,7 @@ function BestSeller() {
   return (
     <section
       id="bestSeller"
-      className="relative scroll-mt-20 place-items-center overflow-hidden py-12 laptop:py-24"
+      className="laptop:py-24 relative scroll-mt-20 place-items-center overflow-hidden py-12"
     >
       {/* ── Subtle cool background ── */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-slate-50/50" />
@@ -45,7 +45,7 @@ function BestSeller() {
         className="pointer-events-none absolute -top-20 left-1/2 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-cyan-100/40 opacity-70 blur-3xl"
       />
 
-      <div className="relative mx-auto w-full max-w-7xl space-y-8 laptop:space-y-12 px-4 laptop:px-5">
+      <div className="laptop:space-y-12 laptop:px-5 relative mx-auto w-full max-w-7xl space-y-8 px-4">
         {/* ── Section header ── */}
         <header className="place-items-center space-y-6 text-center">
           {/* Eyebrow badge */}
@@ -80,15 +80,15 @@ function BestSeller() {
         </header>
 
         {/* ── Product grid ── */}
-        <div className="grid w-full grid-cols-2 gap-3 laptop:grid-cols-3 laptop:gap-6">
+        <div className="grid w-full grid-cols-2 gap-3 laptop:flex laptop:justify-center laptop:gap-6">
           {productsLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={`loading-${i}`}
                 className={
                   i === 0
-                    ? "col-span-2 mx-auto w-full max-w-[260px] laptop:col-span-1 laptop:max-w-none"
-                    : "col-span-1"
+                    ? "laptop:max-w-none col-span-2 mx-auto laptop:mx-0 w-full max-w-[260px] laptop:w-[calc(25%_-_1.125rem)]"
+                    : "col-span-1 w-full laptop:w-[calc(25%_-_1.125rem)]"
                 }
               >
                 <ItemSkeleton />
@@ -101,16 +101,16 @@ function BestSeller() {
                 return (
                   <div
                     key={i}
-                    className={`group flex flex-col items-center gap-0 px-1 pt-2 w-full ${
+                    className={`group flex w-full flex-col items-center gap-0 px-1 pt-2 ${
                       i === 0
-                        ? "col-span-2 mx-auto max-w-[280px] laptop:col-span-1 laptop:max-w-none"
-                        : "col-span-1"
+                        ? "laptop:max-w-none col-span-2 mx-auto laptop:mx-0 max-w-[280px] laptop:w-[calc(25%_-_1.125rem)]"
+                        : "col-span-1 laptop:w-[calc(25%_-_1.125rem)]"
                     }`}
                   >
                     {/* Rank badge above the card */}
                     <div className="relative z-10 -mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                       <span
-                        className={`inline-flex items-center gap-1 laptop:gap-1.5 rounded-full px-2.5 py-1 laptop:px-3 laptop:py-1.5 text-[8px] laptop:text-[10px] font-bold tracking-widest uppercase shadow-sm ring-4 ring-white ${meta.badge}`}
+                        className={`laptop:gap-1.5 laptop:px-3 laptop:py-1.5 laptop:text-[10px] inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[8px] font-bold tracking-widest uppercase shadow-sm ring-4 ring-white ${meta.badge}`}
                       >
                         {meta.label}
                       </span>
@@ -139,8 +139,8 @@ function BestSeller() {
                     key={`placeholder-${i}`}
                     className={`w-full ${
                       i === 0
-                        ? "col-span-2 mx-auto max-w-[280px] laptop:col-span-1 laptop:max-w-none"
-                        : "col-span-1"
+                        ? "laptop:max-w-none col-span-2 mx-auto laptop:mx-0 max-w-[280px] laptop:w-[calc(25%_-_1.125rem)]"
+                        : "col-span-1 laptop:w-[calc(25%_-_1.125rem)]"
                     }`}
                   >
                     <ItemSkeleton />
