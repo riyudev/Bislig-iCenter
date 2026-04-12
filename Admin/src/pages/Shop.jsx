@@ -175,7 +175,7 @@ const Shop = () => {
                     src={
                       slide.image?.startsWith("http")
                         ? slide.image
-                        : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${slide.image}`
+                        : `${window.location.origin}${slide.image}`
                     }
                     alt={slide.tag}
                     className="absolute right-3 top-1/2 z-10 h-32 w-auto max-w-[130px] -translate-y-1/2 object-contain drop-shadow-lg"

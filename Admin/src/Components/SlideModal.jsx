@@ -126,10 +126,10 @@ function SlideModal({ slide, onClose, onSaved }) {
         setError(data?.message || "Image upload failed.");
         return;
       }
-      const fullUrl = data.url.startsWith("http")
+      const imageUrl = data.url.startsWith("http")
         ? data.url
-        : `${import.meta.env.VITE_API_URL || `\${import.meta.env.VITE_API_URL}`}${data.url}`;
-      set("image", fullUrl);
+        : `${window.location.origin}${data.url}`;
+      set("image", imageUrl);
     } catch {
       setError("Image upload failed.");
     } finally {
