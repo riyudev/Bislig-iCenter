@@ -3,8 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 import OTP from "../models/OTP.js";
-
-import nodemailer from "nodemailer";
+import { sendEmail } from "../utils/emailService.js";
 
 
 
@@ -85,34 +84,12 @@ export const sendOtp = async (req, res, next) => {
       process.env.EMAIL_PASS && 
       process.env.EMAIL_USER !== 'your-email@gmail.com';
 
-    if (hasValidEmailConfig) {
-
-      const transporter = nodemailer.createTransport({
-
-        service: 'gmail',
-
-        auth: {
-
-          user: process.env.EMAIL_USER,
-
-          pass: process.env.EMAIL_PASS
-
-        }
-
-      });
-
-      await transporter.sendMail({
-
-        from: `"Bislig iCenter" <${process.env.EMAIL_USER}>`,
-
+    if (hasValidEmailConfig || process.env.BREVO_API_KEY) {
+      await sendEmail({
         to: email,
-
         subject: "Your OTP for Bislig iCenter Signup",
-
-        text: `Your OTP is: ${otp}. It will expire in 3 minutes.`,
-
+        text: `Your OTP is: ${otp}. It will expire in 3 minutes.`
       });
-
     } else {
 
       console.log(`[DEV MODE] OTP for ${email} is ${otp}`);
@@ -531,19 +508,11 @@ export const forgotPassword = async (req, res, next) => {
       process.env.EMAIL_PASS && 
       process.env.EMAIL_USER !== 'your-email@gmail.com';
 
-    if (hasValidEmailConfig) {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        }
-      });
-      await transporter.sendMail({
-        from: `"Bislig iCenter" <${process.env.EMAIL_USER}>`,
+    if (hasValidEmailConfig || process.env.BREVO_API_KEY) {
+      await sendEmail({
         to: email,
         subject: "Password Reset OTP for Bislig iCenter",
-        text: `Your OTP to reset your password is: ${otp}. It will expire in 3 minutes.`,
+        text: `Your OTP to reset your password is: ${otp}. It will expire in 3 minutes.`
       });
     } else {
       console.log(`[DEV MODE] Forgot Password OTP for ${email} is ${otp}`);

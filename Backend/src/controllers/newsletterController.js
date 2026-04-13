@@ -1,5 +1,5 @@
 import Newsletter from "../models/Newsletter.js";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../utils/emailService.js";
 
 export const subscribe = async (req, res, next) => {
   try {
@@ -42,30 +42,20 @@ export const sendNewsletter = async (req, res, next) => {
     }
 
     const hasValidEmailConfig =
-      process.env.EMAIL_USER &&
-      process.env.EMAIL_PASS &&
-      process.env.EMAIL_USER !== 'your-email@gmail.com';
+      (process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.EMAIL_USER !== 'your-email@gmail.com') ||
+      process.env.BREVO_API_KEY;
 
     if (!hasValidEmailConfig) {
       console.log(`[DEV MODE] Would send newsletter "${subject}" to ${subscribers.length} subscribers.`);
       return res.status(200).json({ message: "Emails skipped in DEV mode (Invalid email Config). Check console." });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
     // Extract emails manually
     const emails = subscribers.map(sub => sub.email);
 
     // Send emails in batches or all together via Bcc
-    await transporter.sendMail({
-      from: `"Bislig iCenter" <${process.env.EMAIL_USER}>`,
-      bcc: emails, // Use bcc to hide other recipients
+    await sendEmail({
+      bcc: emails,
       subject: subject,
       text: message,
     });
