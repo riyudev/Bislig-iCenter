@@ -122,50 +122,63 @@ const ShopContextProvider = (props) => {
   };
 
   const addToCart = async (productId, storage = "64GB", color = "Default", quantityToAdd = 1) => {
-    if (!user) {
-      // Don't allow adding to cart if not logged in
-      return;
-    }
+    if (!user) return;
 
     const cartItemId = generateCartItemId(productId, storage, color);
 
     if (actionLockRef.current[cartItemId]) return;
     actionLockRef.current[cartItemId] = true;
 
+    // --- Optimistic update ---
+    const prevCartItems = cartItems;
+    const prevCheckedItems = checkedItems;
+    const prevCartOrder = cartOrder;
+
+    setCartItems((prev) => {
+      const existing = prev[cartItemId];
+      return {
+        ...prev,
+        [cartItemId]: existing
+          ? { ...existing, quantity: existing.quantity + quantityToAdd }
+          : { productId, storage, color, quantity: quantityToAdd },
+      };
+    });
+    setCartOrder((prev) =>
+      prev.includes(cartItemId) ? prev : [...prev, cartItemId],
+    );
+    // --------------------------
+
     try {
       const res = await fetch("/api/cart/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          productId,
-          storage,
-          color,
-          quantity: quantityToAdd,
-        }),
+        body: JSON.stringify({ productId, storage, color, quantity: quantityToAdd }),
       });
 
       if (res.ok) {
         const updatedCart = await res.json();
-        
-        // Convert backend cart format to frontend format
         const items = {};
         const checks = {};
-        
-        updatedCart.items.forEach(item => {
-          const itemCartItemId = `${item.productId}-${item.storage}-${item.color}`;
-          items[itemCartItemId] = item;
-          checks[itemCartItemId] = updatedCart.checkedItems[itemCartItemId] || false;
+        updatedCart.items.forEach((item) => {
+          const id = `${item.productId}-${item.storage}-${item.color}`;
+          items[id] = item;
+          checks[id] = updatedCart.checkedItems[id] || false;
         });
-        
         setCartItems(items);
         setCheckedItems(checks);
         setCartOrder(updatedCart.cartOrder || []);
+      } else {
+        // Revert on server error
+        setCartItems(prevCartItems);
+        setCheckedItems(prevCheckedItems);
+        setCartOrder(prevCartOrder);
       }
     } catch (err) {
       console.error("Failed to add to cart:", err);
+      setCartItems(prevCartItems);
+      setCheckedItems(prevCheckedItems);
+      setCartOrder(prevCartOrder);
     } finally {
       setTimeout(() => {
         actionLockRef.current[cartItemId] = false;
@@ -183,46 +196,65 @@ const ShopContextProvider = (props) => {
 
   const removeOneFromCart = async (cartItemId) => {
     if (!user) return;
-    
+
     if (actionLockRef.current[cartItemId]) return;
     actionLockRef.current[cartItemId] = true;
 
+    // --- Optimistic update ---
+    const prevCartItems = cartItems;
+    const prevCheckedItems = checkedItems;
+    const prevCartOrder = cartOrder;
+
+    setCartItems((prev) => {
+      const existing = prev[cartItemId];
+      if (!existing) return prev;
+      if (existing.quantity <= 1) {
+        // Will be removed — optimistically drop it
+        const next = { ...prev };
+        delete next[cartItemId];
+        return next;
+      }
+      return { ...prev, [cartItemId]: { ...existing, quantity: existing.quantity - 1 } };
+    });
+    setCartOrder((prev) => {
+      const item = prevCartItems[cartItemId];
+      if (item && item.quantity <= 1) return prev.filter((id) => id !== cartItemId);
+      return prev;
+    });
+    // --------------------------
+
     try {
-      // Parse cartItemId to get productId, storage, color
       const [productId, storage, color] = cartItemId.split('-');
 
       const res = await fetch("/api/cart/remove-one", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          productId,
-          storage,
-          color,
-        }),
+        body: JSON.stringify({ productId, storage, color }),
       });
 
       if (res.ok) {
         const updatedCart = await res.json();
-        
-        // Convert backend cart format to frontend format
         const items = {};
         const checks = {};
-        
-        updatedCart.items.forEach(item => {
-          const itemCartItemId = `${item.productId}-${item.storage}-${item.color}`;
-          items[itemCartItemId] = item;
-          checks[itemCartItemId] = updatedCart.checkedItems[itemCartItemId] || false;
+        updatedCart.items.forEach((item) => {
+          const id = `${item.productId}-${item.storage}-${item.color}`;
+          items[id] = item;
+          checks[id] = updatedCart.checkedItems[id] || false;
         });
-        
         setCartItems(items);
         setCheckedItems(checks);
         setCartOrder(updatedCart.cartOrder || []);
+      } else {
+        setCartItems(prevCartItems);
+        setCheckedItems(prevCheckedItems);
+        setCartOrder(prevCartOrder);
       }
     } catch (err) {
       console.error("Failed to remove one from cart:", err);
+      setCartItems(prevCartItems);
+      setCheckedItems(prevCheckedItems);
+      setCartOrder(prevCartOrder);
     } finally {
       setTimeout(() => {
         actionLockRef.current[cartItemId] = false;
@@ -275,79 +307,81 @@ const ShopContextProvider = (props) => {
   const toggleItemCheck = async (cartItemId) => {
     if (!user) return;
 
+    // --- Optimistic update ---
+    const prevCheckedItems = checkedItems;
+    setCheckedItems((prev) => ({ ...prev, [cartItemId]: !prev[cartItemId] }));
+    // --------------------------
+
     try {
-      // Parse cartItemId to get productId, storage, color
       const [productId, storage, color] = cartItemId.split('-');
 
       const res = await fetch("/api/cart/toggle-check", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          productId,
-          storage,
-          color,
-        }),
+        body: JSON.stringify({ productId, storage, color }),
       });
 
       if (res.ok) {
         const updatedCart = await res.json();
-        
-        // Convert backend cart format to frontend format
         const items = {};
         const checks = {};
-        
-        updatedCart.items.forEach(item => {
-          const itemCartItemId = `${item.productId}-${item.storage}-${item.color}`;
-          items[itemCartItemId] = item;
-          checks[itemCartItemId] = updatedCart.checkedItems[itemCartItemId] || false;
+        updatedCart.items.forEach((item) => {
+          const id = `${item.productId}-${item.storage}-${item.color}`;
+          items[id] = item;
+          checks[id] = updatedCart.checkedItems[id] || false;
         });
-        
         setCartItems(items);
         setCheckedItems(checks);
         setCartOrder(updatedCart.cartOrder || []);
+      } else {
+        // Revert
+        setCheckedItems(prevCheckedItems);
       }
     } catch (err) {
       console.error("Failed to toggle item check:", err);
+      setCheckedItems(prevCheckedItems);
     }
   };
 
   const toggleAllChecks = async (checkState) => {
     if (!user) return;
 
+    // --- Optimistic update ---
+    const prevCheckedItems = checkedItems;
+    setCheckedItems((prev) => {
+      const next = { ...prev };
+      cartOrder.forEach((id) => { next[id] = checkState; });
+      return next;
+    });
+    // --------------------------
+
     try {
       const res = await fetch("/api/cart/toggle-all-checks", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          checkState,
-        }),
+        body: JSON.stringify({ checkState }),
       });
 
       if (res.ok) {
         const updatedCart = await res.json();
-        
-        // Convert backend cart format to frontend format
         const items = {};
         const checks = {};
-        
-        updatedCart.items.forEach(item => {
-          const itemCartItemId = `${item.productId}-${item.storage}-${item.color}`;
-          items[itemCartItemId] = item;
-          checks[itemCartItemId] = updatedCart.checkedItems[itemCartItemId] || false;
+        updatedCart.items.forEach((item) => {
+          const id = `${item.productId}-${item.storage}-${item.color}`;
+          items[id] = item;
+          checks[id] = updatedCart.checkedItems[id] || false;
         });
-        
         setCartItems(items);
         setCheckedItems(checks);
         setCartOrder(updatedCart.cartOrder || []);
+      } else {
+        setCheckedItems(prevCheckedItems);
       }
     } catch (err) {
       console.error("Failed to toggle all checks:", err);
+      setCheckedItems(prevCheckedItems);
     }
   };
 
