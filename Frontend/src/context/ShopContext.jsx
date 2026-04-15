@@ -13,7 +13,7 @@ const getDefaultCheckedItems = () => {
 };
 
 const ShopContextProvider = (props) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [cartItems, setCartItems] = useState(getDefaultCart());
   const [checkedItems, setCheckedItems] = useState(getDefaultCheckedItems());
   const [cartOrder, setCartOrder] = useState([]);
@@ -49,37 +49,46 @@ const ShopContextProvider = (props) => {
     fetchProducts();
   }, []);
 
-  // Load cart from backend when user logs in
+  // Load cart from backend when user logs in.
+  // IMPORTANT: only clear the cart when we KNOW auth is done (authLoading=false)
+  // and the user is definitely logged out. Without this guard, the cart clears
+  // on every page load for ~1-8s while the auth/me retry is in-flight, making
+  // it appear as if the cart is empty until a second refresh.
   useEffect(() => {
+    if (authLoading) return; // Wait until auth resolves before touching the cart
     if (user) {
       loadCart();
     } else {
-      // Clear cart when user logs out
+      // Only clear when auth is finished and confirmed no user (logged out)
       setCartItems(getDefaultCart());
       setCheckedItems(getDefaultCheckedItems());
       setCartOrder([]);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadCart = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/cart/", {
+      // Use fetchWithRetry so Render cold-start 502s are retried instead of
+      // silently failing and leaving the cart empty after a successful auth.
+      const res = await fetchWithRetry("/api/cart/", {
         credentials: "include",
       });
-      
+
       if (res.ok) {
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) return; // guard non-JSON
         const cart = await res.json();
         // Convert backend cart format to frontend format
         const items = {};
         const checks = {};
-        
+
         cart.items.forEach(item => {
           const cartItemId = `${item.productId}-${item.storage}-${item.color}`;
           items[cartItemId] = item;
           checks[cartItemId] = cart.checkedItems[cartItemId] || false;
         });
-        
+
         setCartItems(items);
         setCheckedItems(checks);
         setCartOrder(cart.cartOrder || []);
