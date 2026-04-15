@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 import { MdVerified } from "react-icons/md";
@@ -90,8 +91,10 @@ function Hero() {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await fetch("/api/hero-slides");
+        const res = await fetchWithRetry("/api/hero-slides");
         if (!res.ok) throw new Error("Failed to fetch");
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) throw new Error("Bad response");
         const data = await res.json();
         setSlides(
           Array.isArray(data) && data.length > 0 ? data : FALLBACK_SLIDES,

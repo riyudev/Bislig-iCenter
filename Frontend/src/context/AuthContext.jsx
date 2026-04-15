@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 
 const AuthContext = createContext();
 
@@ -10,15 +11,19 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/me", {
+        const res = await fetchWithRetry("/api/auth/me", {
           credentials: "include",
         });
-        
+        // 401 = not logged in (expected), anything else ok = logged in
         if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
+          const contentType = res.headers.get("content-type") || "";
+          if (contentType.includes("application/json")) {
+            const data = await res.json();
+            setUser(data.user);
+          }
         }
       } catch (err) {
+        // Network error — leave user as null (not logged in)
         console.error("Auth check failed:", err);
       } finally {
         setLoading(false);

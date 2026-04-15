@@ -1,4 +1,5 @@
 import React, { createContext, useState, useRef, useEffect } from "react";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 import { useAuth } from "./AuthContext";
 
 export const ShopContext = createContext(null);
@@ -27,9 +28,13 @@ const ShopContextProvider = (props) => {
     const fetchProducts = async () => {
       try {
         setProductsLoading(true);
-        const res = await fetch("/api/products");
+        const res = await fetchWithRetry("/api/products");
         if (!res.ok) {
           throw new Error("Failed to load products");
+        }
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Unexpected server response");
         }
         const data = await res.json();
         setAllProducts(data.products || []);
