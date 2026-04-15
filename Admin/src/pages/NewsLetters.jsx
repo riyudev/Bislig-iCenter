@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState, useCallback } from "react";
+import { fetchJSON, fetchWithRetry } from "../utils/fetchWithRetry";
 
 function NewsLetters() {
   const [subscribers, setSubscribers] = useState([]);
@@ -7,24 +7,29 @@ function NewsLetters() {
   const [subject, setSubject] = useState("Update from Bislig iCenter");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
-  useEffect(() => {
-    fetchSubscribers();
-  }, []);
-
-  const fetchSubscribers = async () => {
+  const fetchSubscribers = useCallback(async () => {
+    setFetching(true);
+    setFetchError(null);
     try {
-      const { data } = await axios.get("/api/newsletter/subscribers", {
-        withCredentials: true,
-      });
-      setSubscribers(data);
+      const { ok, data } = await fetchJSON("/api/newsletter/subscribers");
+      if (!ok) {
+        throw new Error(data?.message || "Failed to load subscribers");
+      }
+      // data could be an array directly or wrapped
+      setSubscribers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
-      alert("Failed to load subscribers.");
+      setFetchError(err?.message || "Failed to load subscribers.");
     } finally {
       setFetching(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSubscribers();
+  }, [fetchSubscribers]);
 
   const handleSend = async () => {
     if (!message.trim() || !subject.trim()) {
@@ -38,13 +43,26 @@ function NewsLetters() {
 
     setLoading(true);
     try {
-      const { data } = await axios.post(
-        "/api/newsletter/send",
-        { subject, message },
-        { withCredentials: true }
-      );
-      alert(data.message || "Newsletter sent successfully!");
-      setMessage("");
+      const res = await fetchWithRetry("/api/newsletter/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, message }),
+      });
+
+      const contentType = res.headers.get("content-type") || "";
+      let data;
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        data = { message: "Newsletter sent!" };
+      }
+
+      if (!res.ok) {
+        alert(data?.message || "Failed to send newsletter.");
+      } else {
+        alert(data.message || "Newsletter sent successfully!");
+        setMessage("");
+      }
     } catch (err) {
       console.error(err);
       alert("Failed to send newsletter.");
@@ -98,6 +116,16 @@ function NewsLetters() {
         
         {fetching ? (
           <div className="p-6 text-center text-slate-500">Loading subscribers...</div>
+        ) : fetchError ? (
+          <div className="p-6 text-center space-y-3">
+            <p className="text-rose-600">{fetchError}</p>
+            <button
+              onClick={fetchSubscribers}
+              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          </div>
         ) : subscribers.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-600">

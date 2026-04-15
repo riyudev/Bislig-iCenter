@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   FaChevronDown,
   FaChevronUp,
@@ -14,6 +14,8 @@ import { HiSparkles } from "react-icons/hi2";
 import SlideModal from "../Components/SlideModal";
 import SectionManager from "../Components/SectionManager";
 
+import { fetchWithRetry } from "../utils/fetchWithRetry";
+
 const API = "/api/admin";
 const getToken = () => localStorage.getItem("admin_token");
 const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
@@ -22,6 +24,7 @@ const authHeader = () => ({ Authorization: `Bearer ${getToken()}` });
 const Shop = () => {
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [modalSlide, setModalSlide] = useState(undefined); // undefined = closed, null = new, obj = edit
   const [deleting, setDeleting] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -29,31 +32,33 @@ const Shop = () => {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setProductsLoading(true);
     try {
-      const res = await fetch(`${API}/products?limit=1000`, { headers: authHeader() });
-      const data = await res.json();
+      const res = await fetchWithRetry(`${API}/products?limit=1000`, { headers: authHeader() });
+      const data = await res.json().catch(() => ({}));
       setProducts(data.products || []);
     } catch {
       setProducts([]);
     } finally {
       setProductsLoading(false);
     }
-  };
+  }, []);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
-      const res = await fetch(`${API}/hero-slides`, { headers: authHeader() });
-      const data = await res.json();
+      const res = await fetchWithRetry(`${API}/hero-slides`, { headers: authHeader() });
+      const data = await res.json().catch(() => ({}));
       setSlides(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (err) {
       setSlides([]);
+      setLoadError(err?.message || "Failed to load slides");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => { 
     load(); 
@@ -62,14 +67,14 @@ const Shop = () => {
 
   const handleDelete = async (id) => {
     setDeleting(id);
-    await fetch(`${API}/hero-slides/${id}`, { method: "DELETE", headers: authHeader() });
+    await fetchWithRetry(`${API}/hero-slides/${id}`, { method: "DELETE", headers: authHeader() });
     setConfirmDeleteId(null);
     setDeleting(null);
     load();
   };
 
   const handleUpdateProduct = async (productId, updateData) => {
-    await fetch(`${API}/products/${productId}`, {
+    await fetchWithRetry(`${API}/products/${productId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify(updateData),
@@ -78,7 +83,7 @@ const Shop = () => {
   };
 
   const toggleActive = async (slide) => {
-    await fetch(`${API}/hero-slides/${slide._id}`, {
+    await fetchWithRetry(`${API}/hero-slides/${slide._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify({ isActive: !slide.isActive }),
@@ -87,7 +92,7 @@ const Shop = () => {
   };
 
   const moveOrder = async (slide, dir) => {
-    await fetch(`${API}/hero-slides/${slide._id}`, {
+    await fetchWithRetry(`${API}/hero-slides/${slide._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json", ...authHeader() },
       body: JSON.stringify({ order: (slide.order ?? 0) + dir }),

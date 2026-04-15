@@ -6,6 +6,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 
 const API = "/api/admin";
 const getToken = () => localStorage.getItem("admin_token");
@@ -116,9 +117,8 @@ function SlideModal({ slide, onClose, onSaved }) {
     fd.append("image", file);
     const token = getToken();
     try {
-      const res = await fetch(`${API}/hero-slides/upload-image`, {
+      const res = await fetchWithRetry(`${API}/hero-slides/upload-image`, {
         method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: fd,
       });
       const data = await res.json().catch(() => ({}));
@@ -154,12 +154,9 @@ function SlideModal({ slide, onClose, onSaved }) {
       const url = slide
         ? `${API}/hero-slides/${slide._id}`
         : `${API}/hero-slides`;
-      const res = await fetch(url, {
+      const res = await fetchWithRetry(url, {
         method: slide ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Save failed");

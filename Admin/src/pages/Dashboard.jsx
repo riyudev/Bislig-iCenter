@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   FaShoppingCart,
@@ -15,34 +15,33 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { fetchJSON } from "../utils/fetchWithRetry";
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const load = async () => {
-      const token = localStorage.getItem("admin_token");
-      try {
-        const res = await fetch("/api/admin/dashboard/stats", {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (!res.ok) {
-          const msg = await res.text();
-          throw new Error(msg || "Failed to load dashboard stats");
-        }
-        const data = await res.json();
-        setStats(data);
-      } catch (e) {
-        console.error(e);
-        setError(e?.message || "Failed to load dashboard");
-      } finally {
-        setLoading(false);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { ok, data } = await fetchJSON("/api/admin/dashboard/stats");
+      if (!ok) {
+        throw new Error(data?.message || "Failed to load dashboard stats");
       }
-    };
-    load();
+      setStats(data);
+    } catch (e) {
+      console.error(e);
+      setError(e?.message || "Failed to load dashboard");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const currency = (value) => {
     const n = Number(value || 0);
@@ -135,6 +134,22 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-rose-600 font-medium">{error}</p>
+          <button
+            onClick={load}
+            className="btn-black px-6 py-2"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

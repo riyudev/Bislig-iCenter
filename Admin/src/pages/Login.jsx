@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -13,12 +14,23 @@ const Login = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/auth/admin-login", {
+      const res = await fetchWithRetry("/api/auth/admin-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      const data = await res.json();
+
+      // Safe JSON parse — Render cold-start may return non-JSON
+      const contentType = res.headers.get("content-type") || "";
+      let data;
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        setError(text.slice(0, 100) || "Server error — please try again");
+        return;
+      }
+
       if (!res.ok) {
         setError(data?.message || "Login failed");
         return;
@@ -32,7 +44,7 @@ const Login = () => {
 
       navigate("/");
     } catch (err) {
-      setError("Login failed");
+      setError("Login failed — server may be waking up, please try again");
     } finally {
       setLoading(false);
     }

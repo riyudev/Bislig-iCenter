@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { fetchJSON, fetchWithRetry } from "../utils/fetchWithRetry";
 
 const Users = () => {
   const [state, setState] = useState({
@@ -10,8 +11,7 @@ const Users = () => {
   const [filter, setFilter] = useState({ search: "", role: "", status: "" });
   const [error, setError] = useState("");
 
-  const fetchUsers = async (page = 1) => {
-    const token = localStorage.getItem("admin_token");
+  const fetchUsers = useCallback(async (page = 1) => {
     setState((p) => ({ ...p, loading: true }));
     setError("");
 
@@ -23,22 +23,24 @@ const Users = () => {
       ...(filter.status && { status: filter.status }),
     }).toString();
 
-    const res = await fetch(`/api/admin/users?${query}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
+    try {
+      const { ok, data } = await fetchJSON(`/api/admin/users?${query}`);
+      if (!ok) {
+        setState({ loading: false, users: [], pages: 1, page });
+        setError(data?.message || `Request failed`);
+        return;
+      }
+      setState({
+        loading: false,
+        users: data.users || [],
+        pages: data.pages || 1,
+        page: data.page || page,
+      });
+    } catch (err) {
       setState({ loading: false, users: [], pages: 1, page });
-      setError(data?.message || `Request failed (${res.status})`);
-      return;
+      setError(err?.message || "Failed to load users");
     }
-    setState({
-      loading: false,
-      users: data.users || [],
-      pages: data.pages || 1,
-      page: data.page || page,
-    });
-  };
+  }, [filter.search, filter.role, filter.status]);
 
   useEffect(() => {
     fetchUsers(1);
@@ -46,13 +48,9 @@ const Users = () => {
   }, [filter.role, filter.status]);
 
   const updateRole = async (id, role) => {
-    const token = localStorage.getItem("admin_token");
-    await fetch(`/api/admin/users/${id}`, {
+    await fetchWithRetry(`/api/admin/users/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role }),
     });
     fetchUsers(state.page);
@@ -66,8 +64,14 @@ const Users = () => {
       </div>
 
       {error && (
-        <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700 ring-1 ring-rose-100">
-          {error}
+        <div className="rounded-2xl bg-rose-50 p-4 text-sm text-rose-700 ring-1 ring-rose-100 flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            onClick={() => fetchUsers(state.page)}
+            className="ml-4 rounded-lg bg-rose-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
+          >
+            Retry
+          </button>
         </div>
       )}
 

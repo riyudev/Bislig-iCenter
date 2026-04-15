@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { fetchJSON, fetchWithRetry } from "../utils/fetchWithRetry";
 
 const Orders = () => {
   const [state, setState] = useState({
     loading: true,
+    error: null,
     orders: [],
     pages: 1,
     page: 1,
   });
   const [filter, setFilter] = useState({ search: "", status: "" });
 
-  const fetchOrders = async (page = 1) => {
-    const token = localStorage.getItem("admin_token");
+  const fetchOrders = useCallback(async (page = 1) => {
     const query = new URLSearchParams({
       page,
       limit: 20,
@@ -18,18 +19,29 @@ const Orders = () => {
       ...(filter.status && { status: filter.status }),
     }).toString();
 
-    setState((p) => ({ ...p, loading: true }));
-    const res = await fetch(`/api/admin/orders?${query}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    const data = await res.json();
-    setState({
-      loading: false,
-      orders: data.orders || [],
-      pages: data.pages || 1,
-      page: data.page || page,
-    });
-  };
+    setState((p) => ({ ...p, loading: true, error: null }));
+
+    try {
+      const { ok, data } = await fetchJSON(`/api/admin/orders?${query}`);
+      if (!ok) {
+        throw new Error(data?.message || "Failed to load orders");
+      }
+      setState({
+        loading: false,
+        error: null,
+        orders: data.orders || [],
+        pages: data.pages || 1,
+        page: data.page || page,
+      });
+    } catch (err) {
+      console.error(err);
+      setState((p) => ({
+        ...p,
+        loading: false,
+        error: err?.message || "Failed to load orders",
+      }));
+    }
+  }, [filter.search, filter.status]);
 
   useEffect(() => {
     fetchOrders(1);
@@ -37,17 +49,17 @@ const Orders = () => {
   }, [filter.status]);
 
   const updateStatus = async (id, status) => {
-    const token = localStorage.getItem("admin_token");
-    const res = await fetch(`/api/admin/orders/${id}/status`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ status }),
-    });
-    if (!res.ok) return;
-    fetchOrders(state.page);
+    try {
+      const res = await fetchWithRetry(`/api/admin/orders/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) return;
+      fetchOrders(state.page);
+    } catch (err) {
+      console.error("Failed to update order status:", err);
+    }
   };
 
   const formatVariant = (variantStr) => {
@@ -107,106 +119,118 @@ const Orders = () => {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                Order #
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                Customer
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                Items
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                Total
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                Status
-              </th>
-              <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {state.loading ? (
+      {state.error ? (
+        <div className="rounded-2xl bg-white shadow-sm ring-1 ring-black/5 p-8 text-center space-y-4">
+          <p className="text-rose-600 font-medium">{state.error}</p>
+          <button
+            onClick={() => fetchOrders(state.page)}
+            className="btn-black px-6 py-2"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
               <tr>
-                <td className="px-4 py-6" colSpan={6}>
-                  Loading...
-                </td>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Order #
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Customer
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Items
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Total
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Status
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Action
+                </th>
               </tr>
-            ) : state.orders.length === 0 ? (
-              <tr>
-                <td className="px-4 py-6" colSpan={6}>
-                  No orders.
-                </td>
-              </tr>
-            ) : (
-              state.orders.map((o) => (
-                <tr key={o._id}>
-                  <td className="px-3 py-3 font-productSansReg text-sm text-myblack">
-                    {o.orderNumber}
-                  </td>
-                  <td className="px-3 py-3 text-myblack/70">
-                    <div className="text-sm font-semibold text-myblack">
-                      {o.customer?.name}
-                    </div>
-                    <div className="text-xs">{o.customer?.phone}</div>
-                    {o.customer?.address && (
-                      <div
-                        className="mt-0.5 text-xs text-slate-500 leading-tight line-clamp-2"
-                        title={o.customer.address}
-                      >
-                        {o.customer.address}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-3 py-3 text-myblack/70 text-sm max-w-[250px]">
-                    {o.items?.map((item, idx) => (
-                      <div key={idx} className="mb-2 last:mb-0">
-                        <div className="text-xs leading-tight font-semibold text-myblack">
-                          {item.name}
-                          <span className="font-normal text-slate-500 ml-1">
-                            ({item.variant && item.variant !== "Default" ? `${formatVariant(item.variant)} | ` : ""}{item.color}) x{item.quantity}
-                          </span>
-                        </div>
-                        <div className="text-[11px] font-medium text-slate-500 mt-0.5">
-                          ₱{Number(item.unitPrice || 0).toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
-                  </td>
-                  <td className="px-3 py-3 text-sm font-medium text-myblack">
-                    ₱{Number(o.total || 0).toLocaleString()}
-                  </td>
-                  <td className="px-3 py-3">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">
-                      {o.status}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3">
-                    <select
-                      className="rounded-xl border border-myblack/10 bg-white px-3 py-2"
-                      value={o.status}
-                      onChange={(e) => updateStatus(o._id, e.target.value)}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="preparing">Preparing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="completed">Completed</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {state.loading ? (
+                <tr>
+                  <td className="px-4 py-6" colSpan={6}>
+                    Loading...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : state.orders.length === 0 ? (
+                <tr>
+                  <td className="px-4 py-6" colSpan={6}>
+                    No orders.
+                  </td>
+                </tr>
+              ) : (
+                state.orders.map((o) => (
+                  <tr key={o._id}>
+                    <td className="px-3 py-3 font-productSansReg text-sm text-myblack">
+                      {o.orderNumber}
+                    </td>
+                    <td className="px-3 py-3 text-myblack/70">
+                      <div className="text-sm font-semibold text-myblack">
+                        {o.customer?.name}
+                      </div>
+                      <div className="text-xs">{o.customer?.phone}</div>
+                      {o.customer?.address && (
+                        <div
+                          className="mt-0.5 text-xs text-slate-500 leading-tight line-clamp-2"
+                          title={o.customer.address}
+                        >
+                          {o.customer.address}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-myblack/70 text-sm max-w-[250px]">
+                      {o.items?.map((item, idx) => (
+                        <div key={idx} className="mb-2 last:mb-0">
+                          <div className="text-xs leading-tight font-semibold text-myblack">
+                            {item.name}
+                            <span className="font-normal text-slate-500 ml-1">
+                              ({item.variant && item.variant !== "Default" ? `${formatVariant(item.variant)} | ` : ""}{item.color}) x{item.quantity}
+                            </span>
+                          </div>
+                          <div className="text-[11px] font-medium text-slate-500 mt-0.5">
+                            ₱{Number(item.unitPrice || 0).toLocaleString()}
+                          </div>
+                        </div>
+                      ))}
+                    </td>
+                    <td className="px-3 py-3 text-sm font-medium text-myblack">
+                      ₱{Number(o.total || 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">
+                        {o.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <select
+                        className="rounded-xl border border-myblack/10 bg-white px-3 py-2"
+                        value={o.status}
+                        onChange={(e) => updateStatus(o._id, e.target.value)}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="preparing">Preparing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {Array.from({ length: state.pages }, (_, i) => (

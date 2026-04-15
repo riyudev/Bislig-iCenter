@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { fetchWithRetry } from "../utils/fetchWithRetry";
 import ProductFormModal from "../Components/ProductFormModal";
 import ProductTable from "../Components/ProductTable";
 
@@ -38,8 +39,7 @@ const Products = () => {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
 
-  const fetchProducts = async (page = 1) => {
-    const token = localStorage.getItem("admin_token");
+  const fetchProducts = useCallback(async (page = 1) => {
     const query = new URLSearchParams({
       page,
       limit: 20,
@@ -49,17 +49,19 @@ const Products = () => {
     }).toString();
 
     setState((p) => ({ ...p, loading: true }));
-    const res = await fetch(`/api/admin/products?${query}`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    const data = await res.json().catch(() => ({}));
-    setState({
-      loading: false,
-      products: data.products || [],
-      pages: data.pages || 1,
-      page: data.page || page,
-    });
-  };
+    try {
+      const res = await fetchWithRetry(`/api/admin/products?${query}`);
+      const data = await res.json().catch(() => ({}));
+      setState({
+        loading: false,
+        products: data.products || [],
+        pages: data.pages || 1,
+        page: data.page || page,
+      });
+    } catch {
+      setState((p) => ({ ...p, loading: false }));
+    }
+  }, [filter.search, filter.category, filter.status]);
 
   useEffect(() => {
     fetchProducts(1);
@@ -187,9 +189,8 @@ const Products = () => {
     setUploading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/products/upload-image", {
+      const res = await fetchWithRetry("/api/admin/products/upload-image", {
         method: "POST",
-        headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
         body: formData,
       });
       const data = await res.json().catch(() => ({}));
@@ -260,12 +261,9 @@ const Products = () => {
         ? `/api/admin/products/${editing._id}`
         : "/api/admin/products";
       const method = editing ? "PUT" : "POST";
-      const res = await fetch(url, {
+      const res = await fetchWithRetry(url, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-          ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
@@ -283,23 +281,17 @@ const Products = () => {
   };
 
   const toggleActive = async (p) => {
-    const adminToken = localStorage.getItem("admin_token");
-    await fetch(`/api/admin/products/${p._id}`, {
+    await fetchWithRetry(`/api/admin/products/${p._id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !p.isActive }),
     });
     fetchProducts(state.page);
   };
 
   const hardDeactivate = async (id) => {
-    const adminToken = localStorage.getItem("admin_token");
-    await fetch(`/api/admin/products/${id}`, {
+    await fetchWithRetry(`/api/admin/products/${id}`, {
       method: "DELETE",
-      headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
     });
     fetchProducts(state.page);
   };
