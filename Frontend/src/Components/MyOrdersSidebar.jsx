@@ -1,40 +1,86 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaBox, FaShoppingBag, FaCheckCircle, FaTimesCircle, FaTruck, FaClock } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  FaTimes, FaBox, FaShoppingBag, FaCheckCircle, FaTimesCircle,
+  FaTruck, FaClock, FaMapMarkerAlt, FaSpinner, FaStar, FaRegStar,
+  FaUndoAlt,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
+/* ── Auto-receive countdown helper ─────────────────────────────────── */
+function daysUntilAutoReceive(deliveredDate) {
+  if (!deliveredDate) return null;
+  const AUTO_DAYS = 3;
+  const delivered = new Date(deliveredDate);
+  const autoDate  = new Date(delivered.getTime() + AUTO_DAYS * 24 * 60 * 60 * 1000);
+  const diff = Math.ceil((autoDate - Date.now()) / (1000 * 60 * 60 * 24));
+  return Math.max(0, diff);
+}
+
+/* ── Star picker sub-component ──────────────────────────────────────── */
+function StarPicker({ value, onChange }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex items-center justify-center gap-2">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange(star)}
+          onMouseEnter={() => setHovered(star)}
+          onMouseLeave={() => setHovered(0)}
+          className="text-3xl transition-transform hover:scale-125 cursor-pointer"
+        >
+          {star <= (hovered || value)
+            ? <FaStar className="text-amber-400" />
+            : <FaRegStar className="text-slate-300" />}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ── Main component ─────────────────────────────────────────────────── */
 function MyOrdersSidebar({ isOpen, onClose }) {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders]   = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError]     = useState(null);
   const navigate = useNavigate();
 
+  // Cancel modal
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [orderToCancel, setOrderToCancel] = useState(null);
-  const [cancelling, setCancelling] = useState(false);
+  const [orderToCancel, setOrderToCancel]     = useState(null);
+  const [cancelling, setCancelling]           = useState(false);
+
+  // Order-received flow
+  const [receivedOrderId, setReceivedOrderId]   = useState(null);   // which order is being confirmed
+  const [confirmingReceived, setConfirmingReceived] = useState(false);
+  // Modal A – success + prompt to rate
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successOrderData, setSuccessOrderData] = useState(null);   // { orderId, items }
+  // Modal B – rate form
+  const [rateModalOpen, setRateModalOpen]       = useState(false);
+  const [rateOrderId, setRateOrderId]           = useState(null);
+  const [rateProductId, setRateProductId]       = useState(null);
+  const [rateProductName, setRateProductName]   = useState("");
+  const [starValue, setStarValue]               = useState(0);
+  const [rateComment, setRateComment]           = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess]       = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchOrders();
-    }
+    if (isOpen) fetchOrders();
   }, [isOpen]);
 
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/orders", {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await fetch("/api/orders", {
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch orders");
-      }
-
-      const data = await response.json();
-      setOrders(data);
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      setOrders(await res.json());
     } catch (err) {
       setError(err.message);
     } finally {
@@ -42,6 +88,7 @@ function MyOrdersSidebar({ isOpen, onClose }) {
     }
   };
 
+  /* ── Cancel ─────────────────────────────────────────────────────── */
   const handleCancelClick = (orderId) => {
     setOrderToCancel(orderId);
     setCancelModalOpen(true);
@@ -51,16 +98,18 @@ function MyOrdersSidebar({ isOpen, onClose }) {
     if (!orderToCancel) return;
     setCancelling(true);
     try {
-      const response = await fetch(`/api/orders/${orderToCancel}/cancel`, {
+      const res = await fetch(`/api/orders/${orderToCancel}/cancel`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || "Failed to cancel order");
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.message || "Failed to cancel order");
       }
-      setOrders(orders.map((o) => (o._id === orderToCancel ? { ...o, status: "cancelled" } : o)));
+      setOrders(orders.map((o) =>
+        o._id === orderToCancel ? { ...o, status: "cancelled" } : o
+      ));
     } catch (err) {
       alert(err.message);
     } finally {
@@ -70,56 +119,119 @@ function MyOrdersSidebar({ isOpen, onClose }) {
     }
   };
 
+  /* ── Order Received ─────────────────────────────────────────────── */
+  const handleOrderReceived = async (order) => {
+    setReceivedOrderId(order._id);
+    setConfirmingReceived(true);
+    try {
+      const res = await fetch(`/api/orders/${order._id}/confirm-received`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.message || "Failed to confirm");
+      }
+      // Update local state
+      setOrders((prev) =>
+        prev.map((o) => (o._id === order._id ? { ...o, status: "completed" } : o))
+      );
+      // Open success modal A
+      setSuccessOrderData({ orderId: order._id, items: order.items });
+      setSuccessModalOpen(true);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setConfirmingReceived(false);
+      setReceivedOrderId(null);
+    }
+  };
+
+  /* ── Rate product (modal B) ─────────────────────────────────────── */
+  const openRateModal = (orderId, productId, productName) => {
+    setRateOrderId(orderId);
+    setRateProductId(productId);
+    setRateProductName(productName);
+    setStarValue(0);
+    setRateComment("");
+    setReviewSuccess(false);
+    setSuccessModalOpen(false);
+    setRateModalOpen(true);
+  };
+
+  const submitReview = async () => {
+    if (starValue === 0) return;
+    setSubmittingReview(true);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          productId: rateProductId,
+          orderId:   rateOrderId,
+          rating:    starValue,
+          comment:   rateComment,
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.message || "Failed to submit review");
+      }
+      setReviewSuccess(true);
+      setTimeout(() => {
+        setRateModalOpen(false);
+        setReviewSuccess(false);
+      }, 2000);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  /* ── Status helpers ─────────────────────────────────────────────── */
   const getStatusNumber = (status) => {
     switch (status) {
-      case "pending":
-        return 1;
-      case "confirmed":
-        return 2;
-      case "preparing":
-        return 3;
-      case "shipped":
-        return 4;
-      case "completed":
-        return 5;
-      case "cancelled":
-        return -1;
-      default:
-        return 1;
+      case "pending":          return 1;
+      case "processing":       return 2;
+      case "shipped":          return 3;
+      case "out_for_delivery": return 4;
+      case "delivered":        return 5;
+      case "completed":        return 6;
+      case "cancelled":        return -1;
+      default:                 return 1;
     }
   };
 
   const formatVariant = (variantStr) => {
     if (!variantStr || variantStr === "Default") return "";
-    const parts = variantStr.split("+").map(p => p.trim());
+    const parts = variantStr.split("+").map((p) => p.trim());
     if (parts.length === 2) {
-      const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
-      const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
-      if (match0 && match1) {
-        const val0 = parseInt(match0[1]);
-        const unit0 = match0[2].toUpperCase();
-        const val1 = parseInt(match1[1]);
-        const unit1 = match1[2].toUpperCase();
-        
+      const m0 = parts[0].match(/^(\d+)(GB|TB)$/i);
+      const m1 = parts[1].match(/^(\d+)(GB|TB)$/i);
+      if (m0 && m1) {
+        const v0 = parseInt(m0[1]);
+        const u0 = m0[2].toUpperCase();
+        const v1 = parseInt(m1[1]);
         let isPart0Storage = false;
-        if (unit0 === "TB") isPart0Storage = true;
-        else if (unit1 === "TB") isPart0Storage = false;
-        else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
-        
-        if (isPart0Storage) {
-          return `${parts[1]} + ${parts[0]}`;
-        }
+        if (u0 === "TB") isPart0Storage = true;
+        else if (m1[2].toUpperCase() === "TB") isPart0Storage = false;
+        else if (v0 > v1 && v0 >= 32) isPart0Storage = true;
+        if (isPart0Storage) return `${parts[1]} + ${parts[0]}`;
       }
     }
     return variantStr;
   };
 
   const statusSteps = [
-    { key: "pending", label: "Pending", icon: FaClock },
-    { key: "confirmed", label: "Confirmed", icon: FaCheckCircle },
-    { key: "preparing", label: "Preparing", icon: FaBox },
-    { key: "shipped", label: "Shipped", icon: FaTruck },
-    { key: "completed", label: "Completed", icon: FaCheckCircle },
+    { key: "pending",          label: "Pending",          icon: FaClock },
+    { key: "processing",       label: "Processing",       icon: FaSpinner },
+    { key: "shipped",          label: "Shipped",          icon: FaTruck },
+    { key: "out_for_delivery", label: "Out for Delivery", icon: FaMapMarkerAlt },
+    { key: "delivered",        label: "Delivered",        icon: FaBox },
+    { key: "completed",        label: "Completed",        icon: FaCheckCircle },
   ];
 
   if (!isOpen) return null;
@@ -160,12 +272,12 @@ function MyOrdersSidebar({ isOpen, onClose }) {
         <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar">
           {loading ? (
             <div className="flex justify-center items-center h-40">
-              <div className="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+              <div className="w-8 h-8 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin" />
             </div>
           ) : error ? (
             <div className="text-center p-6 bg-red-50 text-red-600 rounded-2xl border border-red-100">
               <p>{error}</p>
-              <button 
+              <button
                 onClick={fetchOrders}
                 className="mt-4 px-4 py-2 bg-red-100 hover:bg-red-200 transition-colors rounded-lg text-sm font-medium"
               >
@@ -179,13 +291,10 @@ function MyOrdersSidebar({ isOpen, onClose }) {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">No Orders yet</h3>
-                <p className="text-slate-500 mt-1 max-w-[250px]">Looks like you haven't made your menu yet.</p>
+                <p className="text-slate-500 mt-1 max-w-[250px]">Looks like you haven't placed an order yet.</p>
               </div>
               <button
-                onClick={() => {
-                  onClose();
-                  navigate("/");
-                }}
+                onClick={() => { onClose(); navigate("/"); }}
                 className="mt-2 px-8 py-3.5 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-full font-medium shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 tracking-wide cursor-pointer"
               >
                 Check out now
@@ -196,6 +305,9 @@ function MyOrdersSidebar({ isOpen, onClose }) {
               {orders.map((order) => {
                 const currentStep = getStatusNumber(order.status);
                 const isCancelled = order.status === "cancelled";
+                const isDelivered  = order.status === "delivered";
+                const daysLeft = isDelivered ? daysUntilAutoReceive(order.deliveredDate) : null;
+                const isConfirmingThis = confirmingReceived && receivedOrderId === order._id;
 
                 return (
                   <div key={order._id} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 overflow-hidden relative group hover:shadow-md transition-shadow">
@@ -216,7 +328,7 @@ function MyOrdersSidebar({ isOpen, onClose }) {
                     </div>
 
                     {/* Tracker */}
-                    <div className="relative pt-2 pb-6 px-2">
+                    <div className="relative pt-2 pb-4 px-2">
                       {isCancelled ? (
                         <div className="flex items-center gap-3 text-red-500 bg-red-50 p-4 rounded-2xl border border-red-100">
                           <FaTimesCircle className="text-xl shrink-0" />
@@ -226,42 +338,47 @@ function MyOrdersSidebar({ isOpen, onClose }) {
                           </div>
                         </div>
                       ) : (
-                        <div className="relative">
-                          {/* Progress Line */}
-                          <div className="absolute top-[18px] left-[10%] right-[10%] h-[3px] bg-slate-100 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-1000 ease-out"
-                              style={{ width: `${(Math.max(0, currentStep - 1) / (statusSteps.length - 1)) * 100}%` }}
-                            />
-                          </div>
+                        <div className="overflow-x-auto pb-2 -mx-1 px-1">
+                          <div className="relative" style={{ minWidth: `${statusSteps.length * 80}px` }}>
+                            {/* Progress Line */}
+                            <div className="absolute top-[16px] left-[7%] right-[7%] h-[3px] bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-1000 ease-out"
+                                style={{ width: `${(Math.max(0, currentStep - 1) / (statusSteps.length - 1)) * 100}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between relative z-10">
+                              {statusSteps.map((step, idx) => {
+                                const isCompleted = currentStep > idx + 1;
+                                const isCurrent   = currentStep === idx + 1;
+                                const stepIcon    = step.icon;
 
-                          <div className="flex justify-between relative z-10">
-                            {statusSteps.map((step, idx) => {
-                              const isCompleted = currentStep > idx + 1;
-                              const isCurrent = currentStep === idx + 1;
-                              const stepIcon = step.icon;
-                              
-                              let iconColor = "text-slate-300";
-                              let bgColor = "bg-slate-100 border-white";
-                              let textColor = "text-slate-400";
-                              
-                              if (isCompleted || isCurrent) {
-                                iconColor = isCurrent ? "text-indigo-600" : "text-white";
-                                bgColor = isCurrent ? "bg-indigo-50 border-indigo-200" : "bg-gradient-to-r from-indigo-500 to-cyan-500 border-white";
-                                textColor = isCurrent ? "text-indigo-700 font-semibold" : "text-slate-600";
-                              }
+                                let iconColor = "text-slate-300";
+                                let bgColor   = "bg-slate-100 border-white";
+                                let textColor = "text-slate-400";
 
-                              return (
-                                <div key={step.key} className="flex flex-col items-center w-16">
-                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 ${bgColor} ${iconColor} transition-colors duration-500 z-10 shadow-sm`}>
-                                    {isCompleted ? <FaCheckCircle className="text-sm" /> : React.createElement(stepIcon, { className: "text-sm" })}
+                                if (isCompleted || isCurrent) {
+                                  iconColor = isCurrent ? "text-indigo-600" : "text-white";
+                                  bgColor   = isCurrent
+                                    ? "bg-indigo-50 border-indigo-200"
+                                    : "bg-gradient-to-r from-indigo-500 to-cyan-500 border-white";
+                                  textColor = isCurrent ? "text-indigo-700 font-semibold" : "text-slate-600";
+                                }
+
+                                return (
+                                  <div key={step.key} className="flex flex-col items-center" style={{ width: `${100 / statusSteps.length}%` }}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-[3px] ${bgColor} ${iconColor} transition-colors duration-500 z-10 shadow-sm mx-auto`}>
+                                      {isCompleted
+                                        ? <FaCheckCircle className="text-xs" />
+                                        : React.createElement(stepIcon, { className: "text-xs" })}
+                                    </div>
+                                    <span className={`text-[9px] mt-1.5 ${textColor} transition-colors duration-300 text-center uppercase tracking-wide leading-tight px-0.5 w-full`}>
+                                      {step.label}
+                                    </span>
                                   </div>
-                                  <span className={`text-[10px] mt-2 ${textColor} transition-colors duration-300 text-center uppercase tracking-wider`}>
-                                    {step.label}
-                                  </span>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       )}
@@ -285,18 +402,65 @@ function MyOrdersSidebar({ isOpen, onClose }) {
                         ))}
                       </div>
                       <div className="flex justify-between items-center pt-3 border-t border-slate-200/60">
-                        {(order.status === "pending" || order.status === "confirmed") ? (
+                        {order.status === "pending" ? (
                           <button
                             onClick={() => handleCancelClick(order._id)}
                             className="text-xs text-red-500 font-medium hover:text-red-700 underline text-left"
                           >
                             Cancel Order
                           </button>
-                        ) : <div/>}
+                        ) : <div />}
                         <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
-                          {order.items.reduce((acc, curr) => acc + curr.quantity, 0)} Item{order.items.reduce((acc, curr) => acc + curr.quantity, 0) > 1 ? 's' : ''}
+                          {order.items.reduce((acc, curr) => acc + curr.quantity, 0)} Item{order.items.reduce((acc, curr) => acc + curr.quantity, 0) > 1 ? "s" : ""}
                         </span>
                       </div>
+
+                      {/* Delivered action buttons – at the very bottom */}
+                      {isDelivered && (
+                        <div className="mt-4 pt-4 border-t border-emerald-100 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 -mx-6 px-6 pb-0 -mb-4">
+                          <p className="text-xs text-emerald-700 font-semibold mb-1">
+                            📦 Your order has been delivered!
+                          </p>
+                          <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
+                            Please confirm once you've received the item.
+                            {daysLeft !== null && daysLeft > 0
+                              ? ` If not confirmed, it will be automatically marked as received in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`
+                              : " Your order will be auto-received shortly."}
+                          </p>
+                          <div className="flex gap-2 pb-4">
+                            <button
+                              onClick={() => handleOrderReceived(order)}
+                              disabled={isConfirmingThis}
+                              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-semibold shadow shadow-emerald-200 hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-60 cursor-pointer"
+                            >
+                              {isConfirmingThis
+                                ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                : <><FaCheckCircle className="text-sm" /> Order Received</>}
+                            </button>
+                            <button
+                              onClick={() => {/* refund/return – TBD */}}
+                              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-600 hover:border-rose-300 hover:text-rose-600 transition-colors cursor-pointer"
+                            >
+                              <FaUndoAlt className="text-xs" /> Refund / Return
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Persistent Rate This Product button for completed orders */}
+                      {order.status === "completed" && (
+                        <div className="mt-4 pt-4 border-t border-indigo-100 -mx-6 px-6 pb-4 -mb-4">
+                          <button
+                            onClick={() => {
+                              const firstItem = order.items?.[0];
+                              if (firstItem) openRateModal(order._id, firstItem.productId, firstItem.name);
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white text-xs font-semibold shadow shadow-indigo-200 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
+                          >
+                            <FaStar className="text-sm" /> Rate This Product
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -306,7 +470,7 @@ function MyOrdersSidebar({ isOpen, onClose }) {
         </div>
       </div>
 
-      {/* Cancel Warning Modal */}
+      {/* ── Modal: Cancel ──────────────────────────────────────────── */}
       {cancelModalOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !cancelling && setCancelModalOpen(false)} />
@@ -331,13 +495,121 @@ function MyOrdersSidebar({ isOpen, onClose }) {
                 disabled={cancelling}
                 className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-colors shadow-lg shadow-red-500/30 disabled:opacity-50 flex items-center justify-center"
               >
-                {cancelling ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  "Yes, cancel it"
-                )}
+                {cancelling
+                  ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  : "Yes, cancel it"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal A: Order Received Success ───────────────────────── */}
+      {successModalOpen && successOrderData && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setSuccessModalOpen(false)} />
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 relative z-10 shadow-2xl text-center">
+            {/* X skip */}
+            <button
+              onClick={() => setSuccessModalOpen(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <FaTimes />
+            </button>
+
+            {/* Success animation */}
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-200">
+              <FaCheckCircle className="text-white text-3xl" />
+            </div>
+
+            <h3 className="text-2xl font-bold text-slate-800 mb-1">Thank you! 🎉</h3>
+            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+              Your order has been marked as received. We hope you love your purchase!
+            </p>
+
+            {/* Rate button – shows first item by default */}
+            <button
+              onClick={() => {
+                const firstItem = successOrderData.items?.[0];
+                if (firstItem) {
+                  openRateModal(successOrderData.orderId, firstItem.productId, firstItem.name);
+                }
+              }}
+              className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-semibold rounded-2xl shadow-md shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <FaStar /> Rate Our Product
+            </button>
+            <button
+              onClick={() => setSuccessModalOpen(false)}
+              className="mt-3 w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              Maybe later
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal B: Rate Product ─────────────────────────────────── */}
+      {rateModalOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !submittingReview && setRateModalOpen(false)} />
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 relative z-10 shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-slate-800">Rate Your Purchase</h3>
+              <button
+                onClick={() => setRateModalOpen(false)}
+                disabled={submittingReview}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {reviewSuccess ? (
+              <div className="flex flex-col items-center py-6 gap-3">
+                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-500 text-3xl">
+                  <FaCheckCircle />
+                </div>
+                <p className="font-semibold text-slate-800">Review submitted!</p>
+                <p className="text-sm text-slate-500">Thank you for your feedback.</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-slate-500 mb-1">Reviewing:</p>
+                <p className="font-semibold text-slate-800 mb-5 line-clamp-2">{rateProductName}</p>
+
+                {/* Stars */}
+                <div className="mb-4">
+                  <p className="text-xs text-slate-400 uppercase tracking-wider mb-3 text-center">Your rating</p>
+                  <StarPicker value={starValue} onChange={setStarValue} />
+                  {starValue > 0 && (
+                    <p className="text-center text-xs text-amber-500 mt-2 font-medium">
+                      {["", "Poor", "Fair", "Good", "Very Good", "Excellent"][starValue]}
+                    </p>
+                  )}
+                </div>
+
+                {/* Comment */}
+                <textarea
+                  value={rateComment}
+                  onChange={(e) => setRateComment(e.target.value)}
+                  placeholder="Share your experience (optional)…"
+                  rows={3}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-200 mb-5"
+                />
+
+                <button
+                  onClick={submitReview}
+                  disabled={starValue === 0 || submittingReview}
+                  className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-semibold rounded-2xl shadow-md shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {submittingReview
+                    ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    : "Submit Review"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -64,12 +64,12 @@ export const updateOrderStatus = async (req, res, next) => {
       let requiresSalesAddition = false;
       let requiresSalesDeduction = false;
 
-      if (['confirmed', 'preparing', 'shipped', 'completed'].includes(status) && !order.stockDeducted) {
+      if (['processing', 'shipped', 'out_for_delivery', 'delivered', 'completed'].includes(status) && !order.stockDeducted) {
         requiresStockDeduction = true;
         order.stockDeducted = true;
       }
       
-      if (['shipped', 'completed'].includes(status) && !order.salesAdded) {
+      if (['delivered', 'completed'].includes(status) && !order.salesAdded) {
         requiresSalesAddition = true;
         order.salesAdded = true;
       }

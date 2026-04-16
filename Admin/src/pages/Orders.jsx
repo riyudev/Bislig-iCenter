@@ -111,9 +111,10 @@ const Orders = () => {
         >
           <option value="">All Status</option>
           <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="preparing">Preparing</option>
+          <option value="processing">Processing</option>
           <option value="shipped">Shipped</option>
+          <option value="out_for_delivery">Out for Delivery</option>
+          <option value="delivered">Delivered</option>
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </select>
@@ -217,9 +218,10 @@ const Orders = () => {
                         onChange={(e) => updateStatus(o._id, e.target.value)}
                       >
                         <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="preparing">Preparing</option>
+                        <option value="processing">Processing</option>
                         <option value="shipped">Shipped</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                       </select>

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useCallback } from "react";
+import React, { useContext, useState, useRef, useCallback, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -14,6 +14,9 @@ import {
   FaHeart,
   FaMedal,
   FaLock,
+  FaStar,
+  FaRegStar,
+  FaStarHalfAlt,
 } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import SpecsTable from "./SpecsTable";
@@ -54,32 +57,59 @@ const PERKS = [
   },
 ];
 
+/* ─── Star display helper ──────────────────────────────────────────── */
+const StarDisplay = ({ rating, size = "text-sm" }) => {
+  const full  = Math.floor(rating);
+  const half  = rating % 1 >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  return (
+    <span className={`flex items-center gap-0.5 ${size}`}>
+      {Array.from({ length: full  }).map((_, i) => <FaStar        key={`f${i}`} className="text-amber-400" />)}
+      {half &&                                       <FaStarHalfAlt               className="text-amber-400" />}
+      {Array.from({ length: empty }).map((_, i) => <FaRegStar     key={`e${i}`} className="text-slate-300" />)}
+    </span>
+  );
+};
+
 /* ─── Social-proof trust strip (replaces star rating) ───────────── */
-const TrustStrip = () => (
-  <div className="hidden laptop:flex flex-wrap items-center gap-3">
-    {/* Sold count */}
-    <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 ring-1 ring-amber-200">
-      <span className="text-sm">🔥</span>
-      <span className="font-productSansBold text-xs text-amber-700">
-        500+ Sold
-      </span>
+const TrustStrip = ({ product }) => {
+  const [reviewData, setReviewData] = useState({ average: 0, total: 0 });
+
+  useEffect(() => {
+    const id = product._id || product.id;
+    if (!id) return;
+    fetch(`/api/reviews?productId=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setReviewData({ average: data.average || 0, total: data.total || 0 });
+      })
+      .catch(console.error);
+  }, [product]);
+
+  return (
+    <div className="flex flex-col items-start gap-1.5 mt-1">
+      {/* Dynamic Star Rating */}
+      <div className="flex items-center gap-1.5">
+         <StarDisplay rating={reviewData.total > 0 ? reviewData.average : 0} />
+         {reviewData.total > 0 ? (
+           <>
+             <span className="text-xs font-semibold text-slate-600">{reviewData.average.toFixed(1)}</span>
+             <span className="text-[11px] text-slate-400">({reviewData.total} Review{reviewData.total !== 1 ? 's' : ''})</span>
+           </>
+         ) : (
+           <span className="text-[11px] text-slate-400">(no reviews yet)</span>
+         )}
+      </div>
+      {/* Sold count */}
+      <div className="flex items-center gap-1 w-fit rounded-md bg-amber-50/80 px-2 py-0.5 border border-amber-100">
+        <span className="text-[10px]">🔥</span>
+        <span className="font-productSansBold text-[11px] text-amber-700">
+          {product.totalSales || 0} Sold
+        </span>
+      </div>
     </div>
-    {/* Restock alert */}
-    <div className="flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1.5 ring-1 ring-rose-200">
-      <span className="text-sm">⚡</span>
-      <span className="font-productSansBold text-xs text-rose-600">
-        Fast-Moving Item
-      </span>
-    </div>
-    {/* Bislig exclusive */}
-    <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 ring-1 ring-blue-200">
-      <FaMedal className="h-3 w-3 text-blue-500" />
-      <span className="font-productSansBold text-xs text-blue-700">
-        iCenter Exclusive
-      </span>
-    </div>
-  </div>
-);
+  );
+};
 
 /* ─── Main Component ─────────────────────────────────────────────── */
 const ProductDisplay = (props) => {
@@ -362,11 +392,13 @@ const ProductDisplay = (props) => {
           </span>
         </div>
 
-        {/* Product name */}
-        <h3 className="leading-tight text-2xl font-bold">{product.name}</h3>
+        <div className="flex flex-col gap-1.5">
+          {/* Product name */}
+          <h3 className="leading-tight text-2xl font-bold">{product.name}</h3>
 
-        {/* Social-proof trust strip */}
-        <TrustStrip />
+          {/* Social-proof trust strip */}
+          <TrustStrip product={product} />
+        </div>
 
         <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
 

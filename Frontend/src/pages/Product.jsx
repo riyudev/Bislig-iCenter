@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext.jsx";
 import { useParams } from "react-router-dom";
 import ProductDisplay from "../Components/ProductDisplay.jsx";
+import ProductReviews from "../Components/ProductReviews.jsx";
 import Breadcrumbs from "../Components/BreadCrumbs.jsx";
 
 function Product() {
@@ -25,6 +26,7 @@ function Product() {
     <div className="laptop:px-[9%] laptop:pt-36 flex w-full flex-col items-center justify-center px-4 pt-20 pb-20">
       <Breadcrumbs product={product} />
       <ProductDisplay product={product} />
+      <ProductReviews productId={product._id || product.id} />
     </div>
   );
 }

@@ -32,13 +32,14 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: { type: String, enum: ["cod", "pickup"], default: "cod" },
     status: {
       type: String,
-      enum: ["pending", "confirmed", "preparing", "shipped", "completed", "cancelled"],
+      enum: ["pending", "processing", "shipped", "out_for_delivery", "delivered", "completed", "cancelled"],
       default: "pending",
     },
     orderDate: { type: Date, default: Date.now },
-    confirmedDate: { type: Date },
-    preparingDate: { type: Date },
+    processingDate: { type: Date },
     shippedDate: { type: Date },
+    outForDeliveryDate: { type: Date },
+    deliveredDate: { type: Date },
     completedDate: { type: Date },
     cancelledDate: { type: Date },
     notes: { type: String },
@@ -69,14 +70,17 @@ orderSchema.methods.updateStatus = function (newStatus) {
   const now = new Date();
   this.status = newStatus;
   switch (newStatus) {
-    case "confirmed":
-      this.confirmedDate = now;
-      break;
-    case "preparing":
-      this.preparingDate = now;
+    case "processing":
+      this.processingDate = now;
       break;
     case "shipped":
       this.shippedDate = now;
+      break;
+    case "out_for_delivery":
+      this.outForDeliveryDate = now;
+      break;
+    case "delivered":
+      this.deliveredDate = now;
       break;
     case "completed":
       this.completedDate = now;

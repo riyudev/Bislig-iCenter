@@ -12,6 +12,7 @@ import productRoutes from "./routes/productRoutes.js";
 import heroSlideRoutes from "./routes/heroSlideRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 import User from "./models/User.js";
 
 dotenv.config();
@@ -59,6 +60,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/hero-slides", heroSlideRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
