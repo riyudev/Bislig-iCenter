@@ -14,6 +14,10 @@ import {
   FaUndoAlt,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import CancelOrderModal from "./CancelOrderModal";
+import OrderSuccessModal from "./OrderSuccessModal";
+import RateProductModal from "./RateProductModal";
+import OrderItemsPreview from "./OrderItemsPreview";
 
 /* ── Auto-receive countdown helper ─────────────────────────────────── */
 function daysUntilAutoReceive(deliveredDate) {
@@ -25,31 +29,6 @@ function daysUntilAutoReceive(deliveredDate) {
   );
   const diff = Math.ceil((autoDate - Date.now()) / (1000 * 60 * 60 * 24));
   return Math.max(0, diff);
-}
-
-/* ── Star picker sub-component ──────────────────────────────────────── */
-function StarPicker({ value, onChange }) {
-  const [hovered, setHovered] = useState(0);
-  return (
-    <div className="flex items-center justify-center gap-2">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          onClick={() => onChange(star)}
-          onMouseEnter={() => setHovered(star)}
-          onMouseLeave={() => setHovered(0)}
-          className="cursor-pointer text-3xl transition-transform hover:scale-125"
-        >
-          {star <= (hovered || value) ? (
-            <FaStar className="text-amber-400" />
-          ) : (
-            <FaRegStar className="text-slate-300" />
-          )}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 /* ── Main component ─────────────────────────────────────────────────── */
@@ -238,25 +217,6 @@ function MyOrdersSidebar({ isOpen, onClose }) {
     }
   };
 
-  const formatVariant = (variantStr) => {
-    if (!variantStr || variantStr === "Default") return "";
-    const parts = variantStr.split("+").map((p) => p.trim());
-    if (parts.length === 2) {
-      const m0 = parts[0].match(/^(\d+)(GB|TB)$/i);
-      const m1 = parts[1].match(/^(\d+)(GB|TB)$/i);
-      if (m0 && m1) {
-        const v0 = parseInt(m0[1]);
-        const u0 = m0[2].toUpperCase();
-        const v1 = parseInt(m1[1]);
-        let isPart0Storage = false;
-        if (u0 === "TB") isPart0Storage = true;
-        else if (m1[2].toUpperCase() === "TB") isPart0Storage = false;
-        else if (v0 > v1 && v0 >= 32) isPart0Storage = true;
-        if (isPart0Storage) return `${parts[1]} + ${parts[0]}`;
-      }
-    }
-    return variantStr;
-  };
 
   const statusSteps = [
     { key: "pending", label: "Pending", icon: FaClock },
@@ -472,138 +432,17 @@ function MyOrdersSidebar({ isOpen, onClose }) {
                       )}
                     </div>
 
-                    {/* Items Preview */}
-                    <div className="-mx-6 -mb-6 border-t border-slate-100 bg-slate-50 px-6 py-4">
-                      <div className="mb-3 flex w-full flex-col gap-3">
-                        {order.items.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="flex w-full items-start justify-between text-sm"
-                          >
-                            <div className="flex flex-col">
-                              <span className="font-productSansReg pr-4 leading-tight text-slate-800">
-                                {item.name}
-                              </span>
-                              <span className="font-productSansReg mt-1 text-xs text-slate-500">
-                                {item.variant && item.variant !== "Default"
-                                  ? `${formatVariant(item.variant)} | `
-                                  : ""}
-                                {item.color}
-                              </span>
-                            </div>
-                            <span className="font-productSansReg shrink-0 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-600">
-                              x{item.quantity}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between border-t border-slate-200/60 pt-3">
-                        {order.status === "pending" ? (
-                          <button
-                            onClick={() => handleCancelClick(order._id)}
-                            className="text-left text-xs font-medium text-red-500 underline hover:text-red-700"
-                          >
-                            Cancel Order
-                          </button>
-                        ) : (
-                          <div />
-                        )}
-                        <span className="shrink-0 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium tracking-wider text-indigo-600 uppercase">
-                          {order.items.reduce(
-                            (acc, curr) => acc + curr.quantity,
-                            0,
-                          )}{" "}
-                          Item
-                          {order.items.reduce(
-                            (acc, curr) => acc + curr.quantity,
-                            0,
-                          ) > 1
-                            ? "s"
-                            : ""}
-                        </span>
-                      </div>
-
-                      {/* Delivered action buttons – at the very bottom */}
-                      {isDelivered && (
-                        <div className="-mx-6 mt-4 -mb-4 rounded-2xl border-t border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 px-6 pt-4 pb-0">
-                          <p className="mb-1 text-xs font-semibold text-emerald-700">
-                            📦 Your order has been delivered!
-                          </p>
-                          <p className="mb-3 text-[11px] leading-relaxed text-slate-500">
-                            Please confirm once you've received the item.
-                            {daysLeft !== null && daysLeft > 0
-                              ? ` If not confirmed, it will be automatically marked as received in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}.`
-                              : " Your order will be auto-received shortly."}
-                          </p>
-                          <div className="flex gap-2 pb-4">
-                            <button
-                              onClick={() => handleOrderReceived(order)}
-                              disabled={isConfirmingThis}
-                              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 py-2.5 text-xs font-semibold text-white shadow shadow-emerald-200 transition-all hover:-translate-y-0.5 hover:shadow-md disabled:opacity-60"
-                            >
-                              {isConfirmingThis ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                              ) : (
-                                <>
-                                  <FaCheckCircle className="text-sm" /> Order
-                                  Received
-                                </>
-                              )}
-                            </button>
-                            <button
-                              onClick={() => {
-                                /* refund/return – TBD */
-                              }}
-                              className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-600 transition-colors hover:border-rose-300 hover:text-rose-600"
-                            >
-                              <FaUndoAlt className="text-xs" /> Refund / Return
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Persistent Rate This Product button for completed orders */}
-                      {order.status === "completed" && (
-                        <div className="-mx-6 mt-4 -mb-4 border-t border-indigo-100 px-6 pt-4 pb-4">
-                          {order.isRated ? (
-                            canReturn ? (
-                              <div className="flex flex-col gap-2">
-                                <button
-                                  onClick={() => {
-                                    /* refund/return handle – TBD */
-                                  }}
-                                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-2.5 text-xs font-semibold text-rose-600 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50"
-                                >
-                                  <FaUndoAlt className="text-sm" /> Request Refund / Return
-                                </button>
-                                <p className="text-center text-[10px] text-slate-400">
-                                  You have {returnDaysLeft} day{returnDaysLeft !== 1 ? 's' : ''} left to request a refund or return.
-                                </p>
-                              </div>
-                            ) : (
-                              <p className="text-center text-xs text-slate-500">
-                                The 30-day return window for this order has expired.
-                              </p>
-                            )
-                          ) : (
-                            <button
-                              onClick={() => {
-                                const firstItem = order.items?.[0];
-                                if (firstItem)
-                                  openRateModal(
-                                    order._id,
-                                    firstItem.productId,
-                                    firstItem.name,
-                                  );
-                              }}
-                              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 py-2.5 text-xs font-semibold text-white shadow shadow-indigo-200 transition-all hover:-translate-y-0.5 hover:shadow-md"
-                            >
-                              <FaStar className="text-sm" /> Rate This Product
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    <OrderItemsPreview
+                      order={order}
+                      isDelivered={isDelivered}
+                      daysLeft={daysLeft}
+                      isConfirmingThis={isConfirmingThis}
+                      canReturn={canReturn}
+                      returnDaysLeft={returnDaysLeft}
+                      onCancelClick={handleCancelClick}
+                      onOrderReceived={handleOrderReceived}
+                      onRateProduct={openRateModal}
+                    />
                   </div>
                 );
               })}
@@ -612,186 +451,32 @@ function MyOrdersSidebar({ isOpen, onClose }) {
         </div>
       </div>
 
-      {/* ── Modal: Cancel ──────────────────────────────────────────── */}
-      {cancelModalOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            onClick={() => !cancelling && setCancelModalOpen(false)}
-          />
-          <div className="animate-fade-in-down relative z-10 mx-4 w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
-            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl text-red-500">
-              <FaTimesCircle />
-            </div>
-            <h3 className="mb-2 text-center text-xl font-bold text-slate-800">
-              Cancel Order?
-            </h3>
-            <p className="mb-8 text-center text-slate-500">
-              Are you sure you want to cancel this order? This action cannot be
-              undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setCancelModalOpen(false)}
-                disabled={cancelling}
-                className="flex-1 rounded-xl bg-slate-100 py-3 font-medium text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-50"
-              >
-                No, keep it
-              </button>
-              <button
-                onClick={confirmCancel}
-                disabled={cancelling}
-                className="flex flex-1 items-center justify-center rounded-xl bg-red-500 py-3 font-medium text-white shadow-lg shadow-red-500/30 transition-colors hover:bg-red-600 disabled:opacity-50"
-              >
-                {cancelling ? (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                ) : (
-                  "Yes, cancel it"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CancelOrderModal
+        isOpen={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        onConfirm={confirmCancel}
+        cancelling={cancelling}
+      />
 
-      {/* ── Modal A: Order Received Success ───────────────────────── */}
-      {successModalOpen && successOrderData && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            onClick={() => setSuccessModalOpen(false)}
-          />
-          <div className="relative z-10 mx-4 w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl">
-            {/* X skip */}
-            <button
-              onClick={() => setSuccessModalOpen(false)}
-              className="absolute top-4 right-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200"
-            >
-              <FaTimes />
-            </button>
+      <OrderSuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        successOrderData={successOrderData}
+        onRateProduct={openRateModal}
+      />
 
-            {/* Success animation */}
-            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-200">
-              <FaCheckCircle className="text-3xl text-white" />
-            </div>
-
-            <h3 className="mb-1 text-2xl font-bold text-slate-800">
-              Thank you! 🎉
-            </h3>
-            <p className="mb-6 text-sm leading-relaxed text-slate-500">
-              Your order has been marked as received. We hope you love your
-              purchase!
-            </p>
-
-            {/* Rate button – shows first item by default */}
-            <button
-              onClick={() => {
-                const firstItem = successOrderData.items?.[0];
-                if (firstItem) {
-                  openRateModal(
-                    successOrderData.orderId,
-                    firstItem.productId,
-                    firstItem.name,
-                  );
-                }
-              }}
-              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-500 py-3.5 font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              <FaStar /> Rate Our Product
-            </button>
-            <button
-              onClick={() => setSuccessModalOpen(false)}
-              className="mt-3 w-full cursor-pointer py-2.5 text-sm text-slate-400 transition-colors hover:text-slate-600"
-            >
-              Maybe later
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Modal B: Rate Product ─────────────────────────────────── */}
-      {rateModalOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            onClick={() => !submittingReview && setRateModalOpen(false)}
-          />
-          <div className="relative z-10 mx-4 w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl">
-            {/* Header */}
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-800">
-                Rate Your Purchase
-              </h3>
-              <button
-                onClick={() => setRateModalOpen(false)}
-                disabled={submittingReview}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 disabled:opacity-50"
-              >
-                <FaTimes />
-              </button>
-            </div>
-
-            {reviewSuccess ? (
-              <div className="flex flex-col items-center gap-3 py-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl text-emerald-500">
-                  <FaCheckCircle />
-                </div>
-                <p className="font-semibold text-slate-800">
-                  Review submitted!
-                </p>
-                <p className="text-sm text-slate-500">
-                  Thank you for your feedback.
-                </p>
-              </div>
-            ) : (
-              <>
-                <p className="mb-1 text-sm text-slate-500">Reviewing:</p>
-                <p className="mb-5 line-clamp-2 font-semibold text-slate-800">
-                  {rateProductName}
-                </p>
-
-                {/* Stars */}
-                <div className="mb-4">
-                  <p className="mb-3 text-center text-xs tracking-wider text-slate-400 uppercase">
-                    Your rating
-                  </p>
-                  <StarPicker value={starValue} onChange={setStarValue} />
-                  {starValue > 0 && (
-                    <p className="mt-2 text-center text-xs font-medium text-amber-500">
-                      {
-                        ["", "Poor", "Fair", "Good", "Very Good", "Excellent"][
-                          starValue
-                        ]
-                      }
-                    </p>
-                  )}
-                </div>
-
-                {/* Comment */}
-                <textarea
-                  value={rateComment}
-                  onChange={(e) => setRateComment(e.target.value)}
-                  placeholder="Share your experience (optional)…"
-                  rows={3}
-                  className="mb-5 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                />
-
-                <button
-                  onClick={submitReview}
-                  disabled={starValue === 0 || submittingReview}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-cyan-600 py-3.5 font-semibold text-white shadow-md shadow-indigo-200 transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {submittingReview ? (
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  ) : (
-                    "Submit Review"
-                  )}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <RateProductModal
+        isOpen={rateModalOpen}
+        onClose={() => setRateModalOpen(false)}
+        submittingReview={submittingReview}
+        reviewSuccess={reviewSuccess}
+        rateProductName={rateProductName}
+        starValue={starValue}
+        setStarValue={setStarValue}
+        rateComment={rateComment}
+        setRateComment={setRateComment}
+        onSubmitReview={submitReview}
+      />
     </div>
   );
 }
