@@ -139,6 +139,9 @@ const Orders = () => {
                   Order #
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                  Date
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
                   Customer
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
@@ -158,13 +161,13 @@ const Orders = () => {
             <tbody className="divide-y divide-slate-200">
               {state.loading ? (
                 <tr>
-                  <td className="px-4 py-6" colSpan={6}>
+                  <td className="px-4 py-6" colSpan={7}>
                     Loading...
                   </td>
                 </tr>
               ) : state.orders.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6" colSpan={6}>
+                  <td className="px-4 py-6" colSpan={7}>
                     No orders.
                   </td>
                 </tr>
@@ -173,6 +176,21 @@ const Orders = () => {
                   <tr key={o._id}>
                     <td className="px-3 py-3 font-productSansReg text-sm text-myblack">
                       {o.orderNumber}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-myblack/70">
+                      <div className="font-medium text-myblack whitespace-nowrap">
+                        {new Date(o.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "2-digit",
+                          year: "numeric",
+                        })}
+                      </div>
+                      <div className="text-xs text-slate-500 mt-0.5 whitespace-nowrap">
+                        {new Date(o.createdAt).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
                     </td>
                     <td className="px-3 py-3 text-myblack/70">
                       <div className="text-sm font-semibold text-myblack">
