@@ -9,6 +9,7 @@ import Shop from "./pages/Shop.jsx";
 import Users from "./pages/Users.jsx";
 import Login from "./pages/Login.jsx";
 import NewsLetters from "./pages/NewsLetters.jsx";
+import SalesReport from "./pages/SalesReport.jsx";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="shop" element={<Shop />} />
             <Route path="users" element={<Users />} />
             <Route path="newsletters" element={<NewsLetters />} />
+            <Route path="sales-report" element={<SalesReport />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -69,12 +69,12 @@ export const updateOrderStatus = async (req, res, next) => {
         order.stockDeducted = true;
       }
       
-      if (['delivered', 'completed'].includes(status) && !order.salesAdded) {
+      if (['shipped', 'out_for_delivery', 'delivered', 'completed'].includes(status) && !order.salesAdded) {
         requiresSalesAddition = true;
         order.salesAdded = true;
       }
       
-      if (status === 'cancelled') {
+      if (['cancelled', 'pending'].includes(status)) {
         if (order.stockDeducted) {
           requiresStockAddition = true;
           order.stockDeducted = false;
@@ -104,6 +104,7 @@ export const updateOrderStatus = async (req, res, next) => {
               const stockItem = product.stockItems.find(s => s.variant === item.variant && s.color === item.color);
               if (stockItem) {
                   stockItem.stock = Math.max(0, stockItem.stock + stockDelta);
+                  stockItem.totalSales = Math.max(0, (stockItem.totalSales || 0) + salesDelta);
               }
               product.stocks = Math.max(0, product.stocks + stockDelta);
               product.totalSales = Math.max(0, product.totalSales + salesDelta);
@@ -160,6 +161,7 @@ export const cancelOrder = async (req, res, next) => {
               const stockItem = product.stockItems.find(s => s.variant === item.variant && s.color === item.color);
               if (stockItem) {
                   stockItem.stock = Math.max(0, stockItem.stock + stockDelta);
+                  stockItem.totalSales = Math.max(0, (stockItem.totalSales || 0) + salesDelta);
               }
               product.stocks = Math.max(0, product.stocks + stockDelta);
               product.totalSales = Math.max(0, product.totalSales + salesDelta);
@@ -187,7 +189,7 @@ export const getDashboardStats = async (req, res, next) => {
     const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
     const yearStart = new Date(now.getFullYear(), 0, 1);
     const nextYearStart = new Date(now.getFullYear() + 1, 0, 1);
-    const revenueStatuses = ["shipped", "completed"];
+    const validOrderStatuses = ["shipped", "out_for_delivery", "delivered", "completed"];
 
     // Optimized queries using aggregation facets
     const [orderStats, revenueStats, lowStockCount] = await Promise.all([
@@ -195,17 +197,20 @@ export const getDashboardStats = async (req, res, next) => {
       Order.aggregate([
         {
           $facet: {
-            total: [{ $count: "count" }],
+            total: [
+              { $match: { status: { $in: validOrderStatuses } } },
+              { $count: "count" }
+            ],
             today: [
-              { $match: { orderDate: { $gte: today } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: today } } },
               { $count: "count" }
             ],
             week: [
-              { $match: { orderDate: { $gte: weekAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: weekAgo } } },
               { $count: "count" }
             ],
             month: [
-              { $match: { orderDate: { $gte: monthAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: monthAgo } } },
               { $count: "count" }
             ],
             pending: [
@@ -221,25 +226,25 @@ export const getDashboardStats = async (req, res, next) => {
         {
           $facet: {
             total: [
-              { $match: { status: { $in: revenueStatuses } } },
+              { $match: { status: { $in: validOrderStatuses } } },
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             today: [
-              { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: today } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: today } } },
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             week: [
-              { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: weekAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: weekAgo } } },
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             month: [
-              { $match: { status: { $in: revenueStatuses }, orderDate: { $gte: monthAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: monthAgo } } },
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             byMonth: [
               {
                 $match: {
-                  status: { $in: revenueStatuses },
+                  status: { $in: validOrderStatuses },
                   orderDate: { $gte: yearStart, $lt: nextYearStart }
                 }
               },
