@@ -1,5 +1,5 @@
 import Order from "../models/Order.js";
-
+import Review from "../models/Review.js";
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -36,8 +36,20 @@ export const createOrder = async (req, res, next) => {
 // @access  Private
 export const getUserOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({ createdBy: req.user._id }).sort({ orderDate: -1 });
-    res.json(orders);
+    const orders = await Order.find({ createdBy: req.user._id }).lean().sort({ orderDate: -1 });
+    
+    // Check if each order has an existing review by the user
+    const orderIds = orders.map(o => o._id);
+    const reviews = await Review.find({ orderId: { $in: orderIds }, userId: req.user._id }).lean();
+    
+    const reviewedOrderIds = new Set(reviews.map(r => r.orderId.toString()));
+    
+    const ordersWithReviewStatus = orders.map(o => ({
+      ...o,
+      isRated: reviewedOrderIds.has(o._id.toString())
+    }));
+    
+    res.json(ordersWithReviewStatus);
   } catch (err) {
     next(err);
   }
