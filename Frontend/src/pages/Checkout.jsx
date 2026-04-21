@@ -15,7 +15,7 @@ import {
   FaSave,
 } from "react-icons/fa";
 import { toast } from "react-hot-toast";
-
+import { PayPalButtons } from "@paypal/react-paypal-js";
 function Checkout() {
   const { user, login } = useAuth();
   const {
@@ -120,7 +120,43 @@ function Checkout() {
     }
   };
 
-  const handlePlaceOrder = async () => {
+  const createPayPalOrder = (data, actions) => {
+    return actions.order.create({
+      purchase_units: [
+        {
+          description: "Bislig iCenter Order",
+          amount: {
+            currency_code: "PHP",
+            value: totalAmount.toString(),
+          },
+        },
+      ],
+    });
+  };
+
+  const onPayPalApprove = async (data, actions) => {
+    try {
+      const order = await actions.order.capture();
+      toast.success("Payment Successful! Processing order...");
+      await handlePlaceOrder(order); 
+    } catch (error) {
+      toast.error("Payment failed or was cancelled.");
+      console.error("PayPal Capture Error: ", error);
+    }
+  };
+
+  const onPayPalClick = (data, actions) => {
+    if (!hasCompleteProfile) {
+      const fullName = `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
+      if (!fullName || !shippingInfo.email || !shippingInfo.mobileNumber || !shippingInfo.address) {
+        toast.error("Please fill in all shipping information before paying with PayPal.");
+        return actions.reject();
+      }
+    }
+    return actions.resolve();
+  };
+
+  const handlePlaceOrder = async (paypalOrder = null) => {
     if (!hasCompleteProfile) {
       const fullName =
         `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
@@ -432,7 +468,7 @@ function Checkout() {
                       PayPal
                     </span>
                     <span className="laptop:text-xs block text-[10px] font-medium text-slate-500">
-                      Not integrated yet
+                      Pay securely via PayPal
                     </span>
                   </div>
                   <div
@@ -463,7 +499,7 @@ function Checkout() {
                         src={
                           product.image?.startsWith("http")
                             ? product.image
-                            : `${product.image || ""}`
+                            : (product.image || undefined)
                         }
                         alt={product.name}
                         className="h-full w-full object-contain"
@@ -504,12 +540,23 @@ function Checkout() {
                   </span>
                 </div>
 
-                <button
-                  onClick={handlePlaceOrder}
-                  className="laptop:px-8 laptop:py-4 laptop:text-lg flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-[13px] font-bold tracking-wide text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-1 hover:bg-blue-600 hover:shadow-blue-500/30 active:scale-95"
-                >
-                  <FaShieldAlt className="text-[14px]" /> Place Order
-                </button>
+                {paymentMethod === "PAYPAL" ? (
+                  <div className="z-0 w-full relative h-[48px]">
+                    <PayPalButtons
+                      createOrder={createPayPalOrder}
+                      onApprove={onPayPalApprove}
+                      onClick={onPayPalClick}
+                      style={{ shape: "pill", layout: "vertical", height: 48 }}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handlePlaceOrder()}
+                    className="laptop:px-8 laptop:py-4 laptop:text-lg flex w-full items-center justify-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-[13px] font-bold tracking-wide text-white shadow-xl shadow-slate-900/20 transition-all hover:-translate-y-1 hover:bg-blue-600 hover:shadow-blue-500/30 active:scale-95"
+                  >
+                    <FaShieldAlt className="text-[14px]" /> Place Order
+                  </button>
+                )}
               </div>
             </div>
           </div>

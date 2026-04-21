@@ -1,4 +1,5 @@
 import React from "react";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import "./App.css";
 import Navbar from "./Components/Navbar";
 import MobileNavbar from "./Components/MobileNavbar";
@@ -17,34 +18,36 @@ import ScrollToTop from "./helpers/ScrollToTop";
 function App() {
   return (
     <div className="bg-ghostWhite min-h-screen">
-      <Router>
-        <ScrollToTop />
-        <Navbar />
-        <MobileNavbar />
-        <Routes>
-          {/* Main Shop Page */}
-          <Route path="/" element={<Shop />} />
+      <PayPalScriptProvider options={{ "client-id": import.meta.env.VITE_PAYPAL_CLIENT_ID, currency: "PHP" }}>
+        <Router>
+          <ScrollToTop />
+          <Navbar />
+          <MobileNavbar />
+          <Routes>
+            {/* Main Shop Page */}
+            <Route path="/" element={<Shop />} />
 
-          {/* Dynamic Category Page */}
-          {/* e.g. /category/iphone, /category/laptop, etc. */}
-          <Route path="/laptop" element={<ShopCategory category="laptop" />} />
-          <Route path="/iphone" element={<ShopCategory category="iphone" />} />
-          <Route path="/ipad" element={<ShopCategory category="ipad" />} />
-          <Route
-            path="/android"
-            element={<ShopCategory category="android" />}
-          />
+            {/* Dynamic Category Page */}
+            {/* e.g. /category/iphone, /category/laptop, etc. */}
+            <Route path="/laptop" element={<ShopCategory category="laptop" />} />
+            <Route path="/iphone" element={<ShopCategory category="iphone" />} />
+            <Route path="/ipad" element={<ShopCategory category="ipad" />} />
+            <Route
+              path="/android"
+              element={<ShopCategory category="android" />}
+            />
 
-          {/* Other Pages */}
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/:category/:productId" element={<Product />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/login" element={<LoginSignup />} />
-        </Routes>
+            {/* Other Pages */}
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/:category/:productId" element={<Product />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/login" element={<LoginSignup />} />
+          </Routes>
 
-        <Footer />
-      </Router>
+          <Footer />
+        </Router>
+      </PayPalScriptProvider>
       <Toaster position="top-center" />
     </div>
   );

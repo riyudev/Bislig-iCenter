@@ -29,7 +29,7 @@ const orderSchema = new mongoose.Schema(
     subtotal: { type: Number, required: true, min: 0 },
     shippingFee: { type: Number, default: 0, min: 0 },
     total: { type: Number, required: true, min: 0 },
-    paymentMethod: { type: String, enum: ["cod", "pickup"], default: "cod" },
+    paymentMethod: { type: String, enum: ["cod", "pickup", "paypal"], default: "cod" },
     status: {
       type: String,
       enum: ["pending", "processing", "shipped", "out_for_delivery", "delivered", "completed", "cancelled"],
