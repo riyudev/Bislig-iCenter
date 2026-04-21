@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaBox,
@@ -11,9 +11,8 @@ import {
   FaChartBar,
 } from "react-icons/fa";
 
-const AdminLayout = () => {
+const AdminLayout = ({ onLogout }) => {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: FaTachometerAlt },
@@ -26,8 +25,7 @@ const AdminLayout = () => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    navigate("/login");
+    onLogout();
   };
 
   return (
