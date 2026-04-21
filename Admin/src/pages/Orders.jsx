@@ -131,31 +131,17 @@ const Orders = () => {
           </button>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
+        <div className="overflow-hidden rounded-xl border border-myblack/10 bg-white">
+          <table className="w-full text-left text-sm text-myblack/80">
+            <thead className="border-b border-myblack/10 bg-slate-50 text-xs uppercase text-myblack/60">
               <tr>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Order #
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Date
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Customer
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Items
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Total
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Status
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
-                  Action
-                </th>
+                <th className="px-3 py-4 font-productSansBold text-left">Order #</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Date</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Customer</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Items</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Total</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Status</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -173,7 +159,7 @@ const Orders = () => {
                 </tr>
               ) : (
                 state.orders.map((o) => (
-                  <tr key={o._id}>
+                  <tr key={o._id} className="hover:bg-slate-50 border-b border-myblack/5 transition-colors">
                     <td className="px-3 py-3 font-productSansReg text-sm text-myblack">
                       {o.orderNumber}
                     </td>

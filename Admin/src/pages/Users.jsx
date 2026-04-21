@@ -105,22 +105,14 @@ const Users = () => {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
+      <div className="overflow-hidden rounded-xl border border-myblack/10 bg-white">
+        <table className="w-full text-left text-sm text-myblack/80">
+          <thead className="border-b border-myblack/10 bg-slate-50 text-xs uppercase text-myblack/60">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Phone
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-                Status
-              </th>
+              <th className="px-6 py-4 font-productSansBold text-left">Name</th>
+              <th className="px-6 py-4 font-productSansBold text-left">Email</th>
+              <th className="px-6 py-4 font-productSansBold text-left">Phone</th>
+              <th className="px-6 py-4 font-productSansBold text-left">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
@@ -138,7 +130,7 @@ const Users = () => {
               </tr>
             ) : (
               state.users.map((u) => (
-                <tr key={u._id}>
+                <tr key={u._id} className="hover:bg-slate-50 border-b border-myblack/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-productSansReg text-myblack">
                       {u.name}

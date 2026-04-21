@@ -97,7 +97,7 @@ const SalesReport = () => {
           value={filter.search}
           onChange={(e) => setFilter((p) => ({ ...p, search: e.target.value }))}
           onKeyDown={(e) => {
-            if (e.key === "Enter") fetchSalesReport(1);
+            fetchSalesReport(1);
           }}
         />
         <select
@@ -217,8 +217,8 @@ const SalesReport = () => {
                               </div>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-center capitalize align-top">
-                            {idx === 0 ? p.category : null}
+                          <td className="px-6 py-4 text-center align-middle">
+                            {idx === 0 ? (p.category === "iphone" ? "iPhone" : p.category === "ipad" ? "iPad" : p.category === "android" ? "Android" : p.category === "laptop" ? "Laptop" : p.category || "") : null}
                           </td>
                           <td className="px-6 py-4 font-medium text-myblack/70 align-middle">
                             {item.color}

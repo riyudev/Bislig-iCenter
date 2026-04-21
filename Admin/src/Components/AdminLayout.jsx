@@ -17,12 +17,12 @@ const AdminLayout = () => {
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: FaTachometerAlt },
+    { path: "/shop", label: "Shop", icon: FaStore },
     { path: "/products", label: "Products", icon: FaBox },
     { path: "/orders", label: "Orders", icon: FaShoppingCart },
-    { path: "/shop", label: "Shop", icon: FaStore },
+    { path: "/sales-report", label: "Sales Report", icon: FaChartBar },
     { path: "/users", label: "Users", icon: FaUsers },
     { path: "/newsletters", label: "News Letters", icon: FaEnvelope },
-    { path: "/sales-report", label: "Sales Report", icon: FaChartBar },
   ];
 
   const handleLogout = () => {

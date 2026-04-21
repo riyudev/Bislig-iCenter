@@ -30,32 +30,16 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
   return (
     <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
       <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50">
+        <thead className="border-b border-myblack/10 bg-slate-50 text-xs uppercase text-myblack/60">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-              Product
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
-              Category
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-              Color
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500">
-              Variation
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
-              Stock
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
-              Price
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
-              Status
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500">
-              Total Sold
-            </th>
+            <th className="px-6 py-4 font-productSansBold text-left">Product</th>
+            <th className="px-6 py-4 font-productSansBold text-center">Category</th>
+            <th className="px-6 py-4 font-productSansBold text-left">Color</th>
+            <th className="px-6 py-4 font-productSansBold text-left">Variation</th>
+            <th className="px-6 py-4 font-productSansBold text-center">Stock</th>
+            <th className="px-6 py-4 font-productSansBold text-center">Price</th>
+            <th className="px-6 py-4 font-productSansBold text-center">Status</th>
+            <th className="px-6 py-4 font-productSansBold text-center">Total Sold</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-200">
@@ -90,7 +74,7 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                   {items.map((item, idx) => (
                     <tr
                       key={`${p._id}-${idx}`}
-                      className={idx !== items.length - 1 ? "border-b-0" : ""}
+                      className={`hover:bg-slate-50 transition-colors ${idx !== items.length - 1 ? "border-b-0" : ""}`}
                     >
                       {idx === 0 && (
                         <>
@@ -123,9 +107,9 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                           </td>
                           <td
                             rowSpan={items.length}
-                            className="px-6 py-2 text-center text-sm text-myblack/70 align-top"
+                            className="px-6 py-2 text-center text-sm text-myblack/70 align-middle"
                           >
-                            {p.category}
+                            {p.category === "iphone" ? "iPhone" : p.category === "ipad" ? "iPad" : p.category === "android" ? "Android" : p.category === "laptop" ? "Laptop" : p.category || ""}
                           </td>
                         </>
                       )}
@@ -161,7 +145,7 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                         <>
                           <td
                             rowSpan={items.length}
-                            className="px-6 py-2 text-center align-top"
+                            className="px-6 py-2 text-center align-middle"
                           >
                             <span
                               className={`rounded-full px-3 py-1 text-xs font-semibold inline-block ${
@@ -175,7 +159,7 @@ const ProductTable = ({ loading, products, onEdit, onToggle, onRemove }) => {
                           </td>
                           <td
                             rowSpan={items.length}
-                            className="px-6 py-2 text-center text-sm text-myblack align-top"
+                            className="px-6 py-2 text-center text-sm text-myblack align-middle"
                           >
                             {Number(p.totalSales || 0).toLocaleString()}
                           </td>
