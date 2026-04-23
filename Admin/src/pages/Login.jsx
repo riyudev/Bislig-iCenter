@@ -36,6 +36,10 @@ const Login = ({ onLogin }) => {
         return;
       }
 
+      if (data?.token) {
+        localStorage.setItem("admin_token", data.token);
+      }
+
       onLogin();
     } catch (err) {
       setError("Login failed — server may be waking up, please try again");

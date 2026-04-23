@@ -325,16 +325,9 @@ export const adminLogin = async (req, res, next) => {
 
 
 
-    // Optional: add a check here if user has admin privileges.
-
+    // Check if user has admin privileges.
     if (user.role !== "admin") {
-
-      // Some backends check this, let's just allow it or maybe requireAdmin auth middleware checks later.
-
-      // Actually, if we require admin to have a role of admin, let's do it if role exists,
-
-      // but let's just keep the logic equal to login, except we do NOT set the cookie.
-
+      return res.status(403).json({ message: "Admin privileges required" });
     }
 
 

@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import helmet from "helmet";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
@@ -22,7 +23,11 @@ const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
+app.set('trust proxy', 1);
+
 app.use(morgan("dev"));
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

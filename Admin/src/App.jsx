@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./Components/AdminLayout.jsx";
@@ -12,7 +12,12 @@ import NewsLetters from "./pages/NewsLetters.jsx";
 import SalesReport from "./pages/SalesReport.jsx";
 
 function App() {
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(!!localStorage.getItem("admin_token"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    setIsAdminLoggedIn(false);
+  };
 
   return (
     <div className="">
@@ -23,7 +28,7 @@ function App() {
           </Routes>
         ) : (
           <Routes>
-            <Route path="/" element={<AdminLayout onLogout={() => setIsAdminLoggedIn(false)} />}>
+            <Route path="/" element={<AdminLayout onLogout={handleLogout} />}>
               <Route index element={<Dashboard />} />
               <Route path="products" element={<Products />} />
               <Route path="orders" element={<Orders />} />
