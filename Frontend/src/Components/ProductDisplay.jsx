@@ -1,4 +1,10 @@
-import React, { useContext, useState, useRef, useCallback, useEffect } from "react";
+import React, {
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+} from "react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -59,14 +65,18 @@ const PERKS = [
 
 /* ─── Star display helper ──────────────────────────────────────────── */
 const StarDisplay = ({ rating, size = "text-sm" }) => {
-  const full  = Math.floor(rating);
-  const half  = rating % 1 >= 0.5;
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
   const empty = 5 - full - (half ? 1 : 0);
   return (
     <span className={`flex items-center gap-0.5 ${size}`}>
-      {Array.from({ length: full  }).map((_, i) => <FaStar        key={`f${i}`} className="text-amber-400" />)}
-      {half &&                                       <FaStarHalfAlt               className="text-amber-400" />}
-      {Array.from({ length: empty }).map((_, i) => <FaRegStar     key={`e${i}`} className="text-slate-300" />)}
+      {Array.from({ length: full }).map((_, i) => (
+        <FaStar key={`f${i}`} className="text-amber-400" />
+      ))}
+      {half && <FaStarHalfAlt className="text-amber-400" />}
+      {Array.from({ length: empty }).map((_, i) => (
+        <FaRegStar key={`e${i}`} className="text-slate-300" />
+      ))}
     </span>
   );
 };
@@ -79,29 +89,33 @@ const TrustStrip = ({ product }) => {
     const id = product._id || product.id;
     if (!id) return;
     fetch(`/api/reviews?productId=${id}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setReviewData({ average: data.average || 0, total: data.total || 0 });
       })
       .catch(console.error);
   }, [product]);
 
   return (
-    <div className="flex flex-col items-start gap-1.5 mt-1">
+    <div className="mt-1 flex flex-col items-start gap-1.5">
       {/* Dynamic Star Rating */}
       <div className="flex items-center gap-1.5">
-         <StarDisplay rating={reviewData.total > 0 ? reviewData.average : 0} />
-         {reviewData.total > 0 ? (
-           <>
-             <span className="text-xs font-semibold text-slate-600">{reviewData.average.toFixed(1)}</span>
-             <span className="text-[11px] text-slate-400">({reviewData.total} Review{reviewData.total !== 1 ? 's' : ''})</span>
-           </>
-         ) : (
-           <span className="text-[11px] text-slate-400">(no reviews yet)</span>
-         )}
+        <StarDisplay rating={reviewData.total > 0 ? reviewData.average : 0} />
+        {reviewData.total > 0 ? (
+          <>
+            <span className="text-xs font-semibold text-slate-600">
+              {reviewData.average.toFixed(1)}
+            </span>
+            <span className="text-[11px] text-slate-400">
+              ({reviewData.total} Review{reviewData.total !== 1 ? "s" : ""})
+            </span>
+          </>
+        ) : (
+          <span className="text-[11px] text-slate-400">(no reviews yet)</span>
+        )}
       </div>
       {/* Sold count */}
-      <div className="flex items-center gap-1 w-fit rounded-md bg-amber-50/80 px-2 py-0.5 border border-amber-100">
+      <div className="flex w-fit items-center gap-1 rounded-md border border-amber-100 bg-amber-50/80 px-2 py-0.5">
         <span className="text-[10px]">🔥</span>
         <span className="font-productSansBold text-[11px] text-amber-700">
           {product.totalSales || 0} Sold
@@ -132,16 +146,18 @@ const ProductDisplay = (props) => {
   const flyIdRef = useRef(0);
 
   const launchFlyAnimation = useCallback((buttonEl) => {
-    const navCartBtn = document.getElementById("navbar-cart-btn") || document.getElementById("mobile-navbar-cart-btn");
+    const navCartBtn =
+      document.getElementById("navbar-cart-btn") ||
+      document.getElementById("mobile-navbar-cart-btn");
     if (!buttonEl || !navCartBtn) return;
 
     const from = buttonEl.getBoundingClientRect();
-    const to   = navCartBtn.getBoundingClientRect();
+    const to = navCartBtn.getBoundingClientRect();
 
-    const startX = from.left + from.width  / 2;
-    const startY = from.top  + from.height / 2;
-    const dx = Math.round((to.left + to.width  / 2) - startX);
-    const dy = Math.round((to.top  + to.height / 2) - startY);
+    const startX = from.left + from.width / 2;
+    const startY = from.top + from.height / 2;
+    const dx = Math.round(to.left + to.width / 2 - startX);
+    const dy = Math.round(to.top + to.height / 2 - startY);
     // Lift arc height: 40% of vertical travel
     const arc = Math.round(Math.abs(dy) * 0.4);
 
@@ -150,20 +166,22 @@ const ProductDisplay = (props) => {
     const kfCSS = `
       @keyframes ${kfName} {
         0%   { transform: translate(0px, 0px) scale(1);                                              opacity: 1; }
-        20%  { transform: translate(${Math.round(dx*0.1)}px, ${Math.round(dy*0.1 - arc)}px) scale(1.45); opacity: 1; }
-        65%  { transform: translate(${Math.round(dx*0.7)}px, ${Math.round(dy*0.7 - arc*0.25)}px) scale(0.85); opacity: 0.85; }
+        20%  { transform: translate(${Math.round(dx * 0.1)}px, ${Math.round(dy * 0.1 - arc)}px) scale(1.45); opacity: 1; }
+        65%  { transform: translate(${Math.round(dx * 0.7)}px, ${Math.round(dy * 0.7 - arc * 0.25)}px) scale(0.85); opacity: 0.85; }
         100% { transform: translate(${dx}px, ${dy}px) scale(0.15);                                  opacity: 0; }
       }
     `;
     setFlyingIcons((prev) => [...prev, { id, startX, startY, kfName, kfCSS }]);
-    setTimeout(() => setFlyingIcons((prev) => prev.filter((f) => f.id !== id)), 1100);
+    setTimeout(
+      () => setFlyingIcons((prev) => prev.filter((f) => f.id !== id)),
+      1100,
+    );
   }, []);
-
 
   // ── Formatter ──────────────────────────────────────────────────────
   const formatVariant = (variantStr) => {
     if (!variantStr) return "";
-    const parts = variantStr.split("+").map(p => p.trim());
+    const parts = variantStr.split("+").map((p) => p.trim());
     if (parts.length === 2) {
       const match0 = parts[0].match(/^(\d+)(GB|TB)$/i);
       const match1 = parts[1].match(/^(\d+)(GB|TB)$/i);
@@ -172,12 +190,12 @@ const ProductDisplay = (props) => {
         const unit0 = match0[2].toUpperCase();
         const val1 = parseInt(match1[1]);
         const unit1 = match1[2].toUpperCase();
-        
+
         let isPart0Storage = false;
         if (unit0 === "TB") isPart0Storage = true;
         else if (unit1 === "TB") isPart0Storage = false;
         else if (val0 > val1 && val0 >= 32) isPart0Storage = true;
-        
+
         if (isPart0Storage) {
           return `${parts[1]} + ${parts[0]}`;
         }
@@ -197,9 +215,11 @@ const ProductDisplay = (props) => {
   };
 
   const currentStockItem = (product.stockItems || []).find(
-    (item) => item.variant === selectedVariant && item.color === selectedColor
+    (item) => item.variant === selectedVariant && item.color === selectedColor,
   );
-  const currentStock = currentStockItem ? currentStockItem.stock : (product.stocks || 0);
+  const currentStock = currentStockItem
+    ? currentStockItem.stock
+    : product.stocks || 0;
 
   const oldP = parsePrice(product.oldPrice);
   const baseNewP = parsePrice(product.newPrice);
@@ -234,7 +254,7 @@ const ProductDisplay = (props) => {
       navigate("/login");
       return;
     }
-    
+
     addToCart(
       product._id || product.id,
       selectedVariant || "Default",
@@ -250,314 +270,346 @@ const ProductDisplay = (props) => {
     (product.specifications || []).filter((s) => s.value?.trim()).length > 0;
 
   /* ─── Render ────────────────────────────────────────────────────── */
-  const flyPortal = flyingIcons.length > 0
-    ? ReactDOM.createPortal(
-        <>
-          {flyingIcons.map(({ id, startX, startY, kfName, kfCSS }) => (
-            <React.Fragment key={id}>
-              <style>{kfCSS}</style>
-              <div
-                style={{
-                  position: "fixed",
-                  left: startX - 22,
-                  top: startY - 22,
-                  width: 44,
-                  height: 44,
-                  zIndex: 99999,
-                  pointerEvents: "none",
-                  animation: `${kfName} 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div style={{
-                  position: "absolute", inset: "-8px", borderRadius: "50%",
-                  background: "radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(6,182,212,0.2) 55%, transparent 72%)",
-                  filter: "blur(10px)",
-                }} />
-                <div style={{
-                  position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
-                  background: "linear-gradient(135deg, #1d4ed8, #0891b2)",
-                  borderRadius: "50%", width: 40, height: 40,
-                  boxShadow: "0 0 0 3px #fff, 0 0 20px rgba(59,130,246,0.85), 0 4px 14px rgba(0,0,0,0.22)",
-                }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                  </svg>
+  const flyPortal =
+    flyingIcons.length > 0
+      ? ReactDOM.createPortal(
+          <>
+            {flyingIcons.map(({ id, startX, startY, kfName, kfCSS }) => (
+              <React.Fragment key={id}>
+                <style>{kfCSS}</style>
+                <div
+                  style={{
+                    position: "fixed",
+                    left: startX - 22,
+                    top: startY - 22,
+                    width: 44,
+                    height: 44,
+                    zIndex: 99999,
+                    pointerEvents: "none",
+                    animation: `${kfName} 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: "-8px",
+                      borderRadius: "50%",
+                      background:
+                        "radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(6,182,212,0.2) 55%, transparent 72%)",
+                      filter: "blur(10px)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "linear-gradient(135deg, #1d4ed8, #0891b2)",
+                      borderRadius: "50%",
+                      width: 40,
+                      height: 40,
+                      boxShadow:
+                        "0 0 0 3px #fff, 0 0 20px rgba(59,130,246,0.85), 0 4px 14px rgba(0,0,0,0.22)",
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="9" cy="21" r="1" />
+                      <circle cx="20" cy="21" r="1" />
+                      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-            </React.Fragment>
-          ))}
-        </>,
-        document.body,
-      )
-    : null;
+              </React.Fragment>
+            ))}
+          </>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
       {flyPortal}
-      <div className="laptop:flex-row laptop:items-start laptop:gap-8 mb-6 flex w-full flex-col gap-6 rounded-3xl border border-slate-100 bg-white px-5 py-6 shadow-xl shadow-slate-100">
-      {/* ══ Left: Image + Perks ════════════════════════════════════ */}
-      <div className="laptop:max-w-[460px] relative w-full flex-shrink-0">
-        {/* Image card */}
-        <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-6 ring-1 ring-slate-200/80">
-          <img
-            src={
-              product.image?.startsWith("http")
-                ? product.image
-                : `${product.image || ""}`
-            }
-            alt={product.name}
-            className="mx-auto h-[300px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]"
-            loading="lazy"
-          />
+      <div className="laptop:flex-row laptop:items-start laptop:gap-8 laptop:px-5 mb-6 flex w-full flex-col gap-6 rounded-3xl border border-slate-100 bg-white px-3 py-6 shadow-xl shadow-slate-100">
+        {/* ══ Left: Image + Perks ════════════════════════════════════ */}
+        <div className="laptop:max-w-[460px] relative w-full flex-shrink-0">
+          {/* Image card */}
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 py-6 ring-1 ring-slate-200/80">
+            <img
+              src={
+                product.image?.startsWith("http")
+                  ? product.image
+                  : `${product.image || ""}`
+              }
+              alt={product.name}
+              className="mx-auto h-[300px] w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+              loading="lazy"
+            />
 
-          {/* Discount badge */}
-          {hasDiscount && (
-            <span className="absolute top-4 left-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-rose-200">
-              🔥 -{discountPercent}% OFF
-            </span>
-          )}
-
-          {/* New badge */}
-          {product.isNew && (
-            <span className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-emerald-200">
-              ✨ NEW
-            </span>
-          )}
-
-          {/* Wishlist */}
-          <button
-            onClick={() => setWishlisted((w) => !w)}
-            className="absolute right-4 bottom-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white"
-            title="Add to Wishlist"
-          >
-            {wishlisted ? (
-              <FaHeart className="h-5 w-5 text-rose-500" />
-            ) : (
-              <FaRegHeart className="h-5 w-5 text-slate-400" />
+            {/* Discount badge */}
+            {hasDiscount && (
+              <span className="absolute top-4 left-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-rose-200">
+                🔥 -{discountPercent}% OFF
+              </span>
             )}
-          </button>
+
+            {/* New badge */}
+            {product.isNew && (
+              <span className="absolute top-4 right-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-emerald-200">
+                ✨ NEW
+              </span>
+            )}
+
+            {/* Wishlist */}
+            <button
+              onClick={() => setWishlisted((w) => !w)}
+              className="absolute right-4 bottom-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110 hover:bg-white"
+              title="Add to Wishlist"
+            >
+              {wishlisted ? (
+                <FaHeart className="h-5 w-5 text-rose-500" />
+              ) : (
+                <FaRegHeart className="h-5 w-5 text-slate-400" />
+              )}
+            </button>
+          </div>
+
+          {/* Perks 2×2 */}
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {PERKS.map((perk, i) => (
+              <div
+                key={i}
+                className={`flex items-start gap-2 rounded-xl border ${perk.border} ${perk.bg} px-3 py-2.5`}
+              >
+                <span className={`mt-0.5 flex-shrink-0 ${perk.color}`}>
+                  {perk.icon}
+                </span>
+                <div>
+                  <p className={`font-productSansBold text-xs ${perk.color}`}>
+                    {perk.label}
+                  </p>
+                  <p className="font-productSansLight text-[10px] text-slate-500">
+                    {perk.sub}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Description below perks (Desktop only) */}
+          {product.description && (
+            <div className="laptop:block mt-3 hidden rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
+              <p className="font-productSansBold mb-1 text-[11px] tracking-wider text-slate-400 uppercase">
+                About this product
+              </p>
+              <p className="font-productSansLight text-sm leading-relaxed text-slate-700">
+                {product.description}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Perks 2×2 */}
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {PERKS.map((perk, i) => (
-            <div
-              key={i}
-              className={`flex items-start gap-2 rounded-xl border ${perk.border} ${perk.bg} px-3 py-2.5`}
-            >
-              <span className={`mt-0.5 flex-shrink-0 ${perk.color}`}>
-                {perk.icon}
-              </span>
-              <div>
-                <p className={`font-productSansBold text-xs ${perk.color}`}>
-                  {perk.label}
-                </p>
-                <p className="font-productSansLight text-[10px] text-slate-500">
-                  {perk.sub}
-                </p>
+        {/* ══ Right: Details ═════════════════════════════════════════ */}
+        <div className="min-w-0 flex-1 space-y-5">
+          {/* Brand row */}
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
+              <FaMedal className="h-3 w-3 text-amber-400" />
+              Bislig iCenter
+            </span>
+            <span className="flex items-center gap-1 text-xs text-blue-600">
+              <MdVerified className="h-4 w-4" />
+              Authorized Reseller
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            {/* Product name */}
+            <h3 className="text-2xl leading-tight font-bold">{product.name}</h3>
+
+            {/* Social-proof trust strip */}
+            <TrustStrip product={product} />
+          </div>
+
+          <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
+
+          {/* Price */}
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="font-productSansBold text-3xl text-slate-900">
+              {formatPHP(effectiveNewP, product.newPrice)}
+            </span>
+            {hasDiscount && (
+              <>
+                <span className="font-productSansLight text-base text-slate-400 line-through">
+                  {formatPHP(effectiveOldP, product.oldPrice)}
+                </span>
+                <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-600 ring-1 ring-rose-200">
+                  Save {discountPercent}%
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Savings callout */}
+          {hasDiscount && (
+            <div className="flex w-fit items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-2 ring-1 ring-amber-200">
+              <span className="text-sm">💰</span>
+              <p className="font-productSansBold text-xs text-amber-700">
+                You save{" "}
+                {formatPHP(
+                  Number.isFinite(effectiveOldP) &&
+                    Number.isFinite(effectiveNewP)
+                    ? effectiveOldP - effectiveNewP
+                    : null,
+                  "",
+                )}{" "}
+                on this deal!
+              </p>
+            </div>
+          )}
+
+          {/* Available Variation */}
+          {product.stockItems && product.stockItems.length > 0 && (
+            <div className="space-y-2">
+              <h5 className="text-sm font-semibold text-slate-800">
+                Available Variation
+              </h5>
+              <div className="flex flex-wrap gap-2">
+                {product.stockItems.map((item, index) => {
+                  const formattedVar = formatVariant(item.variant);
+                  const label = `${formattedVar} | ${item.color}`;
+                  const isSelected =
+                    selectedVariant === item.variant &&
+                    selectedColor === item.color;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setSelectedVariant(item.variant);
+                        setSelectedColor(item.color);
+                      }}
+                      className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs transition-all duration-200 ${
+                        isSelected
+                          ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
+                          : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Description below perks (Desktop only) */}
-        {product.description && (
-          <div className="hidden laptop:block mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
-            <p className="font-productSansBold mb-1 text-[11px] uppercase tracking-wider text-slate-400">
-              About this product
-            </p>
-            <p className="font-productSansLight text-sm leading-relaxed text-slate-700">
-              {product.description}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* ══ Right: Details ═════════════════════════════════════════ */}
-      <div className="min-w-0 flex-1 space-y-5">
-        {/* Brand row */}
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-            <FaMedal className="h-3 w-3 text-amber-400" />
-            Bislig iCenter
-          </span>
-          <span className="flex items-center gap-1 text-xs text-blue-600">
-            <MdVerified className="h-4 w-4" />
-            Authorized Reseller
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          {/* Product name */}
-          <h3 className="leading-tight text-2xl font-bold">{product.name}</h3>
-
-          {/* Social-proof trust strip */}
-          <TrustStrip product={product} />
-        </div>
-
-        <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
-
-        {/* Price */}
-        <div className="flex flex-wrap items-baseline gap-2">
-          <span className="font-productSansBold text-3xl text-slate-900">
-            {formatPHP(effectiveNewP, product.newPrice)}
-          </span>
-          {hasDiscount && (
-            <>
-              <span className="font-productSansLight text-base text-slate-400 line-through">
-                {formatPHP(effectiveOldP, product.oldPrice)}
-              </span>
-              <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-600 ring-1 ring-rose-200">
-                Save {discountPercent}%
-              </span>
-            </>
           )}
-        </div>
 
-        {/* Savings callout */}
-        {hasDiscount && (
-          <div className="flex w-fit items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-2 ring-1 ring-amber-200">
-            <span className="text-sm">💰</span>
-            <p className="font-productSansBold text-xs text-amber-700">
-              You save{" "}
-              {formatPHP(
-                Number.isFinite(effectiveOldP) && Number.isFinite(effectiveNewP)
-                  ? effectiveOldP - effectiveNewP
-                  : null,
-                "",
-              )}{" "}
-              on this deal!
-            </p>
-          </div>
-        )}
-
-        {/* Available Variation */}
-        {product.stockItems && product.stockItems.length > 0 && (
-          <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-slate-800">Available Variation</h5>
-            <div className="flex flex-wrap gap-2">
-              {product.stockItems.map((item, index) => {
-                const formattedVar = formatVariant(item.variant);
-                const label = `${formattedVar} | ${item.color}`;
-                const isSelected = selectedVariant === item.variant && selectedColor === item.color;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setSelectedVariant(item.variant);
-                      setSelectedColor(item.color);
-                    }}
-                    className={`cursor-pointer rounded-lg border px-3 py-1.5 text-xs transition-all duration-200 ${
-                      isSelected
-                        ? "font-productSansBold border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-200"
-                        : "font-productSansReg border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-blue-50"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+          {/* Product meta (category / availability) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="font-productSansBold text-xs text-slate-700">
+                Category:
+              </span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600 capitalize">
+                {product.category}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-productSansBold text-xs text-slate-700">
+                Stock:
+              </span>
+              <span
+                className={`flex items-center gap-1.5 text-xs font-semibold ${currentStock > 0 ? (currentStock <= (product.lowStockThreshold || 5) ? "text-amber-600" : "text-emerald-600") : "text-rose-600"}`}
+              >
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${currentStock > 0 ? (currentStock <= (product.lowStockThreshold || 5) ? "animate-pulse bg-amber-500" : "animate-pulse bg-emerald-500") : "bg-rose-500"}`}
+                />
+                {currentStock > 0
+                  ? `${currentStock} items left`
+                  : "Out of Stock"}
+              </span>
             </div>
           </div>
-        )}
 
-        {/* Product meta (category / availability) */}
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span className="font-productSansBold text-xs text-slate-700">
-              Category:
-            </span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600 capitalize">
-              {product.category}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="font-productSansBold text-xs text-slate-700">
-              Stock:
-            </span>
-            <span className={`flex items-center gap-1.5 text-xs font-semibold ${currentStock > 0 ? (currentStock <= (product.lowStockThreshold || 5) ? 'text-amber-600' : 'text-emerald-600') : 'text-rose-600'}`}>
-              <span className={`inline-block h-1.5 w-1.5 rounded-full ${currentStock > 0 ? (currentStock <= (product.lowStockThreshold || 5) ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500 animate-pulse') : 'bg-rose-500'}`} />
-              {currentStock > 0 ? `${currentStock} items left` : 'Out of Stock'}
-            </span>
-          </div>
-        </div>
+          {/* Quantity + Add to Cart */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-0 overflow-hidden rounded-full border-2 border-slate-200">
+              <button
+                onClick={() => handleQuantityChange("decrement")}
+                className="font-robotoBold laptop:text-lg laptop:size-11 size-8 text-sm text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-40"
+                disabled={quantity <= 1}
+              >
+                −
+              </button>
+              <span className="font-robotoBold laptop:text-lg w-10 text-center text-sm text-slate-900 select-none">
+                {quantity}
+              </span>
+              <button
+                onClick={() => handleQuantityChange("increment")}
+                className="font-robotoBold laptop:text-lg laptop:size-11 size-8 text-sm text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-40"
+                disabled={quantity >= currentStock}
+              >
+                +
+              </button>
+            </div>
 
-        {/* Quantity + Add to Cart */}
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-0 overflow-hidden rounded-full border-2 border-slate-200">
             <button
-              onClick={() => handleQuantityChange("decrement")}
-              className="font-robotoBold h-11 w-11 text-lg text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-40"
-              disabled={quantity <= 1}
+              id="product-add-to-cart-btn"
+              onClick={(e) => handleAddToCart(e.currentTarget)}
+              disabled={currentStock <= 0}
+              className={`btn-black laptop:text-base laptop:py-3.5 inline-flex flex-1 items-center justify-center gap-2.5 px-5 py-2.5 text-xs text-nowrap transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${addedPulse ? "scale-95 opacity-80" : ""}`}
             >
-              −
-            </button>
-            <span className="font-robotoBold w-10 text-center text-lg text-slate-900 select-none">
-              {quantity}
-            </span>
-            <button
-              onClick={() => handleQuantityChange("increment")}
-              className="font-robotoBold h-11 w-11 text-lg text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-40"
-              disabled={quantity >= currentStock}
-            >
-              +
+              <FaCartPlus className="laptop:size-5 size-3" />
+              {currentStock > 0 ? "ADD TO CART" : "SOLD OUT"}
             </button>
           </div>
 
-          <button
-            id="product-add-to-cart-btn"
-            onClick={(e) => handleAddToCart(e.currentTarget)}
-            disabled={currentStock <= 0}
-            className={`btn-black inline-flex flex-1 items-center justify-center gap-2.5 px-8 py-3.5 text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${addedPulse ? "scale-95 opacity-80" : ""}`}
-          >
-            <FaCartPlus className="h-5 w-5" />
-            {currentStock > 0 ? "ADD TO CART" : "SOLD OUT"}
-          </button>
-        </div>
-
-        {/* Trust badges row */}
-        <div className="flex flex-wrap items-center gap-3 pt-1">
-          <span className="flex items-center gap-1.5 text-xs text-slate-500">
-            <FaLock className="h-3.5 w-3.5 text-slate-400" />
-            Secure Checkout
-          </span>
-          <span className="text-slate-200">|</span>
-          <span className="flex items-center gap-1.5 text-xs text-slate-500">
-            <FaCheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-            Genuine Product Guaranteed
-          </span>
-          <span className="text-slate-200">|</span>
-          <span className="flex items-center gap-1.5 text-xs text-slate-500">
-            <FaShieldAlt className="h-3.5 w-3.5 text-blue-400" />
-            Buyer Protection
-          </span>
-        </div>
-
-        <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
-
-        {/* ── Specifications & Mobile Description ──────────────────── */}
-        {product.description && (
-          <div className="laptop:hidden mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
-            <p className="font-productSansBold mb-1 text-[11px] uppercase tracking-wider text-slate-400">
-              About this product
-            </p>
-            <p className="font-productSansLight text-sm leading-relaxed text-slate-700">
-              {product.description}
-            </p>
+          {/* Trust badges row */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <span className="flex items-center gap-1.5 text-xs text-slate-500">
+              <FaLock className="h-3.5 w-3.5 text-slate-400" />
+              Secure Checkout
+            </span>
+            <span className="text-slate-200">|</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500">
+              <FaCheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+              Genuine Product Guaranteed
+            </span>
+            <span className="text-slate-200">|</span>
+            <span className="flex items-center gap-1.5 text-xs text-slate-500">
+              <FaShieldAlt className="h-3.5 w-3.5 text-blue-400" />
+              Buyer Protection
+            </span>
           </div>
-        )}
 
-        {hasSpecs && (
-          <SpecsTable specifications={product.specifications} />
-        )}
+          <div className="h-px bg-gradient-to-r from-slate-200 via-slate-100 to-transparent" />
 
+          {/* ── Specifications & Mobile Description ──────────────────── */}
+          {product.description && (
+            <div className="laptop:hidden mt-3 rounded-2xl border-l-4 border-blue-500 bg-slate-50 px-4 py-3">
+              <p className="font-productSansBold mb-1 text-[11px] tracking-wider text-slate-400 uppercase">
+                About this product
+              </p>
+              <p className="font-productSansLight text-sm leading-relaxed text-slate-700">
+                {product.description}
+              </p>
+            </div>
+          )}
+
+          {hasSpecs && <SpecsTable specifications={product.specifications} />}
+        </div>
       </div>
-    </div>
     </>
   );
 };
