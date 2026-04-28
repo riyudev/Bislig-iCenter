@@ -1,5 +1,6 @@
 import Order from "../models/Order.js";
 import Product from "../models/Product.js";
+import { sendOutForDeliveryEmail } from "../utils/emailService.js";
 
 export const getOrders = async (req, res, next) => {
   try {
@@ -87,6 +88,13 @@ export const updateOrderStatus = async (req, res, next) => {
       }
 
       await order.updateStatus(status);
+
+      // Send "out for delivery" email notification (non-blocking)
+      if (status === "out_for_delivery") {
+        sendOutForDeliveryEmail(order).catch((err) =>
+          console.error("[Email] Failed to send out-for-delivery notification:", err)
+        );
+      }
 
       // Perform synchronous updates to products
       if (requiresStockDeduction || requiresStockAddition || requiresSalesAddition || requiresSalesDeduction) {

@@ -1,5 +1,40 @@
 import nodemailer from "nodemailer";
 
+/**
+ * Sends an "Out for Delivery" notification email to the customer.
+ * The message differs based on the payment method:
+ *  - COD:    asks the customer to prepare the exact amount.
+ *  - PayPal: informs the customer that their paid order is on the way.
+ *
+ * @param {Object} order - The Mongoose Order document
+ */
+export const sendOutForDeliveryEmail = async (order) => {
+  const { orderNumber, customer, paymentMethod } = order;
+
+  let subject, text;
+
+  if (paymentMethod === "cod") {
+    subject = `Your Order ${orderNumber} is Out for Delivery`;
+    text =
+      `Hi ${customer.name},\n\n` +
+      `Your COD order ${orderNumber} is out for delivery. ` +
+      `Please prepare the exact amount to pay upon receiving your package.\n\n` +
+      `Thank you for shopping with Bislig iCenter!\n\n` +
+      `— The Bislig iCenter Team`;
+  } else {
+    // paypal (already paid)
+    subject = `Your Order ${orderNumber} is Out for Delivery`;
+    text =
+      `Hi ${customer.name},\n\n` +
+      `Your paid order ${orderNumber} is out for delivery. ` +
+      `Please wait for the delivery rider to arrive and claim your package.\n\n` +
+      `Thank you for shopping with Bislig iCenter!\n\n` +
+      `— The Bislig iCenter Team`;
+  }
+
+  return sendEmail({ to: customer.email, subject, text });
+};
+
 export const sendEmail = async ({ to, bcc, subject, text }) => {
   // If BREVO_API_KEY is provided, bypass SMTP (to avoid Render free tier block) and use Brevo's HTTP API.
   if (process.env.BREVO_API_KEY) {

@@ -138,7 +138,7 @@ function Checkout() {
     try {
       const order = await actions.order.capture();
       toast.success("Payment Successful! Processing order...");
-      await handlePlaceOrder(order); 
+      await handlePlaceOrder(order);
     } catch (error) {
       toast.error("Payment failed or was cancelled.");
       console.error("PayPal Capture Error: ", error);
@@ -147,9 +147,17 @@ function Checkout() {
 
   const onPayPalClick = (data, actions) => {
     if (!hasCompleteProfile) {
-      const fullName = `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
-      if (!fullName || !shippingInfo.email || !shippingInfo.mobileNumber || !shippingInfo.address) {
-        toast.error("Please fill in all shipping information before paying with PayPal.");
+      const fullName =
+        `${shippingInfo.firstName.trim()} ${shippingInfo.lastName.trim()}`.trim();
+      if (
+        !fullName ||
+        !shippingInfo.email ||
+        !shippingInfo.mobileNumber ||
+        !shippingInfo.address
+      ) {
+        toast.error(
+          "Please fill in all shipping information before paying with PayPal.",
+        );
         return actions.reject();
       }
     }
@@ -235,7 +243,7 @@ function Checkout() {
         <div className="absolute top-40 -left-20 h-[400px] w-[400px] rounded-full bg-cyan-400/10 blur-[100px]" />
       </div>
 
-      <div className="laptop:pt-20 laptop:pb-12 relative z-10 mx-auto max-w-7xl px-4 pt-8 pb-8 sm:px-6 lg:px-8">
+      <div className="laptop:pt-10 laptop:pb-12 relative z-10 mx-auto max-w-7xl px-4 pt-8 pb-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="font-productSansReg laptop:mb-8 mb-5">
           <Link
@@ -499,7 +507,7 @@ function Checkout() {
                         src={
                           product.image?.startsWith("http")
                             ? product.image
-                            : (product.image || undefined)
+                            : product.image || undefined
                         }
                         alt={product.name}
                         className="h-full w-full object-contain"
@@ -541,7 +549,7 @@ function Checkout() {
                 </div>
 
                 {paymentMethod === "PAYPAL" ? (
-                  <div className="z-0 w-full relative h-[48px]">
+                  <div className="relative z-0 h-[48px] w-full">
                     <PayPalButtons
                       createOrder={createPayPalOrder}
                       onApprove={onPayPalApprove}

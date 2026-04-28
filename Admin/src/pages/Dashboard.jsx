@@ -74,6 +74,7 @@ const Dashboard = () => {
           <div className="flex gap-3">
             <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
             <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-28 animate-pulse"></div>
           </div>
         </div>
 
@@ -234,11 +235,23 @@ const Dashboard = () => {
         </div>
 
         <div className="flex gap-3">
-          <Link className="btn-black px-5 py-2" to="/products">
+          <Link
+            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+            to="/products"
+          >
             Products
           </Link>
-          <Link className="btn-black px-5 py-2" to="/orders">
+          <Link
+            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+            to="/orders"
+          >
             Orders
+          </Link>
+          <Link
+            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+            to="/sales-report"
+          >
+            Sales Report
           </Link>
         </div>
       </div>
