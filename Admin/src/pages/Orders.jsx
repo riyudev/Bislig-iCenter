@@ -9,7 +9,7 @@ const Orders = () => {
     pages: 1,
     page: 1,
   });
-  const [filter, setFilter] = useState({ search: "", status: "" });
+  const [filter, setFilter] = useState({ search: "", status: "", paymentMethod: "" });
 
   const fetchOrders = useCallback(async (page = 1) => {
     const query = new URLSearchParams({
@@ -17,6 +17,7 @@ const Orders = () => {
       limit: 20,
       ...(filter.search && { search: filter.search }),
       ...(filter.status && { status: filter.status }),
+      ...(filter.paymentMethod && { paymentMethod: filter.paymentMethod }),
     }).toString();
 
     setState((p) => ({ ...p, loading: true, error: null }));
@@ -41,12 +42,12 @@ const Orders = () => {
         error: err?.message || "Failed to load orders",
       }));
     }
-  }, [filter.search, filter.status]);
+  }, [filter.search, filter.status, filter.paymentMethod]);
 
   useEffect(() => {
     fetchOrders(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter.status]);
+  }, [filter.status, filter.paymentMethod]);
 
   const updateStatus = async (id, status) => {
     try {
@@ -94,7 +95,7 @@ const Orders = () => {
         <p className="text-myblack/70">Manage COD/manual orders.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <input
           className="rounded-xl border border-myblack/10 bg-white px-4 py-3"
           placeholder="Search by order #, name, item..."
@@ -118,6 +119,15 @@ const Orders = () => {
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </select>
+        <select
+          className="rounded-xl border border-myblack/10 bg-white px-4 py-3"
+          value={filter.paymentMethod}
+          onChange={(e) => setFilter((p) => ({ ...p, paymentMethod: e.target.value }))}
+        >
+          <option value="">All Payment Methods</option>
+          <option value="paypal">PayPal</option>
+          <option value="cod">Cash on Delivery</option>
+        </select>
       </div>
 
       {state.error ? (
@@ -140,6 +150,7 @@ const Orders = () => {
                 <th className="px-3 py-4 font-productSansBold text-left">Customer</th>
                 <th className="px-3 py-4 font-productSansBold text-left">Items</th>
                 <th className="px-3 py-4 font-productSansBold text-left">Total</th>
+                <th className="px-3 py-4 font-productSansBold text-left">Payment Method</th>
                 <th className="px-3 py-4 font-productSansBold text-left">Status</th>
                 <th className="px-3 py-4 font-productSansBold text-left">Action</th>
               </tr>
@@ -147,13 +158,13 @@ const Orders = () => {
             <tbody className="divide-y divide-slate-200">
               {state.loading ? (
                 <tr>
-                  <td className="px-4 py-6" colSpan={7}>
+                  <td className="px-4 py-6" colSpan={8}>
                     Loading...
                   </td>
                 </tr>
               ) : state.orders.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6" colSpan={7}>
+                  <td className="px-4 py-6" colSpan={8}>
                     No orders.
                   </td>
                 </tr>
@@ -209,6 +220,29 @@ const Orders = () => {
                     </td>
                     <td className="px-3 py-3 text-sm font-medium text-myblack">
                       ₱{Number(o.total || 0).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-3">
+                      {o.paymentMethod === "paypal" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c1.379 3.034.682 6.028-2.14 7.865-1.798 1.17-4.013 1.394-5.974 1.394H10.67l-1.181 7.487h3.237c.459 0 .85-.334.922-.787l.038-.193.733-4.648.047-.256a.932.932 0 0 1 .922-.787h.58c3.76 0 6.703-1.528 7.561-5.946.36-1.848.173-3.394-.707-4.588z"/>
+                          </svg>
+                          PayPal
+                        </span>
+                      )}
+                      {o.paymentMethod === "cod" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-semibold text-green-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 1C6.477 1 2 5.477 2 11s4.477 10 10 10 10-4.477 10-10S17.523 1 12 1zm.75 14.5h-1.5v-1.5h1.5v1.5zm0-3h-1.5V7h1.5v5.5z"/>
+                          </svg>
+                          Cash on Delivery
+                        </span>
+                      )}
+                      {!o.paymentMethod && (
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+                          —
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-3">
                       <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-700">

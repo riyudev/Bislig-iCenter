@@ -3,9 +3,10 @@ import Product from "../models/Product.js";
 
 export const getOrders = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, status, search } = req.query;
+    const { page = 1, limit = 20, status, search, paymentMethod } = req.query;
     const filter = {};
     if (status) filter.status = status;
+    if (paymentMethod) filter.paymentMethod = paymentMethod;
 
     if (search) {
       filter.$or = [
