@@ -10,6 +10,7 @@ import Users from "./pages/Users.jsx";
 import Login from "./pages/Login.jsx";
 import NewsLetters from "./pages/NewsLetters.jsx";
 import SalesReport from "./pages/SalesReport.jsx";
+import RevenueBreakdown from "./pages/RevenueBreakdown.jsx";
 
 function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(!!localStorage.getItem("admin_token"));
@@ -36,6 +37,7 @@ function App() {
               <Route path="users" element={<Users />} />
               <Route path="newsletters" element={<NewsLetters />} />
               <Route path="sales-report" element={<SalesReport />} />
+              <Route path="revenue-breakdown" element={<RevenueBreakdown />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Route>
           </Routes>

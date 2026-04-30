@@ -56,6 +56,7 @@ router.use(adminProtect);
 router.use(requireAdmin);
 
 router.get("/dashboard/stats", orderController.getDashboardStats);
+router.get("/dashboard/revenue-breakdown", orderController.getRevenueBreakdown);
 
 // Upload product image
 router.post("/products/upload-image", upload.single("image"), (req, res) => {

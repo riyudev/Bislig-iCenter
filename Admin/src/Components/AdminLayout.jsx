@@ -9,6 +9,7 @@ import {
   FaSignOutAlt,
   FaEnvelope,
   FaChartBar,
+  FaChartPie,
 } from "react-icons/fa";
 
 const AdminLayout = ({ onLogout }) => {
@@ -20,6 +21,7 @@ const AdminLayout = ({ onLogout }) => {
     { path: "/products", label: "Products", icon: FaBox },
     { path: "/orders", label: "Orders", icon: FaShoppingCart },
     { path: "/sales-report", label: "Sales Report", icon: FaChartBar },
+    { path: "/revenue-breakdown", label: "Revenue Breakdown", icon: FaChartPie },
     { path: "/users", label: "Users", icon: FaUsers },
     { path: "/newsletters", label: "News Letters", icon: FaEnvelope },
   ];

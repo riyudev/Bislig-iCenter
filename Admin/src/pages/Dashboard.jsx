@@ -275,6 +275,14 @@ const Dashboard = () => {
           );
         })}
       </div>
+      <div className="flex justify-end -mt-3">
+        <Link
+          to="/revenue-breakdown"
+          className="text-xs text-blue-600 hover:underline"
+        >
+          View detailed product breakdown →
+        </Link>
+      </div>
 
       {/* MAIN CONTENT */}
       <div className="grid grid-cols-3 gap-6 flex-1">

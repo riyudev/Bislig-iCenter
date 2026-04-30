@@ -339,3 +339,139 @@ export const getDashboardStats = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getRevenueBreakdown = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Week: Monday of the current week
+    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon ...
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() + diffToMonday);
+
+    // Month: 1st of current month
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const validStatuses = ["shipped", "out_for_delivery", "delivered", "completed"];
+
+    /**
+     * Pipeline that:
+     * 1. Matches orders in the given date window
+     * 2. Unwinds items
+     * 3. Groups by productId + name + variant + color  → variant-level row
+     * 4. Groups again by productId + name              → product-level row with nested variants
+     * 5. Sorts by product-level totalSales desc
+     */
+    const buildPipeline = (from) => [
+      {
+        $match: {
+          status: { $in: validStatuses },
+          orderDate: { $gte: from },
+        },
+      },
+      { $unwind: "$items" },
+      // --- Step 1: group by product + variant + color ---
+      {
+        $group: {
+          _id: {
+            productId: "$items.productId",
+            name: "$items.name",
+            variant: "$items.variant",
+            color: "$items.color",
+          },
+          totalQty: { $sum: "$items.quantity" },
+          totalSales: { $sum: "$items.totalPrice" },
+          unitPrice: { $first: "$items.unitPrice" },
+        },
+      },
+      // --- Step 2: roll up to product level, keep variants array ---
+      {
+        $group: {
+          _id: { productId: "$_id.productId", name: "$_id.name" },
+          totalQty: { $sum: "$totalQty" },
+          totalSales: { $sum: "$totalSales" },
+          variants: {
+            $push: {
+              variant: "$_id.variant",
+              color: "$_id.color",
+              totalQty: "$totalQty",
+              totalSales: "$totalSales",
+              unitPrice: "$unitPrice",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          productId: "$_id.productId",
+          name: "$_id.name",
+          totalQty: 1,
+          totalSales: 1,
+          // Sort each product's variants by totalSales desc
+          variants: {
+            $sortArray: { input: "$variants", sortBy: { totalSales: -1 } },
+          },
+        },
+      },
+      { $sort: { totalSales: -1 } },
+    ];
+
+    const [todayItems, weekItems, monthItems, summaryAgg] = await Promise.all([
+      Order.aggregate(buildPipeline(today)),
+      Order.aggregate(buildPipeline(weekStart)),
+      Order.aggregate(buildPipeline(monthStart)),
+      // Revenue totals (matching dashboard)
+      Order.aggregate([
+        {
+          $facet: {
+            today: [
+              { $match: { status: { $in: validStatuses }, orderDate: { $gte: today } } },
+              { $group: { _id: null, total: { $sum: "$total" }, orders: { $sum: 1 } } },
+            ],
+            week: [
+              { $match: { status: { $in: validStatuses }, orderDate: { $gte: weekStart } } },
+              { $group: { _id: null, total: { $sum: "$total" }, orders: { $sum: 1 } } },
+            ],
+            month: [
+              { $match: { status: { $in: validStatuses }, orderDate: { $gte: monthStart } } },
+              { $group: { _id: null, total: { $sum: "$total" }, orders: { $sum: 1 } } },
+            ],
+          },
+        },
+      ]),
+    ]);
+
+    const s = summaryAgg[0];
+
+    res.json({
+      summary: {
+        today: {
+          revenue: s.today[0]?.total || 0,
+          orders: s.today[0]?.orders || 0,
+        },
+        week: {
+          revenue: s.week[0]?.total || 0,
+          orders: s.week[0]?.orders || 0,
+        },
+        month: {
+          revenue: s.month[0]?.total || 0,
+          orders: s.month[0]?.orders || 0,
+        },
+      },
+      todayItems,
+      weekItems,
+      monthItems,
+      periods: {
+        today: today.toISOString(),
+        weekStart: weekStart.toISOString(),
+        monthStart: monthStart.toISOString(),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
