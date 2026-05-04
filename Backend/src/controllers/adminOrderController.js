@@ -419,10 +419,49 @@ export const getRevenueBreakdown = async (req, res, next) => {
       { $sort: { totalSales: -1 } },
     ];
 
-    const [todayItems, weekItems, monthItems, summaryAgg] = await Promise.all([
+    const csvPipeline = [
+      {
+        $match: {
+          status: { $in: validStatuses },
+          orderDate: { $gte: monthStart },
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: {
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate", timezone: "+08:00" } },
+            productId: "$items.productId",
+            name: "$items.name",
+            variant: "$items.variant",
+            color: "$items.color",
+          },
+          totalQty: { $sum: "$items.quantity" },
+          totalSales: { $sum: "$items.totalPrice" },
+          unitPrice: { $first: "$items.unitPrice" },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id.date",
+          productId: "$_id.productId",
+          name: "$_id.name",
+          variant: "$_id.variant",
+          color: "$_id.color",
+          totalQty: 1,
+          totalSales: 1,
+          unitPrice: 1,
+        },
+      },
+      { $sort: { date: -1, totalSales: -1 } },
+    ];
+
+    const [todayItems, weekItems, monthItems, csvItems, summaryAgg] = await Promise.all([
       Order.aggregate(buildPipeline(today)),
       Order.aggregate(buildPipeline(weekStart)),
       Order.aggregate(buildPipeline(monthStart)),
+      Order.aggregate(csvPipeline),
       // Revenue totals (matching dashboard)
       Order.aggregate([
         {
@@ -464,6 +503,7 @@ export const getRevenueBreakdown = async (req, res, next) => {
       todayItems,
       weekItems,
       monthItems,
+      csvItems,
       periods: {
         today: today.toISOString(),
         weekStart: weekStart.toISOString(),

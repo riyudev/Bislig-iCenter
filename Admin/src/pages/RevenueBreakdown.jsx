@@ -11,6 +11,7 @@ import {
   FaSortAmountUp,
   FaChevronDown,
   FaChevronRight,
+  FaDownload,
 } from "react-icons/fa";
 import { fetchJSON } from "../utils/fetchWithRetry";
 
@@ -467,6 +468,61 @@ const RevenueBreakdown = () => {
     },
   ];
 
+  const downloadCSV = () => {
+    if (!data) return;
+
+    const rows = [];
+    rows.push(["Date", "Product Name", "Variant", "Color", "Unit Price", "Qty Sold", "Total Sales"]);
+
+    const formatRowDate = (dateStr) => {
+      return new Date(dateStr).toLocaleDateString("en-PH", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
+
+    if (data.csvItems && data.csvItems.length > 0) {
+      data.csvItems.forEach((item) => {
+        rows.push([
+          `"${formatRowDate(item.date)}"`,
+          `"${(item.name || "").replace(/"/g, '""')}"`,
+          `"${(item.variant || "").replace(/"/g, '""')}"`,
+          `"${(item.color || "").replace(/"/g, '""')}"`,
+          item.unitPrice || 0,
+          item.totalQty || 0,
+          item.totalSales || 0,
+        ]);
+      });
+
+      // Add overall total row
+      const totalQty = data.csvItems.reduce((acc, item) => acc + (item.totalQty || 0), 0);
+      rows.push(["", "", "", "", "", "", ""]);
+      rows.push([
+        '"OVERALL TOTAL"',
+        '""',
+        '""',
+        '""',
+        '""',
+        totalQty,
+        summary.month.revenue || 0,
+      ]);
+    }
+
+    const csvContent = rows.map((e) => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute(
+      "download",
+      `revenue_breakdown_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col gap-6">
       {/* HEADER */}
@@ -488,6 +544,12 @@ const RevenueBreakdown = () => {
           >
             ← Dashboard
           </Link>
+          <button
+            onClick={downloadCSV}
+            className="px-4 py-2 flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+          >
+            <FaDownload /> Download CSV
+          </button>
           <button
             onClick={load}
             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
