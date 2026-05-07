@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { fetchJSON } from "../utils/fetchWithRetry";
 
+
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +43,7 @@ const Dashboard = () => {
   useEffect(() => {
     load();
   }, [load]);
+
 
   const currency = (value) => {
     const n = Number(value || 0);
@@ -239,7 +241,7 @@ const Dashboard = () => {
             className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
             to="/products"
           >
-            Products
+            Inventory
           </Link>
           <Link
             className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"

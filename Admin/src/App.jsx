@@ -17,6 +17,8 @@ function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
+    // Clear the low-stock alert flag so it shows again on next login
+    sessionStorage.removeItem("admin_low_stock_shown");
     setIsAdminLoggedIn(false);
   };
 
