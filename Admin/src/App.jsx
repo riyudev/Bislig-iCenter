@@ -3,7 +3,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./Components/AdminLayout.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Products from "./pages/Products.jsx";
+import Inventory from "./pages/Inventory.jsx";
 import Orders from "./pages/Orders.jsx";
 import Shop from "./pages/Shop.jsx";
 import Users from "./pages/Users.jsx";
@@ -33,7 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<AdminLayout onLogout={handleLogout} />}>
               <Route index element={<Dashboard />} />
-              <Route path="products" element={<Products />} />
+              <Route path="products" element={<Inventory />} />
               <Route path="orders" element={<Orders />} />
               <Route path="shop" element={<Shop />} />
               <Route path="users" element={<Users />} />
