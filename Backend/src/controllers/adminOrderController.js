@@ -194,10 +194,20 @@ export const getDashboardStats = async (req, res, next) => {
   try {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // Week: Monday of the current week (same logic as revenue breakdown)
+    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon ...
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() + diffToMonday);
+
+    // Month: 1st of the current calendar month (resets each month)
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
     const yearStart = new Date(now.getFullYear(), 0, 1);
     const nextYearStart = new Date(now.getFullYear() + 1, 0, 1);
+
+    // Revenue is counted for all progressed statuses (shipped through completed)
     const validOrderStatuses = ["shipped", "out_for_delivery", "delivered", "completed"];
 
     // Optimized queries using aggregation facets
@@ -215,11 +225,11 @@ export const getDashboardStats = async (req, res, next) => {
               { $count: "count" }
             ],
             week: [
-              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: weekAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: weekStart } } },
               { $count: "count" }
             ],
             month: [
-              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: monthAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: monthStart } } },
               { $count: "count" }
             ],
             pending: [
@@ -243,11 +253,11 @@ export const getDashboardStats = async (req, res, next) => {
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             week: [
-              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: weekAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: weekStart } } },
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             month: [
-              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: monthAgo } } },
+              { $match: { status: { $in: validOrderStatuses }, orderDate: { $gte: monthStart } } },
               { $group: { _id: null, total: { $sum: "$total" } } }
             ],
             byMonth: [
@@ -354,6 +364,7 @@ export const getRevenueBreakdown = async (req, res, next) => {
     // Month: 1st of current month
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
+    // Revenue is counted for all progressed statuses (shipped through completed)
     const validStatuses = ["shipped", "out_for_delivery", "delivered", "completed"];
 
     /**
